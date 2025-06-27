@@ -1,0 +1,315 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  Slide,
+} from "@mui/material";
+import { BeatLoader } from "react-spinners";
+import toast from "react-hot-toast";
+import { BASE_URL } from "@/services/baseUrl";
+
+const Transition = Slide;
+
+const validationSchema = yup.object().shape({
+  name: yup.string().required("Parameter name is required").trim(),
+  description: yup.string().trim(),
+  ratable_by_client: yup.number().default(0),
+  ratable_by_manager: yup.number().default(0),
+  ratable_by_self: yup.number().default(0),
+});
+
+const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      name: "",
+      description: "",
+      ratable_by_client: 0,
+      ratable_by_manager: 0,
+      ratable_by_self: 0,
+    },
+    resolver: yupResolver(validationSchema),
+  });
+
+  useEffect(() => {
+    if (!open) {
+      reset({
+        name: "",
+        description: "",
+        ratable_by_client: 0,
+        ratable_by_manager: 0,
+        ratable_by_self: 0,
+      });
+      return;
+    }
+
+    if (parameter) {
+      reset({
+        name: parameter.name || "",
+        description: parameter.description || "",
+        ratable_by_client: parameter.ratable_by_client || 0,
+        ratable_by_manager: parameter.ratable_by_manager || 0,
+        ratable_by_self: parameter.ratable_by_self || 0,
+      });
+    } else {
+      reset({
+        name: "",
+        description: "",
+        ratable_by_client: 0,
+        ratable_by_manager: 0,
+        ratable_by_self: 0,
+      });
+    }
+  }, [parameter, open, reset]);
+
+  const onSubmit = async (formData) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const payload = {
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+        ratable_by_client: formData.ratable_by_client ? 1 : 0,
+        ratable_by_manager: formData.ratable_by_manager ? 1 : 0,
+        ratable_by_self: formData.ratable_by_self ? 1 : 0,
+      };
+
+      const method = parameter ? "PUT" : "POST";
+      const url = parameter
+        ? `${BASE_URL}/api/employee-rating-parameter/update/${parameter.id}`
+        : `${BASE_URL}/api/employee-rating-parameter/create`;
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message ||
+            `Failed to ${parameter ? "update" : "create"} parameter`
+        );
+      }
+
+      const data = await response.json();
+      toast.success(
+        data.message ||
+          `Parameter ${parameter ? "updated" : "created"} successfully!`,
+        {
+          position: "top-right",
+        }
+      );
+
+      onSuccess();
+      onClose();
+    } catch (err) {
+      console.error(
+        `Error ${parameter ? "updating" : "creating"} parameter:`,
+        err
+      );
+      setError(
+        err.message ||
+          `Failed to ${
+            parameter ? "update" : "create"
+          } parameter. Please try again.`
+      );
+      toast.error(
+        err.message ||
+          `Failed to ${parameter ? "update" : "create"} parameter.`,
+        {
+          position: "top-right",
+        }
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      TransitionComponent={Transition}
+      transitionDuration={500}
+      TransitionProps={{ direction: "up" }}
+      sx={{
+        "& .MuiDialog-paper": {
+          margin: 0,
+          position: "fixed",
+          right: 0,
+          top: 0,
+          bottom: 0,
+          width: "38%",
+          maxWidth: "none",
+          height: "100%",
+          borderRadius: 0,
+          maxHeight: "100%",
+        },
+      }}
+    >
+      <DialogTitle>
+        {parameter ? "Edit Rating Parameter" : "Add Rating Parameter"}
+      </DialogTitle>
+      <DialogContent>
+        {error && <div className="text-red-600 mb-4">{error}</div>}
+        <Grid container spacing={2} sx={{ mt: 1 }}>
+          <Grid item xs={12}>
+            <label style={{ display: "block", marginBottom: "4px" }}>
+              Parameter Name
+            </label>
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  variant="outlined"
+                  size="small"
+                  InputProps={{ style: { height: "40px" } }}
+                  error={!!errors.name}
+                  helperText={errors.name?.message}
+                />
+              )}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <label style={{ display: "block", marginBottom: "4px" }}>
+              Description
+            </label>
+            <Controller
+              name="description"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  variant="outlined"
+                  size="small"
+                  multiline
+                  rows={4}
+                  error={!!errors.description}
+                  helperText={errors.description?.message}
+                />
+              )}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Controller
+              name="ratable_by_client"
+              control={control}
+              render={({ field }) => (
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      {...field}
+                      checked={!!field.value}
+                      onChange={(e) => field.onChange(e.target.checked ? 1 : 0)}
+                    />
+                  }
+                  label="Ratable by Client"
+                />
+              )}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Controller
+              name="ratable_by_manager"
+              control={control}
+              render={({ field }) => (
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      {...field}
+                      checked={!!field.value}
+                      onChange={(e) => field.onChange(e.target.checked ? 1 : 0)}
+                    />
+                  }
+                  label="Ratable by Manager"
+                />
+              )}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Controller
+              name="ratable_by_self"
+              control={control}
+              render={({ field }) => (
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      {...field}
+                      checked={!!field.value}
+                      onChange={(e) => field.onChange(e.target.checked ? 1 : 0)}
+                    />
+                  }
+                  label="Ratable by Self"
+                />
+              )}
+            />
+          </Grid>
+        </Grid>
+      </DialogContent>
+      <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
+        <Button
+          onClick={onClose}
+          sx={{
+            backgroundColor: "#ffebee",
+            color: "#ef5350",
+            "&:hover": { backgroundColor: "#ffcdd2" },
+            padding: "8px 16px",
+            borderRadius: "8px",
+          }}
+          disabled={loading}
+        >
+          Close
+        </Button>
+        <Button
+          onClick={handleSubmit(onSubmit)}
+          sx={{
+            backgroundColor: "rgb(42,196,171)",
+            color: "white",
+            "&:hover": { backgroundColor: "rgb(36,170,148)" },
+            padding: "8px 16px",
+            borderRadius: "8px",
+          }}
+          disabled={loading}
+        >
+          {loading ? (
+            <BeatLoader color="#fff" size={8} />
+          ) : parameter ? (
+            "Update"
+          ) : (
+            "Submit"
+          )}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+export default RatingParameterFormPopup;
