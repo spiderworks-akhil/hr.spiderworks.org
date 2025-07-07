@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -11,17 +12,28 @@ import {
   DialogActions,
   Button,
   TextField,
-  Grid,
-  Slide,
+  Box,
 } from "@mui/material";
 import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
+import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
 
-const Transition = Slide;
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const validationSchema = yup.object().shape({
-  name: yup.string().required("Level name is required").trim(),
+  name: yup
+    .string()
+    .required("Level name is required")
+    .trim()
+    .min(1, "Level name cannot be empty"),
+  level_index: yup
+    .number()
+    .nullable()
+    .transform((value, originalValue) => (originalValue === "" ? null : value))
+    .typeError("Level index must be a number"),
 });
 
 const EmployeeLevelFormPopup = ({
@@ -38,23 +50,30 @@ const EmployeeLevelFormPopup = ({
     handleSubmit,
     reset,
     formState: { errors },
+    trigger,
   } = useForm({
     defaultValues: {
       name: "",
+      level_index: null,
     },
     resolver: yupResolver(validationSchema),
+    mode: "onChange",
   });
 
   useEffect(() => {
     if (!open) {
-      reset({ name: "" });
+      reset({ name: "", level_index: null });
+      setError(null);
       return;
     }
 
     if (employeeLevel) {
-      reset({ name: employeeLevel.name || "" });
+      reset({
+        name: employeeLevel.name || "",
+        level_index: employeeLevel.level_index || null,
+      });
     } else {
-      reset({ name: "" });
+      reset({ name: "", level_index: null });
     }
   }, [employeeLevel, open, reset]);
 
@@ -65,6 +84,7 @@ const EmployeeLevelFormPopup = ({
 
       const payload = {
         name: formData.name.trim(),
+        level_index: formData.level_index,
       };
 
       const method = employeeLevel ? "PUT" : "POST";
@@ -108,9 +128,7 @@ const EmployeeLevelFormPopup = ({
       );
       setError(
         err.message ||
-          `Failed to ${
-            employeeLevel ? "update" : "create"
-          } employee level. Please try again.`
+          `Failed to ${employeeLevel ? "update" : "create"} employee level.`
       );
       toast.error(
         err.message ||
@@ -130,7 +148,6 @@ const EmployeeLevelFormPopup = ({
       onClose={onClose}
       TransitionComponent={Transition}
       transitionDuration={500}
-      TransitionProps={{ direction: "up" }}
       sx={{
         "& .MuiDialog-paper": {
           margin: 0,
@@ -138,24 +155,22 @@ const EmployeeLevelFormPopup = ({
           right: 0,
           top: 0,
           bottom: 0,
-          width: "38%",
-          maxWidth: "none",
+          width: { xs: "100%", sm: "min(100%, 500px)" },
+          maxWidth: "500px",
           height: "100%",
           borderRadius: 0,
           maxHeight: "100%",
         },
       }}
     >
-      <DialogTitle>
+      <DialogTitle className="text-lg font-semibold">
         {employeeLevel ? "Edit Employee Level" : "Add Employee Level"}
       </DialogTitle>
       <DialogContent>
         {error && <div className="text-red-600 mb-4">{error}</div>}
-        <Grid container spacing={2} sx={{ mt: 1 }}>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Level Name
-            </label>
+        <Box display="flex" flexDirection="column" gap={2} mb={2}>
+          <Box>
+            <label className="block mb-1">Level Name *</label>
             <Controller
               name="name"
               control={control}
@@ -165,14 +180,40 @@ const EmployeeLevelFormPopup = ({
                   fullWidth
                   variant="outlined"
                   size="small"
-                  InputProps={{ style: { height: "40px" } }}
                   error={!!errors.name}
                   helperText={errors.name?.message}
+                  className="bg-white"
+                  InputProps={{ className: "h-10" }}
                 />
               )}
             />
-          </Grid>
-        </Grid>
+          </Box>
+          <Box>
+            <label className="block mb-1">Level Index</label>
+            <Controller
+              name="level_index"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  variant="outlined"
+                  size="small"
+                  type="number"
+                  error={!!errors.level_index}
+                  helperText={errors.level_index?.message}
+                  className="bg-white"
+                  InputProps={{ className: "h-10" }}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(value === "" ? null : Number(value));
+                    trigger("level_index");
+                  }}
+                />
+              )}
+            />
+          </Box>
+        </Box>
       </DialogContent>
       <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
         <Button

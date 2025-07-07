@@ -109,6 +109,7 @@ const validationSchema = yup.object().shape({
   employee_roles_id: yup.number().nullable(),
   manager_id: yup.number().nullable(),
   additional_manager_ids: yup.array().of(yup.number()).nullable(),
+  designation: yup.string().nullable().trim(),
 });
 
 const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
@@ -155,6 +156,8 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
     has_accounts_portal_access: 0,
     has_admin_portal_access: 0,
     has_showcase_portal_access: 0,
+    designation: "",
+    confirmation_date: null,
   };
 
   const {
@@ -224,6 +227,10 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
         has_accounts_portal_access: employee.has_accounts_portal_access || 0,
         has_admin_portal_access: employee.has_admin_portal_access || 0,
         has_showcase_portal_access: employee.has_showcase_portal_access || 0,
+        designation: employee.designation || "",
+        confirmation_date: employee.confirmation_date
+          ? moment(employee.confirmation_date)
+          : null,
       });
     } else {
       reset(defaultValues);
@@ -289,7 +296,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
 
   const formatDateSimple = (momentDate) => {
     return momentDate && moment.isMoment(momentDate)
-      ? momentDate.format("YYYY-MM-DD Zero")
+      ? momentDate.format("YYYY-MM-DD")
       : null;
   };
 
@@ -348,6 +355,8 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
         has_accounts_portal_access: formData.has_accounts_portal_access ? 1 : 0,
         has_admin_portal_access: formData.has_admin_portal_access ? 1 : 0,
         has_showcase_portal_access: formData.has_showcase_portal_access ? 1 : 0,
+        designation: formData.designation || null,
+        confirmation_date: formatDateSimple(formData.confirmation_date),
       };
 
       const url = employee
@@ -799,6 +808,49 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                           size: "small",
                           error: !!errors.releaving_date,
                           helperText: errors.releaving_date?.message,
+                          className: "bg-white",
+                          InputProps: { className: "h-10" },
+                        },
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Designation</label>
+                <Controller
+                  name="designation"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      error={!!errors.designation}
+                      helperText={errors.designation?.message}
+                    />
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Confirmation Date</label>
+                <Controller
+                  name="confirmation_date"
+                  control={control}
+                  render={({ field }) => (
+                    <DesktopDatePicker
+                      inputFormat="DD-MM-YYYY"
+                      value={field.value}
+                      onChange={field.onChange}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          size: "small",
+                          error: !!errors.confirmation_date,
+                          helperText: errors.confirmation_date?.message,
                           className: "bg-white",
                           InputProps: { className: "h-10" },
                         },

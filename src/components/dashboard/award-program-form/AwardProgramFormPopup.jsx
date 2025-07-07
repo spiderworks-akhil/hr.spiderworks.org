@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -11,8 +12,7 @@ import {
   DialogActions,
   Button,
   TextField,
-  Grid,
-  Slide,
+  Box,
   Checkbox,
   FormControlLabel,
 } from "@mui/material";
@@ -21,9 +21,12 @@ import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import moment from "moment";
 import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
+import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
 
-const Transition = Slide;
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
@@ -55,6 +58,7 @@ const AwardProgramFormPopup = ({ open, onClose, onSuccess, awardProgram }) => {
     reset,
     formState: { errors },
     setValue,
+    trigger,
   } = useForm({
     defaultValues: {
       title: "",
@@ -64,6 +68,7 @@ const AwardProgramFormPopup = ({ open, onClose, onSuccess, awardProgram }) => {
       is_active: false,
     },
     resolver: yupResolver(validationSchema),
+    mode: "onChange",
   });
 
   useEffect(() => {
@@ -184,7 +189,6 @@ const AwardProgramFormPopup = ({ open, onClose, onSuccess, awardProgram }) => {
         onClose={onClose}
         TransitionComponent={Transition}
         transitionDuration={500}
-        TransitionProps={{ direction: "up" }}
         sx={{
           "& .MuiDialog-paper": {
             margin: 0,
@@ -192,24 +196,23 @@ const AwardProgramFormPopup = ({ open, onClose, onSuccess, awardProgram }) => {
             right: 0,
             top: 0,
             bottom: 0,
-            width: "38%",
-            maxWidth: "none",
+            width: { xs: "100%", sm: "min(100%, 500px)" },
+            maxWidth: "500px",
             height: "100%",
             borderRadius: 0,
             maxHeight: "100%",
           },
         }}
       >
-        <DialogTitle>
+        <DialogTitle className="text-lg font-semibold">
           {awardProgram ? "Edit Award Program" : "Add Award Program"}
         </DialogTitle>
         <DialogContent>
           {error && <div className="text-red-600 mb-4">{error}</div>}
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Title
-              </label>
+
+          <Box display="flex" flexDirection="column" gap={2} mb={2}>
+            <Box>
+              <label className="block mb-1">Title *</label>
               <Controller
                 name="title"
                 control={control}
@@ -219,17 +222,17 @@ const AwardProgramFormPopup = ({ open, onClose, onSuccess, awardProgram }) => {
                     fullWidth
                     variant="outlined"
                     size="small"
-                    InputProps={{ style: { height: "40px" } }}
                     error={!!errors.title}
                     helperText={errors.title?.message}
+                    className="bg-white"
+                    InputProps={{ className: "h-10" }}
                   />
                 )}
               />
-            </Grid>
-            <Grid item xs={12}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Description
-              </label>
+            </Box>
+
+            <Box>
+              <label className="block mb-1">Description</label>
               <Controller
                 name="description"
                 control={control}
@@ -243,14 +246,14 @@ const AwardProgramFormPopup = ({ open, onClose, onSuccess, awardProgram }) => {
                     rows={4}
                     error={!!errors.description}
                     helperText={errors.description?.message}
+                    className="bg-white"
                   />
                 )}
               />
-            </Grid>
-            <Grid item xs={12}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Expiry Date
-              </label>
+            </Box>
+
+            <Box>
+              <label className="block mb-1">Expiry Date</label>
               <Controller
                 name="expiry_date"
                 control={control}
@@ -260,61 +263,63 @@ const AwardProgramFormPopup = ({ open, onClose, onSuccess, awardProgram }) => {
                     value={field.value}
                     onChange={(newValue) => {
                       field.onChange(newValue);
+                      trigger("expiry_date");
                     }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        fullWidth
-                        size="small"
-                        InputProps={{
-                          ...params.InputProps,
-                          style: { height: "40px" },
-                        }}
-                        error={!!errors.expiry_date}
-                        helperText={errors.expiry_date?.message}
-                      />
-                    )}
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        size: "small",
+                        error: !!errors.expiry_date,
+                        helperText: errors.expiry_date?.message,
+                        className: "bg-white",
+                        InputProps: { className: "h-10" },
+                      },
+                    }}
                   />
                 )}
               />
-            </Grid>
-            <Grid item xs={12}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Thumbnail Upload
-              </label>
+            </Box>
+
+            <Box>
+              <label className="block mb-1">Thumbnail Upload</label>
               <Controller
                 name="thumbnail"
                 control={control}
                 render={({ field }) => (
-                  <input
-                    type="file"
-                    accept={allowedTypes.join(",")}
-                    onChange={(e) => {
-                      const file = e.target.files[0] || null;
-                      setValue("thumbnail", file, { shouldValidate: true });
-                    }}
-                    style={{ width: "100%", padding: "8px" }}
-                  />
+                  <div>
+                    <input
+                      type="file"
+                      accept={allowedTypes.join(",")}
+                      onChange={(e) => {
+                        const file = e.target.files[0] || null;
+                        setValue("thumbnail", file, { shouldValidate: true });
+                      }}
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        border: "0px solid #ccc",
+                        borderRadius: "4px",
+                        backgroundColor: "white",
+                        height: "40px",
+                      }}
+                    />
+                    {errors.thumbnail && (
+                      <span className="text-red-600 text-xs mt-1 block">
+                        {errors.thumbnail?.message}
+                      </span>
+                    )}
+                    {awardProgram?.thumbnail && (
+                      <span className="text-sm text-gray-600 mt-1 block">
+                        Existing thumbnail:{" "}
+                        {awardProgram.thumbnail.split("/").pop()}
+                      </span>
+                    )}
+                  </div>
                 )}
               />
-              {errors.thumbnail && (
-                <span style={{ color: "red", fontSize: "12px" }}>
-                  {errors.thumbnail?.message}
-                </span>
-              )}
-              {awardProgram?.thumbnail && (
-                <span
-                  style={{
-                    display: "block",
-                    marginTop: "8px",
-                    fontSize: "14px",
-                  }}
-                >
-                  Existing thumbnail: {awardProgram.thumbnail.split("/").pop()}
-                </span>
-              )}
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+
+            <Box>
               <Controller
                 name="is_active"
                 control={control}
@@ -331,8 +336,8 @@ const AwardProgramFormPopup = ({ open, onClose, onSuccess, awardProgram }) => {
                   />
                 )}
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
           <Button

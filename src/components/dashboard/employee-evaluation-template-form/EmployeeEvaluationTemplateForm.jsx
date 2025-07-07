@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -13,16 +13,17 @@ import {
   TextField,
   Checkbox,
   FormControlLabel,
-  Grid,
-  Slide,
-  Typography,
+  Box,
 } from "@mui/material";
 import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
 import Select from "react-select";
+import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
 
-const Transition = Slide;
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const validationSchema = yup.object().shape({
   name: yup.string().required("Template name is required").trim(),
@@ -90,6 +91,7 @@ const EmployeeEvaluationTemplateFormPopup = ({
       rate_by_self: 0,
     },
     resolver: yupResolver(validationSchema),
+    mode: "onChange",
   });
 
   useEffect(() => {
@@ -101,6 +103,7 @@ const EmployeeEvaluationTemplateFormPopup = ({
         rate_by_manager: 0,
         rate_by_self: 0,
       });
+      setError(null);
       return;
     }
 
@@ -196,7 +199,6 @@ const EmployeeEvaluationTemplateFormPopup = ({
       onClose={onClose}
       TransitionComponent={Transition}
       transitionDuration={500}
-      TransitionProps={{ direction: "up" }}
       sx={{
         "& .MuiDialog-paper": {
           margin: 0,
@@ -204,23 +206,24 @@ const EmployeeEvaluationTemplateFormPopup = ({
           right: 0,
           top: 0,
           bottom: 0,
-          width: "38%",
-          maxWidth: "none",
+          width: { xs: "100%", sm: "min(100%, 500px)" },
+          maxWidth: "500px",
           height: "100%",
           borderRadius: 0,
           maxHeight: "100%",
         },
       }}
     >
-      <DialogTitle>
+      <DialogTitle className="text-lg font-semibold">
         {template ? "Edit Evaluation Template" : "Add Evaluation Template"}
       </DialogTitle>
       <DialogContent>
         {error && <div className="text-red-600 mb-4">{error}</div>}
-        <Grid container spacing={2} sx={{ mt: 1 }}>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Template Name
+
+        <Box display="flex" flexDirection="column" gap={2} mb={2}>
+          <Box>
+            <label className="block mb-1 text-sm font-medium">
+              Template Name *
             </label>
             <Controller
               name="name"
@@ -231,17 +234,17 @@ const EmployeeEvaluationTemplateFormPopup = ({
                   fullWidth
                   variant="outlined"
                   size="small"
-                  InputProps={{ style: { height: "40px" } }}
                   error={!!errors.name}
                   helperText={errors.name?.message}
+                  className="bg-white"
+                  InputProps={{ className: "h-10" }}
                 />
               )}
             />
-          </Grid>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Status
-            </label>
+          </Box>
+
+          <Box>
+            <label className="block mb-1 text-sm font-medium">Status *</label>
             <Controller
               name="status"
               control={control}
@@ -261,69 +264,104 @@ const EmployeeEvaluationTemplateFormPopup = ({
                     isClearable
                   />
                   {errors.status && (
-                    <span style={{ color: "red", fontSize: "12px" }}>
+                    <span className="text-red-600 text-xs mt-1 block">
                       {errors.status?.message}
                     </span>
                   )}
                 </div>
               )}
             />
-          </Grid>
-          <Grid item xs={12}>
-            <Controller
-              name="rate_by_client"
-              control={control}
-              render={({ field }) => (
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      {...field}
-                      checked={!!field.value}
-                      onChange={(e) => field.onChange(e.target.checked ? 1 : 0)}
-                    />
-                  }
-                  label="Ratable by Client"
-                />
-              )}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Controller
-              name="rate_by_manager"
-              control={control}
-              render={({ field }) => (
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      {...field}
-                      checked={!!field.value}
-                      onChange={(e) => field.onChange(e.target.checked ? 1 : 0)}
-                    />
-                  }
-                  label="Ratable by Manager"
-                />
-              )}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Controller
-              name="rate_by_self"
-              control={control}
-              render={({ field }) => (
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      {...field}
-                      checked={!!field.value}
-                      onChange={(e) => field.onChange(e.target.checked ? 1 : 0)}
-                    />
-                  }
-                  label="Ratable by Self"
-                />
-              )}
-            />
-          </Grid>
-        </Grid>
+          </Box>
+
+          <Box>
+            <label className="block mb-1 text-sm font-medium">
+              Rating Permissions
+            </label>
+            <Box display="flex" flexDirection="column" gap={1} mt={1}>
+              <Controller
+                name="rate_by_client"
+                control={control}
+                render={({ field }) => (
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        {...field}
+                        checked={!!field.value}
+                        onChange={(e) =>
+                          field.onChange(e.target.checked ? 1 : 0)
+                        }
+                        sx={{
+                          color: "#2ac4ab",
+                          "&.Mui-checked": {
+                            color: "#2ac4ab",
+                          },
+                        }}
+                      />
+                    }
+                    label="Ratable by Client"
+                    sx={{
+                      "& .MuiFormControlLabel-label": { fontSize: "14px" },
+                    }}
+                  />
+                )}
+              />
+              <Controller
+                name="rate_by_manager"
+                control={control}
+                render={({ field }) => (
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        {...field}
+                        checked={!!field.value}
+                        onChange={(e) =>
+                          field.onChange(e.target.checked ? 1 : 0)
+                        }
+                        sx={{
+                          color: "#2ac4ab",
+                          "&.Mui-checked": {
+                            color: "#2ac4ab",
+                          },
+                        }}
+                      />
+                    }
+                    label="Ratable by Manager"
+                    sx={{
+                      "& .MuiFormControlLabel-label": { fontSize: "14px" },
+                    }}
+                  />
+                )}
+              />
+              <Controller
+                name="rate_by_self"
+                control={control}
+                render={({ field }) => (
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        {...field}
+                        checked={!!field.value}
+                        onChange={(e) =>
+                          field.onChange(e.target.checked ? 1 : 0)
+                        }
+                        sx={{
+                          color: "#2ac4ab",
+                          "&.Mui-checked": {
+                            color: "#2ac4ab",
+                          },
+                        }}
+                      />
+                    }
+                    label="Ratable by Self"
+                    sx={{
+                      "& .MuiFormControlLabel-label": { fontSize: "14px" },
+                    }}
+                  />
+                )}
+              />
+            </Box>
+          </Box>
+        </Box>
       </DialogContent>
       <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
         <Button

@@ -11,7 +11,7 @@ import {
   DialogActions,
   Button,
   TextField,
-  Grid,
+  Box,
   Slide,
   ToggleButton,
   ToggleButtonGroup,
@@ -445,14 +445,15 @@ const DocumentFormPopup = ({ open, onClose, onSuccess, document: doc }) => {
         },
       }}
     >
-      <DialogTitle>{doc ? "Edit Document" : "Add Document"}</DialogTitle>
+      <DialogTitle className="text-lg font-semibold">
+        {doc ? "Edit Document" : "Add Document"}
+      </DialogTitle>
       <DialogContent>
         {error && <div className="text-red-600 mb-4">{error}</div>}
-        <Grid container spacing={2} sx={{ mt: 1 }}>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Document Name
-            </label>
+
+        <Box display="flex" flexDirection="column" gap={2} mb={2}>
+          <Box>
+            <label className="block mb-1">Document Name *</label>
             <Controller
               name="name"
               control={control}
@@ -465,93 +466,102 @@ const DocumentFormPopup = ({ open, onClose, onSuccess, document: doc }) => {
                   InputProps={{ style: { height: "40px" } }}
                   error={!!errors.name}
                   helperText={errors.name?.message}
+                  className="bg-white"
                 />
               )}
             />
-          </Grid>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Category
-            </label>
-            <Controller
-              name="document_category_id"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  options={categoryOptions}
-                  value={
-                    categoryOptions.find((opt) => opt.value === field.value) ||
-                    null
-                  }
-                  onChange={(selected) =>
-                    field.onChange(selected ? selected.value : null)
-                  }
-                  styles={customSelectStyles}
-                  placeholder="Select category..."
-                  isClearable
-                  isSearchable
-                />
-              )}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Status
-            </label>
-            <Controller
-              name="status"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  variant="outlined"
-                  size="small"
-                  InputProps={{ style: { height: "40px" } }}
-                  error={!!errors.status}
-                  helperText={errors.status?.message}
-                />
-              )}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Document Upload
-            </label>
+          </Box>
+
+          <Box
+            display="flex"
+            flexDirection={{ xs: "column", md: "row" }}
+            gap={2}
+          >
+            <Box flex={1} minWidth={0}>
+              <label className="block mb-1">Category</label>
+              <Controller
+                name="document_category_id"
+                control={control}
+                render={({ field }) => (
+                  <div>
+                    <Select
+                      options={categoryOptions}
+                      value={
+                        categoryOptions.find(
+                          (opt) => opt.value === field.value
+                        ) || null
+                      }
+                      onChange={(selected) =>
+                        field.onChange(selected ? selected.value : null)
+                      }
+                      styles={customSelectStyles}
+                      placeholder="Select category..."
+                      isClearable
+                      isSearchable
+                    />
+                  </div>
+                )}
+              />
+            </Box>
+            <Box flex={1} minWidth={0}>
+              <label className="block mb-1">Status</label>
+              <Controller
+                name="status"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    variant="outlined"
+                    size="small"
+                    InputProps={{ style: { height: "40px" } }}
+                    error={!!errors.status}
+                    helperText={errors.status?.message}
+                    className="bg-white"
+                  />
+                )}
+              />
+            </Box>
+          </Box>
+
+          <Box>
+            <label className="block mb-1">Document Upload</label>
             <Controller
               name="document"
               control={control}
               render={({ field }) => (
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  ref={fileInputRef}
-                  onChange={(e) => {
-                    const file = e.target.files[0] || null;
-                    setValue("document", file, { shouldValidate: true });
-                  }}
-                  style={{ width: "100%", padding: "8px" }}
-                />
+                <div>
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    ref={fileInputRef}
+                    onChange={(e) => {
+                      const file = e.target.files[0] || null;
+                      setValue("document", file, { shouldValidate: true });
+                    }}
+                    style={{ width: "100%", padding: "8px" }}
+                    className="bg-white"
+                  />
+                  {errors.document && (
+                    <span className="text-red-600 text-xs mt-1 block">
+                      {errors.document?.message}
+                    </span>
+                  )}
+                  {doc?.document && (
+                    <span className="text-sm text-gray-600 mt-1 block">
+                      Existing document:{" "}
+                      {doc.document.split("/").pop().split("_").pop()}
+                    </span>
+                  )}
+                </div>
               )}
             />
-            {errors.document && (
-              <span style={{ color: "red", fontSize: "12px" }}>
-                {errors.document?.message}
-              </span>
-            )}
-            {doc?.document && (
-              <span
-                style={{ display: "block", marginTop: "8px", fontSize: "14px" }}
-              >
-                Existing document:{" "}
-                {doc.document.split("/").pop().split("_").pop()}
-              </span>
-            )}
-          </Grid>
-          <Grid item xs={12}>
-            <div className="flex gap-4 items-center">
-              <label>Content</label>
-              <span style={{ fontSize: "12px", color: "#666" }}>
+          </Box>
+
+          <Box>
+            <div className="flex gap-4 items-center mb-1">
+              <label className="block mb-1">Content</label>
+              <span className="text-xs text-gray-600">
                 (File size: Up to 5MB)
               </span>
             </div>
@@ -559,36 +569,30 @@ const DocumentFormPopup = ({ open, onClose, onSuccess, document: doc }) => {
               name="content"
               control={control}
               render={({ field }) => (
-                <div className="border border-gray-300 rounded-md">
-                  <div
-                    ref={quillRef}
-                    style={{ minHeight: "24rem", backgroundColor: "white" }}
-                  />
+                <div>
+                  <div className="border border-gray-300 rounded-md">
+                    <div
+                      ref={quillRef}
+                      style={{ minHeight: "24rem", backgroundColor: "white" }}
+                    />
+                  </div>
+                  {errors.content && (
+                    <span className="text-red-600 text-xs mt-1 block">
+                      {errors.content?.message}
+                    </span>
+                  )}
+                  {imageError && (
+                    <span className="text-red-600 text-xs mt-1 block">
+                      {imageError}
+                    </span>
+                  )}
                 </div>
               )}
             />
-            {errors.content && (
-              <span style={{ color: "red", fontSize: "12px" }}>
-                {errors.content?.message}
-              </span>
-            )}
-            {imageError && (
-              <span
-                style={{
-                  color: "red",
-                  fontSize: "12px",
-                  display: "block",
-                  marginTop: "4px",
-                }}
-              >
-                {imageError}
-              </span>
-            )}
-          </Grid>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Remarks
-            </label>
+          </Box>
+
+          <Box>
+            <label className="block mb-1">Remarks</label>
             <Controller
               name="remarks"
               control={control}
@@ -602,14 +606,14 @@ const DocumentFormPopup = ({ open, onClose, onSuccess, document: doc }) => {
                   rows={4}
                   error={!!errors.remarks}
                   helperText={errors.remarks?.message}
+                  className="bg-white"
                 />
               )}
             />
-          </Grid>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Grant Access
-            </label>
+          </Box>
+
+          <Box>
+            <label className="block mb-1">Grant Access</label>
             <Controller
               name="grantedAccess"
               control={control}
@@ -632,40 +636,41 @@ const DocumentFormPopup = ({ open, onClose, onSuccess, document: doc }) => {
                 />
               )}
             />
-          </Grid>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Permission
-            </label>
+          </Box>
+
+          <Box>
+            <label className="block mb-1">Permission</label>
             <Controller
               name="permission"
               control={control}
               render={({ field }) => (
-                <ToggleButtonGroup
-                  {...field}
-                  value={field.value}
-                  exclusive
-                  onChange={(e, value) => {
-                    if (value !== null) field.onChange(value);
-                  }}
-                  sx={{ mt: 1 }}
-                >
-                  <ToggleButton value="PUBLIC" sx={{ width: "50%" }}>
-                    Public
-                  </ToggleButton>
-                  <ToggleButton value="PRIVATE" sx={{ width: "50%" }}>
-                    Private
-                  </ToggleButton>
-                </ToggleButtonGroup>
+                <div>
+                  <ToggleButtonGroup
+                    {...field}
+                    value={field.value}
+                    exclusive
+                    onChange={(e, value) => {
+                      if (value !== null) field.onChange(value);
+                    }}
+                    sx={{ mt: 1 }}
+                  >
+                    <ToggleButton value="PUBLIC" sx={{ width: "50%" }}>
+                      Public
+                    </ToggleButton>
+                    <ToggleButton value="PRIVATE" sx={{ width: "50%" }}>
+                      Private
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                  {errors.permission && (
+                    <span className="text-red-600 text-xs mt-1 block">
+                      {errors.permission?.message}
+                    </span>
+                  )}
+                </div>
               )}
             />
-            {errors.permission && (
-              <span style={{ color: "red", fontSize: "12px" }}>
-                {errors.permission?.message}
-              </span>
-            )}
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </DialogContent>
       <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
         <Button

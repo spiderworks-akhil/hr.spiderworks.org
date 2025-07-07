@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -11,8 +11,7 @@ import {
   DialogActions,
   Button,
   TextField,
-  Grid,
-  Slide,
+  Box,
 } from "@mui/material";
 import { DesktopDatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
@@ -20,19 +19,11 @@ import moment from "moment";
 import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
 import Select from "react-select";
+import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
 
-const Transition = Slide;
-
-const validationSchema = yup.object().shape({
-  title: yup.string().required("Title is required").trim(),
-  description: yup.string().nullable().trim(),
-  awarder_date: yup.date().nullable(),
-  employee_id: yup.number().nullable().required("Employee is required"),
-  award_program_id: yup
-    .number()
-    .nullable()
-    .required("Award Program is required"),
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
 });
 
 const customSelectStyles = {
@@ -42,9 +33,7 @@ const customSelectStyles = {
     borderRadius: "4px",
     minHeight: "40px",
     boxShadow: "none",
-    "&:hover": {
-      border: "1px solid #ccc",
-    },
+    "&:hover": { border: "1px solid #ccc" },
   }),
   menu: (provided) => ({
     ...provided,
@@ -58,11 +47,20 @@ const customSelectStyles = {
       ? "#e6f7f5"
       : "white",
     color: state.isSelected ? "white" : "black",
-    "&:hover": {
-      backgroundColor: state.isSelected ? "#2ac4ab" : "#e6f7f5",
-    },
+    "&:hover": { backgroundColor: state.isSelected ? "#2ac4ab" : "#e6f7f5" },
   }),
 };
+
+const validationSchema = yup.object().shape({
+  title: yup.string().required("Title is required").trim(),
+  description: yup.string().nullable().trim(),
+  awarder_date: yup.date().nullable(),
+  employee_id: yup.number().nullable().required("Employee is required"),
+  award_program_id: yup
+    .number()
+    .nullable()
+    .required("Award Program is required"),
+});
 
 const AwardWinnerFormPopup = ({ open, onClose, onSuccess, awardWinner }) => {
   const [loading, setLoading] = useState(false);
@@ -75,6 +73,7 @@ const AwardWinnerFormPopup = ({ open, onClose, onSuccess, awardWinner }) => {
     handleSubmit,
     reset,
     formState: { errors },
+    trigger,
   } = useForm({
     defaultValues: {
       title: "",
@@ -84,6 +83,7 @@ const AwardWinnerFormPopup = ({ open, onClose, onSuccess, awardWinner }) => {
       award_program_id: null,
     },
     resolver: yupResolver(validationSchema),
+    mode: "onChange",
   });
 
   const employeeOptions = employees.map((employee) => ({
@@ -247,7 +247,6 @@ const AwardWinnerFormPopup = ({ open, onClose, onSuccess, awardWinner }) => {
         onClose={onClose}
         TransitionComponent={Transition}
         transitionDuration={500}
-        TransitionProps={{ direction: "up" }}
         sx={{
           "& .MuiDialog-paper": {
             margin: 0,
@@ -255,24 +254,23 @@ const AwardWinnerFormPopup = ({ open, onClose, onSuccess, awardWinner }) => {
             right: 0,
             top: 0,
             bottom: 0,
-            width: "38%",
-            maxWidth: "none",
+            width: { xs: "100%", sm: "min(100%, 500px)" },
+            maxWidth: "500px",
             height: "100%",
             borderRadius: 0,
             maxHeight: "100%",
           },
         }}
       >
-        <DialogTitle>
+        <DialogTitle className="text-lg font-semibold">
           {awardWinner ? "Edit Award Winner" : "Add Award Winner"}
         </DialogTitle>
         <DialogContent>
           {error && <div className="text-red-600 mb-4">{error}</div>}
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Title
-              </label>
+
+          <Box display="flex" flexDirection="column" gap={2} mb={2}>
+            <Box>
+              <label className="block mb-1">Title *</label>
               <Controller
                 name="title"
                 control={control}
@@ -282,17 +280,16 @@ const AwardWinnerFormPopup = ({ open, onClose, onSuccess, awardWinner }) => {
                     fullWidth
                     variant="outlined"
                     size="small"
-                    InputProps={{ style: { height: "40px" } }}
                     error={!!errors.title}
                     helperText={errors.title?.message}
+                    className="bg-white"
                   />
                 )}
               />
-            </Grid>
-            <Grid item xs={12}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Description
-              </label>
+            </Box>
+
+            <Box>
+              <label className="block mb-1">Description</label>
               <Controller
                 name="description"
                 control={control}
@@ -306,14 +303,14 @@ const AwardWinnerFormPopup = ({ open, onClose, onSuccess, awardWinner }) => {
                     rows={4}
                     error={!!errors.description}
                     helperText={errors.description?.message}
+                    className="bg-white"
                   />
                 )}
               />
-            </Grid>
-            <Grid item xs={12}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Awarder Date
-              </label>
+            </Box>
+
+            <Box>
+              <label className="block mb-1">Awarder Date</label>
               <Controller
                 name="awarder_date"
                 control={control}
@@ -323,28 +320,25 @@ const AwardWinnerFormPopup = ({ open, onClose, onSuccess, awardWinner }) => {
                     value={field.value}
                     onChange={(newValue) => {
                       field.onChange(newValue);
+                      trigger("awarder_date");
                     }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        fullWidth
-                        size="small"
-                        InputProps={{
-                          ...params.InputProps,
-                          style: { height: "40px" },
-                        }}
-                        error={!!errors.awarder_date}
-                        helperText={errors.awarder_date?.message}
-                      />
-                    )}
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        size: "small",
+                        error: !!errors.awarder_date,
+                        helperText: errors.awarder_date?.message,
+                        className: "bg-white",
+                        InputProps: { className: "h-10" },
+                      },
+                    }}
                   />
                 )}
               />
-            </Grid>
-            <Grid item xs={12}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Employee
-              </label>
+            </Box>
+
+            <Box>
+              <label className="block mb-1">Employee *</label>
               <Controller
                 name="employee_id"
                 control={control}
@@ -365,18 +359,17 @@ const AwardWinnerFormPopup = ({ open, onClose, onSuccess, awardWinner }) => {
                       isClearable
                     />
                     {errors.employee_id && (
-                      <span style={{ color: "red", fontSize: "12px" }}>
+                      <span className="text-red-600 text-xs mt-1 block">
                         {errors.employee_id?.message}
                       </span>
                     )}
                   </div>
                 )}
               />
-            </Grid>
-            <Grid item xs={12}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Award Program
-              </label>
+            </Box>
+
+            <Box>
+              <label className="block mb-1">Award Program *</label>
               <Controller
                 name="award_program_id"
                 control={control}
@@ -397,15 +390,15 @@ const AwardWinnerFormPopup = ({ open, onClose, onSuccess, awardWinner }) => {
                       isClearable
                     />
                     {errors.award_program_id && (
-                      <span style={{ color: "red", fontSize: "12px" }}>
+                      <span className="text-red-600 text-xs mt-1 block">
                         {errors.award_program_id?.message}
                       </span>
                     )}
                   </div>
                 )}
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
           <Button

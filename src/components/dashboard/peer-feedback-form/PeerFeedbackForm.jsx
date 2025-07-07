@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -11,15 +11,42 @@ import {
   DialogActions,
   Button,
   TextField,
-  Grid,
-  Slide,
+  Box,
 } from "@mui/material";
 import Select from "react-select";
 import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
+import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
 
-const Transition = Slide;
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
+const customSelectStyles = {
+  control: (provided) => ({
+    ...provided,
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    minHeight: "40px",
+    boxShadow: "none",
+    "&:hover": { border: "1px solid #ccc" },
+  }),
+  menu: (provided) => ({
+    ...provided,
+    zIndex: 9999,
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isSelected
+      ? "#2ac4ab"
+      : state.isFocused
+      ? "#e6f7f5"
+      : "white",
+    color: state.isSelected ? "white" : "black",
+    "&:hover": { backgroundColor: state.isSelected ? "#2ac4ab" : "#e6f7f5" },
+  }),
+};
 
 const validationSchema = yup.object().shape({
   feedback: yup.string().required("Feedback is required").trim(),
@@ -57,6 +84,7 @@ const PeerFeedbackFormPopup = ({ open, onClose, onSuccess, feedback }) => {
       provided_to: null,
     },
     resolver: yupResolver(validationSchema),
+    mode: "onChange",
   });
 
   const fetchEmployees = async (search = "") => {
@@ -76,6 +104,7 @@ const PeerFeedbackFormPopup = ({ open, onClose, onSuccess, feedback }) => {
       console.error("Error fetching employees:", err);
       setError("Failed to load employees. Please try again.");
       setEmployees([]);
+      toast.error("Failed to load employees.", { position: "top-right" });
     }
   };
 
@@ -87,9 +116,14 @@ const PeerFeedbackFormPopup = ({ open, onClose, onSuccess, feedback }) => {
 
   useEffect(() => {
     if (!open) {
-      reset({ feedback: "", provided_by: null, provided_to: null });
+      reset({
+        feedback: "",
+        provided_by: null,
+        provided_to: null,
+      });
       setEmployeeSearch("");
       setEmployees([]);
+      setError(null);
       return;
     }
 
@@ -104,7 +138,11 @@ const PeerFeedbackFormPopup = ({ open, onClose, onSuccess, feedback }) => {
           : null,
       });
     } else {
-      reset({ feedback: "", provided_by: null, provided_to: null });
+      reset({
+        feedback: "",
+        provided_by: null,
+        provided_to: null,
+      });
     }
   }, [feedback, open, reset]);
 
@@ -184,7 +222,6 @@ const PeerFeedbackFormPopup = ({ open, onClose, onSuccess, feedback }) => {
       onClose={onClose}
       TransitionComponent={Transition}
       transitionDuration={500}
-      TransitionProps={{ direction: "up" }}
       sx={{
         "& .MuiDialog-paper": {
           margin: 0,
@@ -192,22 +229,23 @@ const PeerFeedbackFormPopup = ({ open, onClose, onSuccess, feedback }) => {
           right: 0,
           top: 0,
           bottom: 0,
-          width: "38%",
-          maxWidth: "none",
+          width: { xs: "100%", sm: "min(100%, 500px)" },
+          maxWidth: "500px",
           height: "100%",
           borderRadius: 0,
           maxHeight: "100%",
         },
       }}
     >
-      <DialogTitle>{feedback ? "Edit Feedback" : "Add Feedback"}</DialogTitle>
+      <DialogTitle className="text-lg font-semibold">
+        {feedback ? "Edit Feedback" : "Add Feedback"}
+      </DialogTitle>
       <DialogContent>
         {error && <div className="text-red-600 mb-4">{error}</div>}
-        <Grid container spacing={2} sx={{ mt: 1 }}>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Feedback
-            </label>
+
+        <Box display="flex" flexDirection="column" gap={2} mb={2}>
+          <Box>
+            <label className="block mb-1">Feedback *</label>
             <Controller
               name="feedback"
               control={control}
@@ -221,97 +259,62 @@ const PeerFeedbackFormPopup = ({ open, onClose, onSuccess, feedback }) => {
                   rows={4}
                   error={!!errors.feedback}
                   helperText={errors.feedback?.message}
+                  className="bg-white"
                 />
               )}
             />
-          </Grid>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Provided By
-            </label>
+          </Box>
+
+          <Box>
+            <label className="block mb-1">Provided By *</label>
             <Controller
               name="provided_by"
               control={control}
               render={({ field }) => (
-                <Select
-                  {...field}
-                  options={employees}
-                  onInputChange={handleEmployeeSearch}
-                  placeholder="Select employee"
-                  isClearable
-                  styles={{
-                    control: (base) => ({
-                      ...base,
-                      height: "40px",
-                      minHeight: "40px",
-                      borderColor: errors.provided_by
-                        ? "#d32f2f"
-                        : base.borderColor,
-                    }),
-                    valueContainer: (base) => ({
-                      ...base,
-                      height: "40px",
-                      padding: "0 8px",
-                    }),
-                    input: (base) => ({
-                      ...base,
-                      margin: 0,
-                      padding: 0,
-                    }),
-                  }}
-                />
+                <div>
+                  <Select
+                    {...field}
+                    options={employees}
+                    onInputChange={handleEmployeeSearch}
+                    placeholder="Select employee..."
+                    isClearable
+                    styles={customSelectStyles}
+                  />
+                  {errors.provided_by && (
+                    <span className="text-red-600 text-xs mt-1 block">
+                      {errors.provided_by.message}
+                    </span>
+                  )}
+                </div>
               )}
             />
-            {errors.provided_by && (
-              <div className="text-red-600 text-sm mt-1">
-                {errors.provided_by.message}
-              </div>
-            )}
-          </Grid>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Provided To
-            </label>
+          </Box>
+
+          <Box>
+            <label className="block mb-1">Provided To *</label>
             <Controller
               name="provided_to"
               control={control}
               render={({ field }) => (
-                <Select
-                  {...field}
-                  options={employees}
-                  onInputChange={handleEmployeeSearch}
-                  placeholder="Select employee"
-                  isClearable
-                  styles={{
-                    control: (base) => ({
-                      ...base,
-                      height: "40px",
-                      minHeight: "40px",
-                      borderColor: errors.provided_to
-                        ? "#d32f2f"
-                        : base.borderColor,
-                    }),
-                    valueContainer: (base) => ({
-                      ...base,
-                      height: "40px",
-                      padding: "0 8px",
-                    }),
-                    input: (base) => ({
-                      ...base,
-                      margin: 0,
-                      padding: 0,
-                    }),
-                  }}
-                />
+                <div>
+                  <Select
+                    {...field}
+                    options={employees}
+                    onInputChange={handleEmployeeSearch}
+                    placeholder="Select employee..."
+                    isClearable
+                    styles={customSelectStyles}
+                  />
+                  {errors.provided_to && (
+                    <span className="text-red-600 text-xs mt-1 block">
+                      {errors.provided_to.message}
+                    </span>
+                  )}
+                </div>
               )}
             />
-            {errors.provided_to && (
-              <div className="text-red-600 text-sm mt-1">
-                {errors.provided_to.message}
-              </div>
-            )}
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </DialogContent>
       <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
         <Button

@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -11,14 +12,16 @@ import {
   DialogActions,
   Button,
   TextField,
-  Grid,
-  Slide,
+  Box,
 } from "@mui/material";
 import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
+import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
 
-const Transition = Slide;
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const validationSchema = yup.object().shape({
   name: yup.string().required("Category name is required").trim(),
@@ -142,7 +145,6 @@ const DocumentCategoryFormPopup = ({
       onClose={onClose}
       TransitionComponent={Transition}
       transitionDuration={500}
-      TransitionProps={{ direction: "up" }}
       sx={{
         "& .MuiDialog-paper": {
           margin: 0,
@@ -150,24 +152,22 @@ const DocumentCategoryFormPopup = ({
           right: 0,
           top: 0,
           bottom: 0,
-          width: "38%",
-          maxWidth: "none",
+          width: { xs: "100%", sm: "min(100%, 500px)" },
+          maxWidth: "500px",
           height: "100%",
           borderRadius: 0,
           maxHeight: "100%",
         },
       }}
     >
-      <DialogTitle>
+      <DialogTitle className="text-lg font-semibold">
         {documentCategory ? "Edit Document Category" : "Add Document Category"}
       </DialogTitle>
       <DialogContent>
         {error && <div className="text-red-600 mb-4">{error}</div>}
-        <Grid container spacing={2} sx={{ mt: 1 }}>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Category Name
-            </label>
+        <Box display="flex" flexDirection="column" gap={2} mb={2}>
+          <Box>
+            <label className="block mb-1">Category Name *</label>
             <Controller
               name="name"
               control={control}
@@ -177,17 +177,16 @@ const DocumentCategoryFormPopup = ({
                   fullWidth
                   variant="outlined"
                   size="small"
-                  InputProps={{ style: { height: "40px" } }}
                   error={!!errors.name}
                   helperText={errors.name?.message}
+                  className="bg-white"
+                  InputProps={{ className: "h-10" }}
                 />
               )}
             />
-          </Grid>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Remarks
-            </label>
+          </Box>
+          <Box>
+            <label className="block mb-1">Remarks</label>
             <Controller
               name="remarks"
               control={control}
@@ -197,14 +196,16 @@ const DocumentCategoryFormPopup = ({
                   fullWidth
                   variant="outlined"
                   size="small"
-                  InputProps={{ style: { height: "40px" } }}
+                  multiline
+                  rows={4}
                   error={!!errors.remarks}
                   helperText={errors.remarks?.message}
+                  className="bg-white"
                 />
               )}
             />
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </DialogContent>
       <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
         <Button

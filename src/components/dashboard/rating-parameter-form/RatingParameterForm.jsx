@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -13,14 +13,16 @@ import {
   TextField,
   Checkbox,
   FormControlLabel,
-  Grid,
-  Slide,
+  Box,
 } from "@mui/material";
 import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
+import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
 
-const Transition = Slide;
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const validationSchema = yup.object().shape({
   name: yup.string().required("Parameter name is required").trim(),
@@ -48,6 +50,7 @@ const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
       ratable_by_self: 0,
     },
     resolver: yupResolver(validationSchema),
+    mode: "onChange",
   });
 
   useEffect(() => {
@@ -59,6 +62,7 @@ const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
         ratable_by_manager: 0,
         ratable_by_self: 0,
       });
+      setError(null);
       return;
     }
 
@@ -155,7 +159,6 @@ const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
       onClose={onClose}
       TransitionComponent={Transition}
       transitionDuration={500}
-      TransitionProps={{ direction: "up" }}
       sx={{
         "& .MuiDialog-paper": {
           margin: 0,
@@ -163,24 +166,23 @@ const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
           right: 0,
           top: 0,
           bottom: 0,
-          width: "38%",
-          maxWidth: "none",
+          width: { xs: "100%", sm: "min(100%, 500px)" },
+          maxWidth: "500px",
           height: "100%",
           borderRadius: 0,
           maxHeight: "100%",
         },
       }}
     >
-      <DialogTitle>
+      <DialogTitle className="text-lg font-semibold">
         {parameter ? "Edit Rating Parameter" : "Add Rating Parameter"}
       </DialogTitle>
       <DialogContent>
         {error && <div className="text-red-600 mb-4">{error}</div>}
-        <Grid container spacing={2} sx={{ mt: 1 }}>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Parameter Name
-            </label>
+
+        <Box display="flex" flexDirection="column" gap={2} mb={2}>
+          <Box>
+            <label className="block mb-1">Parameter Name *</label>
             <Controller
               name="name"
               control={control}
@@ -190,17 +192,17 @@ const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
                   fullWidth
                   variant="outlined"
                   size="small"
-                  InputProps={{ style: { height: "40px" } }}
                   error={!!errors.name}
                   helperText={errors.name?.message}
+                  className="bg-white"
+                  InputProps={{ className: "h-10" }}
                 />
               )}
             />
-          </Grid>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Description
-            </label>
+          </Box>
+
+          <Box>
+            <label className="block mb-1">Description</label>
             <Controller
               name="description"
               control={control}
@@ -214,11 +216,13 @@ const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
                   rows={4}
                   error={!!errors.description}
                   helperText={errors.description?.message}
+                  className="bg-white"
                 />
               )}
             />
-          </Grid>
-          <Grid item xs={12}>
+          </Box>
+
+          <Box>
             <Controller
               name="ratable_by_client"
               control={control}
@@ -229,14 +233,21 @@ const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
                       {...field}
                       checked={!!field.value}
                       onChange={(e) => field.onChange(e.target.checked ? 1 : 0)}
+                      sx={{
+                        color: "rgb(42,196,171)",
+                        "&.Mui-checked": {
+                          color: "rgb(42,196,171)",
+                        },
+                      }}
                     />
                   }
                   label="Ratable by Client"
                 />
               )}
             />
-          </Grid>
-          <Grid item xs={12}>
+          </Box>
+
+          <Box>
             <Controller
               name="ratable_by_manager"
               control={control}
@@ -247,14 +258,21 @@ const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
                       {...field}
                       checked={!!field.value}
                       onChange={(e) => field.onChange(e.target.checked ? 1 : 0)}
+                      sx={{
+                        color: "rgb(42,196,171)",
+                        "&.Mui-checked": {
+                          color: "rgb(42,196,171)",
+                        },
+                      }}
                     />
                   }
                   label="Ratable by Manager"
                 />
               )}
             />
-          </Grid>
-          <Grid item xs={12}>
+          </Box>
+
+          <Box>
             <Controller
               name="ratable_by_self"
               control={control}
@@ -265,14 +283,20 @@ const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
                       {...field}
                       checked={!!field.value}
                       onChange={(e) => field.onChange(e.target.checked ? 1 : 0)}
+                      sx={{
+                        color: "rgb(42,196,171)",
+                        "&.Mui-checked": {
+                          color: "rgb(42,196,171)",
+                        },
+                      }}
                     />
                   }
                   label="Ratable by Self"
                 />
               )}
             />
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </DialogContent>
       <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
         <Button

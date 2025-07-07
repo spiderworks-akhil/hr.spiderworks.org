@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { MdEdit, MdDelete } from "react-icons/md";
+import { MdEdit, MdDelete, MdSync } from "react-icons/md";
 import { BeatLoader } from "react-spinners";
 import { DataGrid } from "@mui/x-data-grid";
 import { Button, Popover, Typography, Box, Paper } from "@mui/material";
 import Select from "react-select";
 import toast, { Toaster } from "react-hot-toast";
 import dynamic from "next/dynamic";
-import { BASE_URL } from "@/services/baseUrl";
+import { BASE_URL, BASE_AUTH_URL } from "@/services/baseUrl";
 
 const UserFormPopup = dynamic(
   () => import("@/components/dashboard/user-form/UserFormPopup"),
@@ -48,7 +48,7 @@ const Users = () => {
   const [users, setUsers] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
-  const [limit] = useState(3);
+  const [limit] = useState(50);
   const [keyword, setKeyword] = useState("");
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -275,6 +275,69 @@ const Users = () => {
     fetchUsers();
   };
 
+  const handleSyncUsers = async () => {
+    try {
+      setLoading(true);
+      setFetchError(null);
+
+      const authResponse = await fetch(
+        `${BASE_AUTH_URL}/api/user-auth/fetch-all`
+      );
+
+      if (!authResponse.ok) {
+        throw new Error("Failed to fetch users from auth service");
+      }
+      const authUsers = await authResponse.json();
+
+      const transformedUsers = (authUsers.data || authUsers).map((user) => {
+        let first_name = null;
+        let last_name = null;
+        if (user.name) {
+          const nameParts = user.name.trim().split(" ");
+          first_name = nameParts[0] || null;
+          last_name =
+            nameParts.length > 1 ? nameParts.slice(1).join(" ") : null;
+        }
+
+        return {
+          id: parseInt(user.id, 10),
+          first_name,
+          last_name,
+          email: user.email || null,
+          phone: user.phone || null,
+        };
+      });
+
+      const syncResponse = await fetch(`${BASE_URL}/api/users/syncing`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ users: transformedUsers }),
+      });
+
+      if (!syncResponse.ok) {
+        const errorData = await syncResponse.json();
+        throw new Error(errorData.message || "Failed to sync users");
+      }
+
+      const syncData = await syncResponse.json();
+      toast.success(syncData.message || "Users synced successfully!", {
+        position: "top-right",
+      });
+
+      await fetchUsers();
+    } catch (error) {
+      console.error("Failed to sync users:", error);
+      setFetchError("Failed to sync users. Please try again.");
+      toast.error(error.message || "Failed to sync users.", {
+        position: "top-right",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const CustomNoRowsOverlay = () => (
     <Box sx={{ p: 2, textAlign: "center", color: "gray" }}>No users found</Box>
   );
@@ -284,12 +347,22 @@ const Users = () => {
       <Toaster position="top-right" reverseOrder={true} />
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-semibold text-gray-800">Users ({total})</h1>
-        <button
-          onClick={handleOpenAddDialog}
-          className="bg-[rgb(42,196,171)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
-        >
-          <span>+ Add User</span>
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={handleSyncUsers}
+            className="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center space-x-2"
+            disabled={loading}
+          >
+            <MdSync className="w-5 h-5" />
+            <span>Sync Users</span>
+          </button>
+          <button
+            onClick={handleOpenAddDialog}
+            className="bg-[rgb(42,196,171)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
+          >
+            <span>+ Add User</span>
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-4">
