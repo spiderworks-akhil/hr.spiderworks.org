@@ -5,7 +5,15 @@ import dynamic from "next/dynamic";
 import { MdOutlineSecurity, MdEdit, MdDelete } from "react-icons/md";
 import { BeatLoader } from "react-spinners";
 import { DataGrid } from "@mui/x-data-grid";
-import { Button, Popover, Typography, Box, Paper } from "@mui/material";
+import {
+  Button,
+  Popover,
+  Typography,
+  Box,
+  Paper,
+  Checkbox,
+  FormControlLabel,
+} from "@mui/material";
 import moment from "moment";
 import Link from "next/link";
 import toast, { Toaster } from "react-hot-toast";
@@ -18,7 +26,7 @@ const Employees = () => {
   const [employees, setEmployees] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
-  const [limit] = useState(3);
+  const [limit] = useState(50);
   const [keyword, setKeyword] = useState("");
   const [employeeType, setEmployeeType] = useState(null);
   const [employeeRole, setEmployeeRole] = useState(null);
@@ -30,6 +38,20 @@ const Employees = () => {
   const [employeeToDelete, setEmployeeToDelete] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [editEmployee, setEditEmployee] = useState(null);
+
+  const [permissionAnchorEl, setPermissionAnchorEl] = useState(null);
+  const [employeeToEditPermissions, setEmployeeToEditPermissions] =
+    useState(null);
+  const [permissions, setPermissions] = useState({
+    has_work_portal_access: false,
+    has_hr_portal_access: false,
+    has_client_portal_access: false,
+    has_inventory_portal_access: false,
+    has_super_admin_access: false,
+    has_accounts_portal_access: false,
+    has_admin_portal_access: false,
+    has_showcase_portal_access: false,
+  });
 
   const [employeeTypeOptions, setEmployeeTypeOptions] = useState([]);
   const [employeeRoleOptions, setEmployeeRoleOptions] = useState([]);
@@ -92,7 +114,10 @@ const Employees = () => {
       width: 100,
       sortable: false,
       renderCell: (params) => (
-        <button aria-label="View permissions">
+        <button
+          onClick={(event) => handleOpenPermissionsPopover(event, params.row)}
+          aria-label="Edit permissions"
+        >
           <MdOutlineSecurity className="w-5 h-5 text-gray-500" />
         </button>
       ),
@@ -149,6 +174,90 @@ const Employees = () => {
   const handleCloseDeletePopover = () => {
     setAnchorEl(null);
     setEmployeeToDelete(null);
+  };
+
+  const handleOpenPermissionsPopover = (event, employee) => {
+    setPermissionAnchorEl(event.currentTarget);
+    setEmployeeToEditPermissions(employee);
+    setPermissions({
+      has_work_portal_access: !!employee.has_work_portal_access,
+      has_hr_portal_access: !!employee.has_hr_portal_access,
+      has_client_portal_access: !!employee.has_client_portal_access,
+      has_inventory_portal_access: !!employee.has_inventory_portal_access,
+      has_super_admin_access: !!employee.has_super_admin_access,
+      has_accounts_portal_access: !!employee.has_accounts_portal_access,
+      has_admin_portal_access: !!employee.has_admin_portal_access,
+      has_showcase_portal_access: !!employee.has_showcase_portal_access,
+    });
+  };
+
+  const handleClosePermissionsPopover = () => {
+    setPermissionAnchorEl(null);
+    setEmployeeToEditPermissions(null);
+    setPermissions({
+      has_work_portal_access: false,
+      has_hr_portal_access: false,
+      has_client_portal_access: false,
+      has_inventory_portal_access: false,
+      has_super_admin_access: false,
+      has_accounts_portal_access: false,
+      has_admin_portal_access: false,
+      has_showcase_portal_access: false,
+    });
+  };
+
+  const handlePermissionChange = (event) => {
+    setPermissions({
+      ...permissions,
+      [event.target.name]: event.target.checked,
+    });
+  };
+
+  const handleUpdatePermissions = async () => {
+    if (!employeeToEditPermissions) return;
+    try {
+      setLoading(true);
+      setFetchError(null);
+
+      const response = await fetch(
+        `${BASE_URL}/api/employees/permissions/update?id=${employeeToEditPermissions.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(permissions),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update permissions");
+      }
+
+      const data = await response.json();
+      toast.success(data.message || "Permissions updated successfully!", {
+        position: "top-right",
+      });
+
+      await fetchEmployees(
+        page,
+        keyword,
+        employeeType,
+        employeeRole,
+        department,
+        employeeLevel
+      );
+      handleClosePermissionsPopover();
+    } catch (error) {
+      console.error("Failed to update permissions:", error);
+      setFetchError(
+        error.message || "Failed to update permissions. Please try again."
+      );
+      toast.error(error.message || "Failed to update permissions.", {
+        position: "top-right",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDeleteEmployee = async () => {
@@ -353,6 +462,50 @@ const Employees = () => {
         </button>
       </div>
 
+      <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-4">
+        <input
+          type="text"
+          placeholder="Search Employees"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          className="border border-gray-300 rounded-md px-3 py-2 w-full md:w-1/4 focus:outline-none focus:ring-1 focus:ring-[rgb(42,196,171)]"
+        />
+        <Select
+          options={employeeTypeOptions}
+          value={employeeType}
+          onChange={setEmployeeType}
+          placeholder="Employee Type"
+          className="w-full md:w-1/5"
+          isClearable
+        />
+        <Select
+          options={employeeRoleOptions}
+          value={employeeRole}
+          onChange={setEmployeeRole}
+          placeholder="Employee Role"
+          className="w-full md:w-1/5"
+          isClearable
+          onInputChange={filterRoles}
+        />
+        <Select
+          options={departmentOptions}
+          value={department}
+          onChange={setDepartment}
+          placeholder="Department"
+          className="w-full md:w-1/5"
+          isClearable
+          onInputChange={filterDepartments}
+        />
+        <Select
+          options={employeeLevelOptions}
+          value={employeeLevel}
+          onChange={setEmployeeLevel}
+          placeholder="Employee Level"
+          className="w-full md:w-1/5"
+          isClearable
+        />
+      </div>
+
       {loading ? (
         <div className="flex justify-center items-center h-64">
           <BeatLoader color="#2ac4ab" height={50} width={5} />
@@ -361,50 +514,6 @@ const Employees = () => {
         <div className="text-center text-red-600 py-10">{fetchError}</div>
       ) : (
         <>
-          <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-4">
-            <input
-              type="text"
-              placeholder="Search Employees"
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2 w-full md:w-1/4 focus:outline-none focus:ring-1 focus:ring-[rgb(42,196,171)]"
-            />
-            <Select
-              options={employeeTypeOptions}
-              value={employeeType}
-              onChange={setEmployeeType}
-              placeholder="Employee Type"
-              className="w-full md:w-1/5"
-              isClearable
-            />
-            <Select
-              options={employeeRoleOptions}
-              value={employeeRole}
-              onChange={setEmployeeRole}
-              placeholder="Employee Role"
-              className="w-full md:w-1/5"
-              isClearable
-              onInputChange={filterRoles}
-            />
-            <Select
-              options={departmentOptions}
-              value={department}
-              onChange={setDepartment}
-              placeholder="Department"
-              className="w-full md:w-1/5"
-              isClearable
-              onInputChange={filterDepartments}
-            />
-            <Select
-              options={employeeLevelOptions}
-              value={employeeLevel}
-              onChange={setEmployeeLevel}
-              placeholder="Employee Level"
-              className="w-full md:w-1/5"
-              isClearable
-            />
-          </div>
-
           <Paper sx={{ width: "100%", boxShadow: "none" }}>
             <DataGrid
               rows={employees}
@@ -489,6 +598,81 @@ const Employees = () => {
               disabled={loading}
             >
               {loading ? <BeatLoader color="#fff" size={8} /> : "Delete"}
+            </Button>
+          </Box>
+        </Box>
+      </Popover>
+
+      <Popover
+        open={Boolean(permissionAnchorEl)}
+        anchorEl={permissionAnchorEl}
+        onClose={handleClosePermissionsPopover}
+        anchorOrigin={{ vertical: "center", horizontal: "center" }}
+        transformOrigin={{ vertical: "center", horizontal: "center" }}
+        PaperProps={{
+          sx: {
+            width: { xs: "90%", sm: 400 },
+            maxWidth: "100%",
+            p: 3,
+            borderRadius: 2,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+          },
+        }}
+      >
+        <Box>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
+            Edit Permissions for {employeeToEditPermissions?.name}
+          </Typography>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+            {Object.keys(permissions).map((key) => (
+              <FormControlLabel
+                key={key}
+                control={
+                  <Checkbox
+                    checked={permissions[key]}
+                    onChange={handlePermissionChange}
+                    name={key}
+                    sx={{
+                      color: "#2ac4ab",
+                      "&.Mui-checked": { color: "#2ac4ab" },
+                    }}
+                  />
+                }
+                label={key
+                  .replace(/has_|_access/g, "")
+                  .replace(/_/g, " ")
+                  .toLowerCase()
+                  .replace(/\b\w/g, (char) => char.toUpperCase())}
+                sx={{ textTransform: "capitalize" }}
+              />
+            ))}
+          </Box>
+          <Box
+            sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 3 }}
+          >
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={handleClosePermissionsPopover}
+              sx={{
+                borderColor: "#2ac4ab",
+                color: "#2ac4ab",
+                "&:hover": { borderColor: "#26a69a", color: "#26a69a" },
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={handleUpdatePermissions}
+              disabled={loading}
+              sx={{
+                backgroundColor: "#2ac4ab",
+                "&:hover": { backgroundColor: "#26a69a" },
+              }}
+            >
+              {loading ? <BeatLoader color="#fff" size={8} /> : "Save"}
             </Button>
           </Box>
         </Box>
