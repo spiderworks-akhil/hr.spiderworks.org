@@ -379,9 +379,7 @@ const RecruitmentRequestPage = () => {
 
         <Box display="flex" flexWrap="wrap" gap={2} mb={4}>
           <Box width={{ xs: "100%", sm: "200px" }}>
-            <label className="block mb-1 text-sm font-medium">
-              Requested By
-            </label>
+            <label className="block mb-1">Requested By</label>
             <Select
               options={userOptions}
               value={
@@ -399,7 +397,7 @@ const RecruitmentRequestPage = () => {
             />
           </Box>
           <Box width={{ xs: "100%", sm: "150px" }}>
-            <label className="block mb-1 text-sm font-medium">Status</label>
+            <label className="block mb-1">Status</label>
             <Select
               options={statusOptions}
               value={statusOptions.find((opt) => opt.value === status) || null}

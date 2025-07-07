@@ -13,7 +13,7 @@ import {
 } from "react-icons/fi";
 import { BASE_AUTH_URL, BASE_URL } from "@/services/baseUrl";
 
-const SignUp = () => {
+const SignIn = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const {
@@ -23,7 +23,7 @@ const SignUp = () => {
   } = useForm();
   const [message, setMessage] = useState({ text: "", type: "" });
   const [qrCodeImage, setQrCodeImage] = useState(null);
-  const [signupEmail, setSignupEmail] = useState(null);
+  const [signinEmail, setSigninEmail] = useState(null);
   const [token, setToken] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const [countdown, setCountdown] = useState(30);
@@ -43,7 +43,7 @@ const SignUp = () => {
     } else if (qrCodeImage && countdown === 0) {
       setMessage({ text: "", type: "" });
       setQrCodeImage(null);
-      setSignupEmail(null);
+      setSigninEmail(null);
       setToken("");
       setCountdown(30);
     }
@@ -81,13 +81,13 @@ const SignUp = () => {
 
       if (!res.ok) {
         throw new Error(
-          result.message || `Signup failed with status ${res.status}`
+          result.message || `Signin failed with status ${res.status}`
         );
       }
 
       if (result.status === "success") {
         setQrCodeImage(result.data.qrcode);
-        setSignupEmail(result.data.email);
+        setSigninEmail(result.data.email);
         setCountdown(30);
         setMessage({
           text:
@@ -96,15 +96,15 @@ const SignUp = () => {
           type: "success",
         });
       } else {
-        throw new Error("Signup successful, but no QR code received");
+        throw new Error("Signin successful, but no QR code received");
       }
     } catch (err) {
-      setMessage({ text: err.message || "Signup failed", type: "error" });
+      setMessage({ text: err.message || "Signin failed", type: "error" });
     }
   };
 
   const handleVerifyToken = async () => {
-    if (!token || !signupEmail) {
+    if (!token || !signinEmail) {
       setMessage({
         text: "Token and email are required for verification.",
         type: "error",
@@ -119,7 +119,7 @@ const SignUp = () => {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, email: signupEmail }),
+        body: JSON.stringify({ token, email: signinEmail }),
       });
 
       let result;
@@ -188,7 +188,7 @@ const SignUp = () => {
           type: "success",
         });
         setQrCodeImage(null);
-        setSignupEmail(null);
+        setSigninEmail(null);
         setToken("");
         setCountdown(30);
         setTimeout(() => {
@@ -259,7 +259,7 @@ const SignUp = () => {
             </div>
           )}
 
-          {!signupEmail ? (
+          {!signinEmail ? (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div>
                 <label
@@ -361,10 +361,10 @@ const SignUp = () => {
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         ></path>
                       </svg>
-                      Signing up...
+                      Signing in...
                     </>
                   ) : (
-                    "Sign up"
+                    "Sign in"
                   )}
                 </button>
               </div>
@@ -444,4 +444,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default SignIn;

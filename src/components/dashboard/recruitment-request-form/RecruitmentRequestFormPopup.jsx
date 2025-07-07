@@ -302,9 +302,7 @@ const RecruitmentRequestFormPopup = ({
             gap={2}
           >
             <Box flex={1} minWidth={0}>
-              <label className="block mb-1 text-sm font-medium">
-                Job Title *
-              </label>
+              <label className="block mb-1">Job Title *</label>
               <Controller
                 name="job_title"
                 control={control}
@@ -322,9 +320,7 @@ const RecruitmentRequestFormPopup = ({
               />
             </Box>
             <Box flex={1} minWidth={0}>
-              <label className="block mb-1 text-sm font-medium">
-                Requested By *
-              </label>
+              <label className="block mb-1">Requested By *</label>
               <Controller
                 name="requested_by"
                 control={control}
@@ -360,9 +356,7 @@ const RecruitmentRequestFormPopup = ({
             gap={2}
           >
             <Box flex={1} minWidth={0}>
-              <label className="block mb-1 text-sm font-medium">
-                Priority *
-              </label>
+              <label className="block mb-1">Priority *</label>
               <Controller
                 name="priority"
                 control={control}
@@ -392,7 +386,7 @@ const RecruitmentRequestFormPopup = ({
               />
             </Box>
             <Box flex={1} minWidth={0}>
-              <label className="block mb-1 text-sm font-medium">Status *</label>
+              <label className="block mb-1">Status *</label>
               <Controller
                 name="status"
                 control={control}
@@ -424,9 +418,7 @@ const RecruitmentRequestFormPopup = ({
           </Box>
 
           <Box>
-            <label className="block mb-1 text-sm font-medium">
-              Internal Requirement
-            </label>
+            <label className="block mb-1">Internal Requirement</label>
             <Controller
               name="internal_requirement"
               control={control}
@@ -447,9 +439,7 @@ const RecruitmentRequestFormPopup = ({
           </Box>
 
           <Box>
-            <label className="block mb-1 text-sm font-medium">
-              Public Job Post Content
-            </label>
+            <label className="block mb-1">Public Job Post Content</label>
             <Controller
               name="public_job_post_content"
               control={control}
@@ -470,9 +460,7 @@ const RecruitmentRequestFormPopup = ({
           </Box>
 
           <Box>
-            <label className="block mb-1 text-sm font-medium">
-              Estimated Hiring Days
-            </label>
+            <label className="block mb-1">Estimated Hiring Days</label>
             <Controller
               name="estimated_hiring_days"
               control={control}
@@ -493,7 +481,7 @@ const RecruitmentRequestFormPopup = ({
           </Box>
 
           <Box>
-            <label className="block mb-1 text-sm font-medium">HR Remarks</label>
+            <label className="block mb-1">HR Remarks</label>
             <Controller
               name="hiring_remarks_by_hr"
               control={control}

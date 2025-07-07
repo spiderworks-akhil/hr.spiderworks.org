@@ -4,7 +4,10 @@ import { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import {
   Button,
-  Modal,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Box,
   TextField,
   Typography,
@@ -60,7 +63,7 @@ const Staffs = ({ template }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const [modalMode, setModalMode] = useState("add");
   const [evaluatorType, setEvaluatorType] = useState("employee");
   const [formData, setFormData] = useState({
@@ -79,7 +82,7 @@ const Staffs = ({ template }) => {
     anchorEl: null,
     evaluationId: null,
   });
-  const [evaluateModalOpen, setEvaluateModalOpen] = useState(false);
+  const [evaluateDialogOpen, setEvaluateDialogOpen] = useState(false);
   const [selectedEvaluation, setSelectedEvaluation] = useState(null);
   const [ratings, setRatings] = useState({});
   const [remarks, setRemarks] = useState("");
@@ -172,7 +175,7 @@ const Staffs = ({ template }) => {
     setPage(0);
   };
 
-  const handleOpenModal = (mode, evalItem = null) => {
+  const handleOpenDialog = (mode, evalItem = null) => {
     setModalMode(mode);
     setEvaluatorType(
       evalItem?.evaluation_by_employee_id ? "employee" : "guest"
@@ -199,11 +202,11 @@ const Staffs = ({ template }) => {
     setFormErrors({});
     setApiError(null);
     setSubmitted(false);
-    setOpenModal(true);
+    setOpenDialog(true);
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
     setFormData({
       id: 0,
       evaluation_for_employee_id: "",
@@ -369,7 +372,7 @@ const Staffs = ({ template }) => {
       });
 
       await fetchEvaluations(page, searchQuery);
-      handleCloseModal();
+      handleCloseDialog();
     } catch (error) {
       console.error(
         `Failed to ${modalMode === "add" ? "create" : "update"} evaluation:`,
@@ -387,14 +390,14 @@ const Staffs = ({ template }) => {
     }
   };
 
-  const handleOpenEvaluateModal = (evalItem) => {
+  const handleOpenEvaluateDialog = (evalItem) => {
     setSelectedEvaluation(evalItem);
     setRatings({});
     setRemarks(evalItem.evaluation_remarks || "");
     setImprovements(evalItem.improvements_suggested || "");
     setApiError(null);
     setSubmitted(false);
-    setEvaluateModalOpen(true);
+    setEvaluateDialogOpen(true);
 
     const existingResponses = evaluationResponses[evalItem.id] || [];
     const initialRatings = {};
@@ -404,8 +407,8 @@ const Staffs = ({ template }) => {
     setRatings(initialRatings);
   };
 
-  const handleCloseEvaluateModal = () => {
-    setEvaluateModalOpen(false);
+  const handleCloseEvaluateDialog = () => {
+    setEvaluateDialogOpen(false);
     setSelectedEvaluation(null);
     setRatings({});
     setRemarks("");
@@ -469,7 +472,7 @@ const Staffs = ({ template }) => {
       });
 
       await fetchEvaluations(page, searchQuery);
-      handleCloseEvaluateModal();
+      handleCloseEvaluateDialog();
     } catch (error) {
       console.error("Failed to submit evaluation:", error);
       setApiError(
@@ -588,12 +591,20 @@ const Staffs = ({ template }) => {
           <Box>
             {responses.length > 0 ? (
               responses.map((res) => (
-                <Typography key={res.parameter_mapping_id} variant="body2">
-                  Param {res.parameter_mapping_id}: {res.response_value}/5
+                <Typography
+                  key={res.parameter_mapping_id}
+                  variant="body2"
+                  sx={{ mt: 1.5 }}
+                >
+                  {res.response_value}/5
                 </Typography>
               ))
             ) : (
-              <Typography variant="body2" color="textSecondary">
+              <Typography
+                variant="body2"
+                color="textSecondary"
+                sx={{ mt: 1.5 }}
+              >
                 No responses
               </Typography>
             )}
@@ -608,7 +619,7 @@ const Staffs = ({ template }) => {
       sortable: false,
       renderCell: (params) => (
         <button
-          onClick={() => handleOpenEvaluateModal(params.row)}
+          onClick={() => handleOpenEvaluateDialog(params.row)}
           aria-label="Evaluate"
         >
           <MdStar className="w-5 h-5 text-blue-500" />
@@ -622,7 +633,7 @@ const Staffs = ({ template }) => {
       sortable: false,
       renderCell: (params) => (
         <button
-          onClick={() => handleOpenModal("edit", params.row)}
+          onClick={() => handleOpenDialog("edit", params.row)}
           aria-label="Edit evaluation"
         >
           <MdEdit className="w-5 h-5 text-gray-500" />
@@ -687,7 +698,7 @@ const Staffs = ({ template }) => {
             backgroundColor: "rgb(42,196,171)",
             "&:hover": { backgroundColor: "rgb(35,170,148)" },
           }}
-          onClick={() => handleOpenModal("add")}
+          onClick={() => handleOpenDialog("add")}
         >
           Add Evaluation
         </Button>
@@ -745,23 +756,26 @@ const Staffs = ({ template }) => {
         )}
       </Paper>
 
-      <Modal open={openModal} onClose={handleCloseModal}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "white",
-            boxShadow: 24,
-            p: 4,
-            borderRadius: 2,
-          }}
-        >
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            {modalMode === "add" ? "Add Evaluation" : "Edit Evaluation"}
-          </Typography>
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        sx={{
+          "& .MuiDialog-paper": {
+            width: { xs: "90vw", sm: "500px" },
+            maxHeight: "80vh",
+            borderRadius: "8px",
+          },
+        }}
+      >
+        <DialogTitle className="text-lg font-semibold">
+          {modalMode === "add" ? "Add Evaluation" : "Edit Evaluation"}
+        </DialogTitle>
+        <DialogContent className="overflow-y-auto">
+          {apiError && (
+            <Typography color="error" sx={{ mb: 2 }}>
+              {apiError}
+            </Typography>
+          )}
           <FormControl component="fieldset" sx={{ mb: 2 }}>
             <FormLabel component="legend">Evaluator Type</FormLabel>
             <RadioGroup
@@ -784,29 +798,30 @@ const Staffs = ({ template }) => {
           <label style={{ marginBottom: 4, display: "block" }}>
             Evaluated Employee
           </label>
-          <Select
-            options={employeeOptions}
-            value={
-              employeeOptions.find(
-                (opt) => opt.value === formData.evaluation_for_employee_id
-              ) || null
-            }
-            onChange={(selected) =>
-              handleInputChange(
-                "evaluation_for_employee_id",
-                selected ? selected.value : ""
-              )
-            }
-            styles={customSelectStyles}
-            placeholder="Select Employee..."
-            isClearable
-            sx={{ mb: 2 }}
-          />
-          {submitted && formErrors.evaluation_for_employee_id && (
-            <Typography color="error" sx={{ mb: 2, fontSize: "0.75rem" }}>
-              {formErrors.evaluation_for_employee_id}
-            </Typography>
-          )}
+          <Box sx={{ mb: 2 }}>
+            <Select
+              options={employeeOptions}
+              value={
+                employeeOptions.find(
+                  (opt) => opt.value === formData.evaluation_for_employee_id
+                ) || null
+              }
+              onChange={(selected) =>
+                handleInputChange(
+                  "evaluation_for_employee_id",
+                  selected ? selected.value : ""
+                )
+              }
+              styles={customSelectStyles}
+              placeholder="Select Employee..."
+              isClearable
+            />
+            {submitted && formErrors.evaluation_for_employee_id && (
+              <Typography color="error" sx={{ mt: 1, fontSize: "0.75rem" }}>
+                {formErrors.evaluation_for_employee_id}
+              </Typography>
+            )}
+          </Box>
           {evaluatorType === "employee" && (
             <>
               <label style={{ marginBottom: 4, display: "block" }}>
@@ -830,12 +845,12 @@ const Staffs = ({ template }) => {
                   placeholder="Select Employee..."
                   isClearable
                 />
+                {submitted && formErrors.evaluation_by_employee_id && (
+                  <Typography color="error" sx={{ mt: 1, fontSize: "0.75rem" }}>
+                    {formErrors.evaluation_by_employee_id}
+                  </Typography>
+                )}
               </Box>
-              {submitted && formErrors.evaluation_by_employee_id && (
-                <Typography color="error" sx={{ mb: 2, fontSize: "0.75rem" }}>
-                  {formErrors.evaluation_by_employee_id}
-                </Typography>
-              )}
             </>
           )}
           {evaluatorType === "guest" && (
@@ -860,7 +875,7 @@ const Staffs = ({ template }) => {
                       borderColor: "rgb(42,196,171)",
                     },
                   },
-                  mb: 0,
+                  mb: 2,
                 }}
               />
               <label style={{ marginBottom: 4, display: "block" }}>
@@ -885,76 +900,75 @@ const Staffs = ({ template }) => {
                       borderColor: "rgb(42,196,171)",
                     },
                   },
-                  mb: 2,
+                  mb: 0,
                 }}
               />
             </>
           )}
           {submitted && formErrors.guestFields && (
-            <Typography color="error" sx={{ mb: 2, fontSize: "0.75rem" }}>
+            <Typography color="error" sx={{ mt: 1, fontSize: "0.75rem" }}>
               {formErrors.guestFields}
             </Typography>
           )}
+        </DialogContent>
+        <DialogActions
+          sx={{ justifyContent: "justify-between", px: 3, pb: 3, pt: 2 }}
+        >
+          <Button
+            onClick={handleCloseDialog}
+            sx={{
+              backgroundColor: "#ffebee",
+              color: "#ef5350",
+              "&:hover": { backgroundColor: "#ffcdd2" },
+              padding: "8px 16px",
+              borderRadius: "8px",
+            }}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            variant="contained"
+            sx={{
+              backgroundColor: "rgb(42,196,171)",
+              "&:hover": { backgroundColor: "rgb(35,170,148)" },
+              padding: "8px 16px",
+              borderRadius: "8px",
+            }}
+            disabled={loading}
+          >
+            {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={evaluateDialogOpen}
+        onClose={handleCloseEvaluateDialog}
+        sx={{
+          "& .MuiDialog-paper": {
+            width: { xs: "90vw", sm: "500px" },
+            maxHeight: "80vh",
+            borderRadius: "8px",
+          },
+        }}
+      >
+        <DialogTitle className="text-lg font-semibold">Evaluate</DialogTitle>
+        <DialogContent className="overflow-y-auto">
           {apiError && (
             <Typography color="error" sx={{ mb: 2 }}>
               {apiError}
             </Typography>
           )}
-          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
-            <Button
-              onClick={handleCloseModal}
-              sx={{
-                backgroundColor: "#ffebee",
-                color: "#ef5350",
-                "&:hover": { backgroundColor: "#ffcdd2" },
-                padding: "8px 16px",
-                borderRadius: "8px",
-              }}
-            >
-              Close
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              variant="contained"
-              sx={{
-                backgroundColor: "rgb(42,196,171)",
-                "&:hover": { backgroundColor: "rgb(35,170,148)" },
-              }}
-              disabled={loading}
-            >
-              {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
-            </Button>
-          </Box>
-        </Box>
-      </Modal>
-
-      <Modal open={evaluateModalOpen} onClose={handleCloseEvaluateModal}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 500,
-            bgcolor: "white",
-            boxShadow: 24,
-            p: 4,
-            borderRadius: 2,
-            maxHeight: "80vh",
-            overflowY: "auto",
-          }}
-        >
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            Evaluate
-          </Typography>
           {selectedEvaluation && (
             <>
               <Typography sx={{ mb: 1 }}>
-                <strong>Template:</strong>{" "}
+                <label>Template:</label>{" "}
                 {selectedEvaluation.template?.name || "-"}
               </Typography>
               <Typography sx={{ mb: 3 }}>
-                <strong>Evaluated Employee:</strong>{" "}
+                <label>Evaluated Employee:</label>{" "}
                 {selectedEvaluation.evaluatedEmployee?.name || "-"}
               </Typography>
               <Typography variant="subtitle1" sx={{ mb: 2 }}>
@@ -962,8 +976,10 @@ const Staffs = ({ template }) => {
               </Typography>
               {selectedEvaluation.template?.parameterMapping?.length > 0 ? (
                 selectedEvaluation.template.parameterMapping.map((param) => (
-                  <Box key={param.id} sx={{ mb: 3 }}>
-                    <Typography>{param.parameter.name}</Typography>
+                  <Box key={param.id} sx={{ mb: 2 }}>
+                    <Typography sx={{ fontWeight: 200, marginBottom: 0.5 }}>
+                      {param.parameter.name}
+                    </Typography>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       {[1, 2, 3, 4, 5].map((value) => (
                         <button
@@ -1037,38 +1053,38 @@ const Staffs = ({ template }) => {
               />
             </>
           )}
-          {apiError && (
-            <Typography color="error" sx={{ mb: 2 }}>
-              {apiError}
-            </Typography>
-          )}
-          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
-            <Button
-              onClick={handleCloseEvaluateModal}
-              sx={{
-                backgroundColor: "#ffebee",
-                color: "#ef5350",
-                "&:hover": { backgroundColor: "#ffcdd2" },
-                padding: "8px 16px",
-                borderRadius: "8px",
-              }}
-            >
-              Close
-            </Button>
-            <Button
-              onClick={handleEvaluateSubmit}
-              variant="contained"
-              sx={{
-                backgroundColor: "rgb(42,196,171)",
-                "&:hover": { backgroundColor: "rgb(35,170,148)" },
-              }}
-              disabled={loading}
-            >
-              {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
-            </Button>
-          </Box>
-        </Box>
-      </Modal>
+        </DialogContent>
+        <DialogActions
+          sx={{ justifyContent: "justify-between", px: 3, pb: 3, pt: 2 }}
+        >
+          <Button
+            onClick={handleCloseEvaluateDialog}
+            sx={{
+              backgroundColor: "#ffebee",
+              color: "#ef5350",
+              "&:hover": { backgroundColor: "#ffcdd2" },
+              padding: "8px 16px",
+              borderRadius: "8px",
+            }}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleEvaluateSubmit}
+            variant="contained"
+            sx={{
+              backgroundColor: "rgb(42,196,171)",
+              "&:hover": { backgroundColor: "rgb(35,170,148)" },
+              padding: "8px 16px",
+              borderRadius: "8px",
+            }}
+            disabled={loading}
+          >
+            {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Popover
         open={Boolean(deletePopover.anchorEl)}
@@ -1082,7 +1098,15 @@ const Staffs = ({ template }) => {
             Are you sure you want to delete this evaluation?
           </Typography>
           <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
-            <Button onClick={handleCloseDeletePopover} variant="outlined">
+            <Button
+              onClick={handleCloseDeletePopover}
+              variant="outlined"
+              sx={{
+                borderColor: "#ef5350",
+                color: "#ef5350",
+                "&:hover": { borderColor: "#e53935", color: "#e53935" },
+              }}
+            >
               Cancel
             </Button>
             <Button

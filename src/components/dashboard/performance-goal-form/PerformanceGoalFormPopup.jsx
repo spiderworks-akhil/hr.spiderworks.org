@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -11,7 +11,6 @@ import {
   DialogActions,
   Button,
   TextField,
-  Slide,
   Box,
 } from "@mui/material";
 import { DesktopDatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -21,9 +20,37 @@ import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
 import Select from "react-select";
 import { FaStar } from "react-icons/fa";
+import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
 
-const Transition = Slide;
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
+const customSelectStyles = {
+  control: (provided) => ({
+    ...provided,
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    minHeight: "40px",
+    boxShadow: "none",
+    "&:hover": { border: "1px solid #ccc" },
+  }),
+  menu: (provided) => ({
+    ...provided,
+    zIndex: 9999,
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isSelected
+      ? "#2ac4ab"
+      : state.isFocused
+      ? "#e6f7f5"
+      : "white",
+    color: state.isSelected ? "white" : "black",
+    "&:hover": { backgroundColor: state.isSelected ? "#2ac4ab" : "#e6f7f5" },
+  }),
+};
 
 const validationSchema = (reviewedDate) =>
   yup
@@ -57,35 +84,6 @@ const validationSchema = (reviewedDate) =>
         return green_star_count > 0 || red_star_count > 0;
       }
     );
-
-const customSelectStyles = {
-  control: (provided) => ({
-    ...provided,
-    border: "1px solid #ccc",
-    borderRadius: "4px",
-    minHeight: "40px",
-    boxShadow: "none",
-    "&:hover": {
-      border: "1px solid #ccc",
-    },
-  }),
-  menu: (provided) => ({
-    ...provided,
-    zIndex: 9999,
-  }),
-  option: (provided, state) => ({
-    ...provided,
-    backgroundColor: state.isSelected
-      ? "#2ac4ab"
-      : state.isFocused
-      ? "#e6f7f5"
-      : "white",
-    color: state.isSelected ? "white" : "black",
-    "&:hover": {
-      backgroundColor: state.isSelected ? "#2ac4ab" : "#e6f7f5",
-    },
-  }),
-};
 
 const StarRating = ({
   value,
@@ -145,10 +143,6 @@ const PerformanceGoalFormPopup = ({
     resolver: yupResolver(validationSchema(performanceGoal?.reviewed_date)),
     mode: "onChange",
   });
-
-  useEffect(() => {
-    console.log("Form errors:", errors);
-  }, [errors]);
 
   const employeeOptions = employees.map((employee) => ({
     value: employee.id,
@@ -303,7 +297,6 @@ const PerformanceGoalFormPopup = ({
         onClose={onClose}
         TransitionComponent={Transition}
         transitionDuration={500}
-        TransitionProps={{ direction: "up" }}
         sx={{
           "& .MuiDialog-paper": {
             margin: 0,
@@ -311,12 +304,8 @@ const PerformanceGoalFormPopup = ({
             right: 0,
             top: 0,
             bottom: 0,
-            width: {
-              xs: "100%",
-              sm: "min(100%, 500px)",
-              md: "40%",
-            },
-            maxWidth: "none",
+            width: { xs: "100%", sm: "min(100%, 500px)" },
+            maxWidth: "500px",
             height: "100%",
             borderRadius: 0,
             maxHeight: "100%",
@@ -329,221 +318,205 @@ const PerformanceGoalFormPopup = ({
         <DialogContent>
           {error && <div className="text-red-600 mb-4">{error}</div>}
 
-          <Box
-            display="flex"
-            flexDirection={{ xs: "column", md: "row" }}
-            gap={2}
-            mb={2}
-          >
-            <Box flex={1}>
-              <label className="block mb-1 text-sm font-medium">Reviewer</label>
+          <Box display="flex" flexDirection="column" gap={2} mb={2}>
+            <Box>
+              <label className="block mb-1">Title *</label>
               <Controller
-                name="reviewer_id"
+                name="title"
                 control={control}
                 render={({ field }) => (
-                  <>
-                    <Select
-                      options={employeeOptions}
-                      value={
-                        employeeOptions.find(
-                          (opt) => opt.value === field.value
-                        ) || null
-                      }
-                      onChange={(selected) => {
-                        field.onChange(selected ? selected.value : null);
-                        trigger("reviewer_id");
-                      }}
-                      styles={customSelectStyles}
-                      placeholder="Select Reviewer..."
-                      isClearable
-                      className="bg-white"
-                    />
-                    {errors.reviewer_id && (
-                      <span className="text-red-600 text-xs mt-1 block">
-                        {errors.reviewer_id?.message}
-                      </span>
-                    )}
-                  </>
+                  <TextField
+                    {...field}
+                    fullWidth
+                    variant="outlined"
+                    size="small"
+                    error={!!errors.title}
+                    helperText={errors.title?.message}
+                    className="bg-white"
+                    InputProps={{ className: "h-10" }}
+                  />
                 )}
               />
             </Box>
 
-            <Box flex={1}>
-              <label className="block mb-1 text-sm font-medium">
-                Assign To
-              </label>
+            <Box>
+              <label className="block mb-1">Description</label>
               <Controller
-                name="user_ids"
+                name="description"
                 control={control}
                 render={({ field }) => (
-                  <>
-                    <Select
-                      isMulti
-                      options={employeeOptions}
-                      value={employeeOptions.filter((opt) =>
-                        field.value.includes(opt.value)
-                      )}
-                      onChange={(selected) => {
-                        field.onChange(selected.map((opt) => opt.value));
-                        trigger("user_ids");
-                      }}
-                      styles={customSelectStyles}
-                      placeholder="Select Employees..."
-                      className="bg-white"
-                    />
-                    {errors.user_ids && (
-                      <span className="text-red-600 text-xs mt-1 block">
-                        {errors.user_ids?.message}
-                      </span>
-                    )}
-                  </>
+                  <TextField
+                    {...field}
+                    fullWidth
+                    variant="outlined"
+                    size="small"
+                    multiline
+                    rows={4}
+                    error={!!errors.description}
+                    helperText={errors.description?.message}
+                    className="bg-white"
+                  />
                 )}
               />
             </Box>
-          </Box>
 
-          <Box
-            display="flex"
-            flexDirection={{ xs: "column", md: "row" }}
-            gap={2}
-            mb={2}
-          >
-            <Box flex={1}>
-              <label className="block mb-1 text-sm font-medium">
-                Target Date
-              </label>
+            <Box>
+              <label className="block mb-1">Target Date *</label>
               <Controller
                 name="target_date"
                 control={control}
                 render={({ field }) => (
-                  <>
-                    <DesktopDatePicker
-                      inputFormat="DD-MM-YYYY"
-                      value={field.value}
-                      onChange={(newValue) => {
-                        field.onChange(newValue);
-                        trigger("target_date");
-                      }}
-                      slotProps={{
-                        textField: {
-                          fullWidth: true,
-                          size: "small",
-                          error: !!errors.target_date,
-                          className: "bg-white",
-                          InputProps: { className: "h-10" },
-                        },
-                      }}
-                    />
-                    {errors.target_date && (
-                      <span className="text-red-600 text-xs mt-1 block">
-                        {errors.target_date?.message}
-                      </span>
-                    )}
-                  </>
-                )}
-              />
-            </Box>
-          </Box>
-
-          <Box flex={1}>
-            <label className="block mb-1 text-sm font-medium">Title</label>
-            <Controller
-              name="title"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  variant="outlined"
-                  size="small"
-                  InputProps={{ className: "h-10" }}
-                  error={!!errors.title}
-                  helperText={errors.title?.message}
-                  className="bg-white"
-                />
-              )}
-            />
-          </Box>
-
-          <Box mb={2} mt={2}>
-            <label className="block mb-1 text-sm font-medium">
-              Description
-            </label>
-            <Controller
-              name="description"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  variant="outlined"
-                  size="small"
-                  multiline
-                  rows={4}
-                  error={!!errors.description}
-                  helperText={errors.description?.message}
-                  className="bg-white"
-                />
-              )}
-            />
-          </Box>
-
-          <Box
-            display="flex"
-            flexDirection={{ xs: "column", md: "row" }}
-            gap={2}
-          >
-            <Box flex={1}>
-              <label className="block mb-1 text-sm font-medium">
-                Target Achieved (Green Stars)
-              </label>
-              <Controller
-                name="green_star_count"
-                control={control}
-                render={({ field }) => (
-                  <StarRating
-                    value={field.value || 0}
-                    onChange={(value) => field.onChange(value)}
-                    color="#2ac4ab"
-                    disabled={isStarsDisabled}
-                    triggerValidation={trigger}
+                  <DesktopDatePicker
+                    inputFormat="DD-MM-YYYY"
+                    value={field.value}
+                    onChange={(newValue) => {
+                      field.onChange(newValue);
+                      trigger("target_date");
+                    }}
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        size: "small",
+                        error: !!errors.target_date,
+                        helperText: errors.target_date?.message,
+                        className: "bg-white",
+                        InputProps: { className: "h-10" },
+                      },
+                    }}
                   />
                 )}
               />
-              {errors.green_star_count && (
-                <span className="text-red-600 text-xs mt-1 block">
-                  {errors.green_star_count?.message}
-                </span>
-              )}
             </Box>
 
-            <Box flex={1}>
-              <label className="block mb-1 text-sm font-medium">
-                Target Not Achieved (Red Stars)
-              </label>
-              <Controller
-                name="red_star_count"
-                control={control}
-                render={({ field }) => (
-                  <StarRating
-                    value={field.value || 0}
-                    onChange={(value) => field.onChange(value)}
-                    color="#ef5350"
-                    disabled={isStarsDisabled}
-                    triggerValidation={trigger}
-                  />
-                )}
-              />
-              {errors.red_star_count && (
-                <span className="text-red-600 text-xs mt-1 block">
-                  {errors.red_star_count?.message}
-                </span>
-              )}
-              {errors[""] && (
-                <span className="text-red-600 text-xs mt-1 block">
-                  {errors[""].message}
-                </span>
-              )}
+            <Box
+              display="flex"
+              flexDirection={{ xs: "column", md: "row" }}
+              gap={2}
+            >
+              <Box flex={1} minWidth={0}>
+                <label className="block mb-1">Reviewer *</label>
+                <Controller
+                  name="reviewer_id"
+                  control={control}
+                  render={({ field }) => (
+                    <div>
+                      <Select
+                        options={employeeOptions}
+                        value={
+                          employeeOptions.find(
+                            (opt) => opt.value === field.value
+                          ) || null
+                        }
+                        onChange={(selected) => {
+                          field.onChange(selected ? selected.value : null);
+                          trigger("reviewer_id");
+                        }}
+                        styles={customSelectStyles}
+                        placeholder="Select Reviewer..."
+                        isClearable
+                      />
+                      {errors.reviewer_id && (
+                        <span className="text-red-600 text-xs mt-1 block">
+                          {errors.reviewer_id?.message}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                />
+              </Box>
+
+              <Box flex={1} minWidth={0}>
+                <label className="block mb-1">Assign To *</label>
+                <Controller
+                  name="user_ids"
+                  control={control}
+                  render={({ field }) => (
+                    <div>
+                      <Select
+                        isMulti
+                        options={employeeOptions}
+                        value={employeeOptions.filter((opt) =>
+                          field.value.includes(opt.value)
+                        )}
+                        onChange={(selected) => {
+                          field.onChange(selected.map((opt) => opt.value));
+                          trigger("user_ids");
+                        }}
+                        styles={customSelectStyles}
+                        placeholder="Select Employees..."
+                      />
+                      {errors.user_ids && (
+                        <span className="text-red-600 text-xs mt-1 block">
+                          {errors.user_ids?.message}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                />
+              </Box>
+            </Box>
+
+            <Box
+              display="flex"
+              flexDirection={{ xs: "column", md: "row" }}
+              gap={2}
+            >
+              <Box flex={1} minWidth={0}>
+                <label className="block mb-1">
+                  Target Achieved (Green Stars)
+                </label>
+                <Controller
+                  name="green_star_count"
+                  control={control}
+                  render={({ field }) => (
+                    <div>
+                      <StarRating
+                        value={field.value || 0}
+                        onChange={(value) => field.onChange(value)}
+                        color="#2ac4ab"
+                        disabled={isStarsDisabled}
+                        triggerValidation={trigger}
+                      />
+                      {errors.green_star_count && (
+                        <span className="text-red-600 text-xs mt-1 block">
+                          {errors.green_star_count?.message}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                />
+              </Box>
+
+              <Box flex={1} minWidth={0}>
+                <label className="block mb-1">
+                  Target Not Achieved (Red Stars)
+                </label>
+                <Controller
+                  name="red_star_count"
+                  control={control}
+                  render={({ field }) => (
+                    <div>
+                      <StarRating
+                        value={field.value || 0}
+                        onChange={(value) => field.onChange(value)}
+                        color="#ef5350"
+                        disabled={isStarsDisabled}
+                        triggerValidation={trigger}
+                      />
+                      {errors.red_star_count && (
+                        <span className="text-red-600 text-xs mt-1 block">
+                          {errors.red_star_count?.message}
+                        </span>
+                      )}
+                      {errors[""] && (
+                        <span className="text-red-600 text-xs mt-1 block">
+                          {errors[""].message}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                />
+              </Box>
             </Box>
           </Box>
         </DialogContent>

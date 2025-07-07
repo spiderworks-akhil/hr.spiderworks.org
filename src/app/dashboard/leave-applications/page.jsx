@@ -557,7 +557,7 @@ const LeaveApplication = () => {
 
         <Box display="flex" flexWrap="wrap" gap={2} mb={4}>
           <Box width={{ xs: "100%", sm: "200px" }}>
-            <label className="block mb-1 text-sm font-medium">Employee</label>
+            <label className="block mb-1">Employee</label>
             <Select
               options={employeeOptions}
               value={
@@ -575,9 +575,7 @@ const LeaveApplication = () => {
             />
           </Box>
           <Box width={{ xs: "100%", sm: "150px" }}>
-            <label className="block mb-1 text-sm font-medium">
-              Attendance Type
-            </label>
+            <label className="block mb-1">Attendance Type</label>
             <Select
               options={attendanceTypeOptions}
               value={
@@ -597,7 +595,7 @@ const LeaveApplication = () => {
             />
           </Box>
           <Box width={{ xs: "100%", sm: "150px" }}>
-            <label className="block mb-1 text-sm font-medium">Leave Type</label>
+            <label className="block mb-1">Leave Type</label>
             <Select
               options={leaveTypeOptions}
               value={
@@ -615,9 +613,7 @@ const LeaveApplication = () => {
             />
           </Box>
           <Box width={{ xs: "100%", sm: "150px" }}>
-            <label className="block mb-1 text-sm font-medium">
-              Approval Status
-            </label>
+            <label className="block mb-1">Approval Status</label>
             <Select
               options={approvalStatusOptions}
               value={
@@ -637,7 +633,7 @@ const LeaveApplication = () => {
             />
           </Box>
           <Box width={{ xs: "100%", sm: "150px" }}>
-            <label className="block mb-1 text-sm font-medium">From Date</label>
+            <label className="block mb-1">From Date</label>
             <DesktopDatePicker
               inputFormat="DD-MM-YYYY"
               value={from}
@@ -653,7 +649,7 @@ const LeaveApplication = () => {
             />
           </Box>
           <Box width={{ xs: "100%", sm: "150px" }}>
-            <label className="block mb-1 text-sm font-medium">To Date</label>
+            <label className="block mb-1">To Date</label>
             <DesktopDatePicker
               inputFormat="DD-MM-YYYY"
               value={to}

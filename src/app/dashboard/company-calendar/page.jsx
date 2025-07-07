@@ -153,6 +153,12 @@ const CompanyCalendar = () => {
     },
   ];
 
+  const holidayOptions = [
+    { value: "", label: "All" },
+    { value: 1, label: "Yes" },
+    { value: 0, label: "No" },
+  ];
+
   const handleOpenAddDialog = () => {
     setEditCalendar(null);
     setOpenDialog(true);
@@ -316,40 +322,24 @@ const CompanyCalendar = () => {
 
         <Box display="flex" flexWrap="wrap" gap={2} mb={4}>
           <Box width={{ xs: "100%", sm: "150px" }}>
-            <FormControl component="fieldset">
-              <FormLabel
-                component="legend"
-                className="text-sm font-medium mb-1"
-              >
-                Holiday
-              </FormLabel>
-              <RadioGroup
-                row
-                value={isHoliday !== null ? isHoliday.toString() : ""}
-                onChange={(e) =>
-                  handleFilterChange("isHoliday", e.target.value)
-                }
-              >
-                <FormControlLabel
-                  value=""
-                  control={<Radio size="small" />}
-                  label="All"
-                />
-                <FormControlLabel
-                  value="1"
-                  control={<Radio size="small" />}
-                  label="Yes"
-                />
-                <FormControlLabel
-                  value="0"
-                  control={<Radio size="small" />}
-                  label="No"
-                />
-              </RadioGroup>
-            </FormControl>
+            <label className="block mb-1">Holiday</label>
+            <Select
+              options={holidayOptions}
+              value={holidayOptions.find((opt) =>
+                isHoliday === null || isHoliday === ""
+                  ? opt.value === ""
+                  : opt.value === isHoliday
+              )}
+              onChange={(selected) =>
+                handleFilterChange("isHoliday", selected ? selected.value : "")
+              }
+              styles={customSelectStyles}
+              placeholder="Select Holiday..."
+              isClearable={false}
+            />
           </Box>
           <Box width={{ xs: "100%", sm: "200px" }}>
-            <label className="block mb-1 text-sm font-medium">Month</label>
+            <label className="block mb-1">Month</label>
             <Select
               options={monthOptions}
               value={monthOptions.find((opt) => opt.value === month) || null}

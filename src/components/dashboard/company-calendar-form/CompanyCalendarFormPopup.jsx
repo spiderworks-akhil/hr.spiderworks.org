@@ -186,7 +186,7 @@ const CompanyCalendarFormPopup = ({ open, onClose, onSuccess, calendar }) => {
 
           <Box display="flex" flexDirection="column" gap={2} mb={2}>
             <Box>
-              <label className="block mb-1 text-sm font-medium">Date *</label>
+              <label className="block mb-1">Date *</label>
               <Controller
                 name="date"
                 control={control}
@@ -215,10 +215,7 @@ const CompanyCalendarFormPopup = ({ open, onClose, onSuccess, calendar }) => {
 
             <Box>
               <FormControl component="fieldset" fullWidth>
-                <FormLabel
-                  component="legend"
-                  className="text-sm font-medium mb-1"
-                >
+                <FormLabel component="legend" className="mb-1">
                   Holiday *
                 </FormLabel>
                 <Controller
@@ -255,7 +252,7 @@ const CompanyCalendarFormPopup = ({ open, onClose, onSuccess, calendar }) => {
             </Box>
 
             <Box>
-              <label className="block mb-1 text-sm font-medium">Remarks</label>
+              <label className="block mb-1">Remarks</label>
               <Controller
                 name="remarks"
                 control={control}

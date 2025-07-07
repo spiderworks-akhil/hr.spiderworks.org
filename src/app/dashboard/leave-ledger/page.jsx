@@ -323,7 +323,7 @@ const LeaveLedger = () => {
 
         <Box display="flex" flexWrap="wrap" gap={2} mb={4}>
           <Box width={{ xs: "100%", sm: "200px" }}>
-            <label className="block mb-1 text-sm font-medium">Employee</label>
+            <label className="block mb-1">Employee</label>
             <Select
               options={employeeOptions}
               value={
@@ -341,7 +341,7 @@ const LeaveLedger = () => {
             />
           </Box>
           <Box width={{ xs: "100%", sm: "150px" }}>
-            <label className="block mb-1 text-sm font-medium">Leave Type</label>
+            <label className="block mb-1">Leave Type</label>
             <Select
               options={leaveTypeOptions}
               value={

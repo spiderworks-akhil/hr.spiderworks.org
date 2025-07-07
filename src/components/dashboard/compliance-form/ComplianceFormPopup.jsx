@@ -231,7 +231,7 @@ const ComplianceFormPopup = ({ open, onClose, onSuccess, compliance }) => {
 
           <Box display="flex" flexDirection="column" gap={2} mb={2}>
             <Box>
-              <label className="block mb-1 text-sm font-medium">Title</label>
+              <label className="block mb-1">Title *</label>
               <Controller
                 name="title"
                 control={control}
@@ -251,9 +251,7 @@ const ComplianceFormPopup = ({ open, onClose, onSuccess, compliance }) => {
             </Box>
 
             <Box>
-              <label className="block mb-1 text-sm font-medium">
-                Description
-              </label>
+              <label className="block mb-1">Description</label>
               <Controller
                 name="description"
                 control={control}
@@ -274,9 +272,7 @@ const ComplianceFormPopup = ({ open, onClose, onSuccess, compliance }) => {
             </Box>
 
             <Box>
-              <label className="block mb-1 text-sm font-medium">
-                Filing Instructions
-              </label>
+              <label className="block mb-1">Filing Instructions</label>
               <Controller
                 name="filing_instructions"
                 control={control}
@@ -302,9 +298,7 @@ const ComplianceFormPopup = ({ open, onClose, onSuccess, compliance }) => {
               gap={2}
             >
               <Box flex={1} minWidth={0}>
-                <label className="block mb-1 text-sm font-medium">
-                  Last Filing Date
-                </label>
+                <label className="block mb-1">Last Filing Date</label>
                 <Controller
                   name="last_filing_date"
                   control={control}
@@ -337,9 +331,7 @@ const ComplianceFormPopup = ({ open, onClose, onSuccess, compliance }) => {
               </Box>
 
               <Box flex={1} minWidth={0}>
-                <label className="block mb-1 text-sm font-medium">
-                  Next Due Date
-                </label>
+                <label className="block mb-1">Next Due Date</label>
                 <Controller
                   name="next_due_date"
                   control={control}

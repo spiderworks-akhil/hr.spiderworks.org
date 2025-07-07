@@ -299,9 +299,7 @@ const LeaveApplicationFormPopup = ({
 
           <Box display="flex" flexDirection="column" gap={2} mb={2}>
             <Box>
-              <label className="block mb-1 text-sm font-medium">
-                Applicant *
-              </label>
+              <label className="block mb-1">Applicant *</label>
               <Controller
                 name="employee_id"
                 control={control}
@@ -337,9 +335,7 @@ const LeaveApplicationFormPopup = ({
               gap={2}
             >
               <Box flex={1} minWidth={0}>
-                <label className="block mb-1 text-sm font-medium">
-                  Attendance Type *
-                </label>
+                <label className="block mb-1">Attendance Type *</label>
                 <Controller
                   name="attendance_type"
                   control={control}
@@ -369,9 +365,7 @@ const LeaveApplicationFormPopup = ({
                 />
               </Box>
               <Box flex={1} minWidth={0}>
-                <label className="block mb-1 text-sm font-medium">
-                  Leave Type *
-                </label>
+                <label className="block mb-1">Leave Type *</label>
                 <Controller
                   name="leave_type"
                   control={control}
@@ -408,9 +402,7 @@ const LeaveApplicationFormPopup = ({
               gap={2}
             >
               <Box flex={1} minWidth={0}>
-                <label className="block mb-1 text-sm font-medium">
-                  Start Date *
-                </label>
+                <label className="block mb-1">Start Date *</label>
                 <Controller
                   name="start_date"
                   control={control}
@@ -437,9 +429,7 @@ const LeaveApplicationFormPopup = ({
                 />
               </Box>
               <Box flex={1} minWidth={0}>
-                <label className="block mb-1 text-sm font-medium">
-                  End Date *
-                </label>
+                <label className="block mb-1">End Date *</label>
                 <Controller
                   name="end_date"
                   control={control}
@@ -468,9 +458,7 @@ const LeaveApplicationFormPopup = ({
             </Box>
 
             <Box>
-              <label className="block mb-1 text-sm font-medium">
-                Manager *
-              </label>
+              <label className="block mb-1">Manager *</label>
               <Controller
                 name="manager_id"
                 control={control}
@@ -501,7 +489,7 @@ const LeaveApplicationFormPopup = ({
             </Box>
 
             <Box>
-              <label className="block mb-1 text-sm font-medium">Reason *</label>
+              <label className="block mb-1">Reason *</label>
               <Controller
                 name="reason"
                 control={control}

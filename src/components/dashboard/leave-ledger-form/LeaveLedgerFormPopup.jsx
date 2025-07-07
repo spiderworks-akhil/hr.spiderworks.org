@@ -266,9 +266,7 @@ const LeaveLedgerFormPopup = ({ open, onClose, onSuccess, leaveLedger }) => {
               gap={2}
             >
               <Box flex={1} minWidth={0}>
-                <label className="block mb-1 text-sm font-medium">
-                  Employee *
-                </label>
+                <label className="block mb-1">Employee *</label>
                 <Controller
                   name="employee_id"
                   control={control}
@@ -298,9 +296,7 @@ const LeaveLedgerFormPopup = ({ open, onClose, onSuccess, leaveLedger }) => {
                 />
               </Box>
               <Box flex={1} minWidth={0}>
-                <label className="block mb-1 text-sm font-medium">
-                  Leave Type *
-                </label>
+                <label className="block mb-1">Leave Type *</label>
                 <Controller
                   name="leave_type"
                   control={control}
@@ -337,9 +333,7 @@ const LeaveLedgerFormPopup = ({ open, onClose, onSuccess, leaveLedger }) => {
               gap={2}
             >
               <Box flex={1} minWidth={0}>
-                <label className="block mb-1 text-sm font-medium">
-                  Count *
-                </label>
+                <label className="block mb-1">Count *</label>
                 <Controller
                   name="count"
                   control={control}
@@ -359,9 +353,7 @@ const LeaveLedgerFormPopup = ({ open, onClose, onSuccess, leaveLedger }) => {
                 />
               </Box>
               <Box flex={1} minWidth={0}>
-                <label className="block mb-1 text-sm font-medium">
-                  Eligibility Date *
-                </label>
+                <label className="block mb-1">Eligibility Date *</label>
                 <Controller
                   name="eligibility_date"
                   control={control}
@@ -390,9 +382,7 @@ const LeaveLedgerFormPopup = ({ open, onClose, onSuccess, leaveLedger }) => {
             </Box>
 
             <Box>
-              <label className="block mb-1 text-sm font-medium">
-                Remarks *
-              </label>
+              <label className="block mb-1">Remarks *</label>
               <Controller
                 name="remarks"
                 control={control}

@@ -214,7 +214,7 @@ const BoardMeetingFormPopup = ({ open, onClose, onSuccess, boardMeeting }) => {
               gap={2}
             >
               <Box flex={1} minWidth={0}>
-                <label className="block mb-1 text-sm font-medium">Title</label>
+                <label className="block mb-1">Title *</label>
                 <Controller
                   name="title"
                   control={control}
@@ -233,9 +233,7 @@ const BoardMeetingFormPopup = ({ open, onClose, onSuccess, boardMeeting }) => {
                 />
               </Box>
               <Box flex={1} minWidth={0}>
-                <label className="block mb-1 text-sm font-medium">
-                  Location
-                </label>
+                <label className="block mb-1">Location</label>
                 <Controller
                   name="meeting_location"
                   control={control}
@@ -256,7 +254,7 @@ const BoardMeetingFormPopup = ({ open, onClose, onSuccess, boardMeeting }) => {
             </Box>
 
             <Box>
-              <label className="block mb-1 text-sm font-medium">Agenda</label>
+              <label className="block mb-1">Agenda</label>
               <Controller
                 name="agenda"
                 control={control}
@@ -277,9 +275,7 @@ const BoardMeetingFormPopup = ({ open, onClose, onSuccess, boardMeeting }) => {
             </Box>
 
             <Box>
-              <label className="block mb-1 text-sm font-medium">
-                Meeting Minutes
-              </label>
+              <label className="block mb-1">Meeting Minutes</label>
               <Controller
                 name="meeting_minutes"
                 control={control}
@@ -300,9 +296,7 @@ const BoardMeetingFormPopup = ({ open, onClose, onSuccess, boardMeeting }) => {
             </Box>
 
             <Box>
-              <label className="block mb-1 text-sm font-medium">
-                Participants
-              </label>
+              <label className="block mb-1">Participants</label>
               <Controller
                 name="participants"
                 control={control}
@@ -321,7 +315,7 @@ const BoardMeetingFormPopup = ({ open, onClose, onSuccess, boardMeeting }) => {
             </Box>
 
             <Box>
-              <label className="block mb-1 text-sm font-medium">Date</label>
+              <label className="block mb-1">Date</label>
               <Controller
                 name="date"
                 control={control}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -11,16 +11,18 @@ import {
   DialogActions,
   Button,
   TextField,
-  Slide,
   Box,
 } from "@mui/material";
 import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
 import Select from "react-select";
 import { FaStar } from "react-icons/fa";
+import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
 
-const Transition = Slide;
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const validationSchema = yup.object().shape({
   label: yup.string().required("Label is required").trim(),
@@ -224,7 +226,6 @@ const StarRatingFormPopup = ({ open, onClose, onSuccess, starRating }) => {
       onClose={onClose}
       TransitionComponent={Transition}
       transitionDuration={500}
-      TransitionProps={{ direction: "up" }}
       sx={{
         "& .MuiDialog-paper": {
           margin: 0,
@@ -232,31 +233,28 @@ const StarRatingFormPopup = ({ open, onClose, onSuccess, starRating }) => {
           right: 0,
           top: 0,
           bottom: 0,
-          width: { xs: "100%", sm: "min(100%, 500px)", md: "38%" },
-          maxWidth: "none",
+          width: { xs: "100%", sm: "min(100%, 500px)" },
+          maxWidth: "500px",
           height: "100%",
           borderRadius: 0,
           maxHeight: "100%",
         },
       }}
     >
-      <DialogTitle>
+      <DialogTitle className="text-lg font-semibold">
         {starRating ? "Edit Star Rating" : "Add Star Rating"}
       </DialogTitle>
       <DialogContent>
-        {error && <Box sx={{ color: "red", mb: 2 }}>{error}</Box>}
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
+        {error && <div className="text-red-600 mb-4">{error}</div>}
+
+        <Box display="flex" flexDirection="column" gap={2} mb={2}>
           <Box
-            sx={{
-              display: "flex",
-              flexDirection: { xs: "column", md: "row" },
-              gap: 2,
-            }}
+            display="flex"
+            flexDirection={{ xs: "column", md: "row" }}
+            gap={2}
           >
-            <Box sx={{ flex: 1 }}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Given By
-              </label>
+            <Box flex={1} minWidth={0}>
+              <label className="block mb-1">Given By *</label>
               <Controller
                 name="given_by_id"
                 control={control}
@@ -277,7 +275,7 @@ const StarRatingFormPopup = ({ open, onClose, onSuccess, starRating }) => {
                       isClearable
                     />
                     {errors.given_by_id && (
-                      <span style={{ color: "red", fontSize: "12px" }}>
+                      <span className="text-red-600 text-xs mt-1 block">
                         {errors.given_by_id?.message}
                       </span>
                     )}
@@ -285,10 +283,8 @@ const StarRatingFormPopup = ({ open, onClose, onSuccess, starRating }) => {
                 )}
               />
             </Box>
-            <Box sx={{ flex: 1 }}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Given To
-              </label>
+            <Box flex={1} minWidth={0}>
+              <label className="block mb-1">Given To *</label>
               <Controller
                 name="given_to_id"
                 control={control}
@@ -309,7 +305,7 @@ const StarRatingFormPopup = ({ open, onClose, onSuccess, starRating }) => {
                       isClearable
                     />
                     {errors.given_to_id && (
-                      <span style={{ color: "red", fontSize: "12px" }}>
+                      <span className="text-red-600 text-xs mt-1 block">
                         {errors.given_to_id?.message}
                       </span>
                     )}
@@ -318,17 +314,14 @@ const StarRatingFormPopup = ({ open, onClose, onSuccess, starRating }) => {
               />
             </Box>
           </Box>
+
           <Box
-            sx={{
-              display: "flex",
-              flexDirection: { xs: "column", md: "row" },
-              gap: 2,
-            }}
+            display="flex"
+            flexDirection={{ xs: "column", md: "row" }}
+            gap={2}
           >
-            <Box sx={{ flex: 1 }}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Label
-              </label>
+            <Box flex={1} minWidth={0}>
+              <label className="block mb-1">Label *</label>
               <Controller
                 name="label"
                 control={control}
@@ -338,72 +331,72 @@ const StarRatingFormPopup = ({ open, onClose, onSuccess, starRating }) => {
                     fullWidth
                     variant="outlined"
                     size="small"
-                    InputProps={{ style: { height: "40px" } }}
                     error={!!errors.label}
                     helperText={errors.label?.message}
+                    className="bg-white"
+                    InputProps={{ className: "h-10" }}
                     value={field.value || ""}
                     onChange={(e) => field.onChange(e.target.value)}
                   />
                 )}
               />
             </Box>
-            <Box sx={{ flex: 1 }}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Star Type
-              </label>
+            <Box flex={1} minWidth={0}>
+              <label className="block mb-1">Star Type</label>
               <Controller
                 name="star_type"
                 control={control}
                 render={({ field }) => (
-                  <div className="flex gap-2">
-                    <Button
-                      variant={field.value === "green" ? "" : "outlined"}
-                      sx={{
-                        backgroundColor:
-                          field.value === "green" ? "#22c55e" : "transparent",
-                        color: field.value === "green" ? "white" : "#22c55e",
-                        borderColor: "#22c55e",
-                        "&:hover": {
+                  <div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant={field.value === "green" ? "" : "outlined"}
+                        sx={{
                           backgroundColor:
-                            field.value === "green" ? "#16a34a" : "#f0fdf4",
-                          borderColor: "#16a34a",
-                        },
-                      }}
-                      onClick={() => field.onChange("green")}
-                    >
-                      Green
-                    </Button>
-                    <Button
-                      variant={field.value === "red" ? "" : "outlined"}
-                      sx={{
-                        backgroundColor:
-                          field.value === "red" ? "#ef5350" : "transparent",
-                        color: field.value === "red" ? "white" : "#ef5350",
-                        borderColor: "#ef5350",
-                        "&:hover": {
+                            field.value === "green" ? "#22c55e" : "transparent",
+                          color: field.value === "green" ? "white" : "#22c55e",
+                          borderColor: "#22c55e",
+                          "&:hover": {
+                            backgroundColor:
+                              field.value === "green" ? "#16a34a" : "#f0fdf4",
+                            borderColor: "#16a34a",
+                          },
+                        }}
+                        onClick={() => field.onChange("green")}
+                      >
+                        Green
+                      </Button>
+                      <Button
+                        variant={field.value === "red" ? "" : "outlined"}
+                        sx={{
                           backgroundColor:
-                            field.value === "red" ? "#e53935" : "#ffebee",
-                          borderColor: "#e53935",
-                        },
-                      }}
-                      onClick={() => field.onChange("red")}
-                    >
-                      Red
-                    </Button>
+                            field.value === "red" ? "#ef5350" : "transparent",
+                          color: field.value === "red" ? "white" : "#ef5350",
+                          borderColor: "#ef5350",
+                          "&:hover": {
+                            backgroundColor:
+                              field.value === "red" ? "#e53935" : "#ffebee",
+                            borderColor: "#e53935",
+                          },
+                        }}
+                        onClick={() => field.onChange("red")}
+                      >
+                        Red
+                      </Button>
+                    </div>
+                    {errors.star_type && (
+                      <span className="text-red-600 text-xs mt-1 block">
+                        {errors.star_type?.message}
+                      </span>
+                    )}
                   </div>
                 )}
               />
-              {errors.star_type && (
-                <span style={{ color: "red", fontSize: "12px" }}>
-                  {errors.star_type?.message}
-                </span>
-              )}
             </Box>
           </Box>
+
           <Box>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Star Count
-            </label>
+            <label className="block mb-1">Star Count</label>
             <div className="flex gap-1">
               {[...Array(5)].map((_, index) => {
                 const starValue = index + 1;
@@ -418,14 +411,14 @@ const StarRatingFormPopup = ({ open, onClose, onSuccess, starRating }) => {
                         : "text-gray-300"
                     }`}
                     onClick={() => handleStarClick(starValue)}
-                    onMouseEnter={() => setShowStarCount(starValue)}
+                    onMouseEnter={() => setHoverStarCount(starValue)}
                     onMouseLeave={() => setHoverStarCount(null)}
                   />
                 );
               })}
             </div>
             {errors.star_count && (
-              <span style={{ color: "red", fontSize: "12px" }}>
+              <span className="text-red-600 text-xs mt-1 block">
                 {errors.star_count?.message}
               </span>
             )}

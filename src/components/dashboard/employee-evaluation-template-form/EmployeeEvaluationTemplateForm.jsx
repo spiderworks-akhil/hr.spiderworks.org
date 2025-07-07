@@ -222,9 +222,7 @@ const EmployeeEvaluationTemplateFormPopup = ({
 
         <Box display="flex" flexDirection="column" gap={2} mb={2}>
           <Box>
-            <label className="block mb-1 text-sm font-medium">
-              Template Name *
-            </label>
+            <label className="block mb-1">Template Name *</label>
             <Controller
               name="name"
               control={control}
@@ -244,7 +242,7 @@ const EmployeeEvaluationTemplateFormPopup = ({
           </Box>
 
           <Box>
-            <label className="block mb-1 text-sm font-medium">Status *</label>
+            <label className="block mb-1">Status *</label>
             <Controller
               name="status"
               control={control}
@@ -274,9 +272,7 @@ const EmployeeEvaluationTemplateFormPopup = ({
           </Box>
 
           <Box>
-            <label className="block mb-1 text-sm font-medium">
-              Rating Permissions
-            </label>
+            <label className="block mb-1">Rating Permissions</label>
             <Box display="flex" flexDirection="column" gap={1} mt={1}>
               <Controller
                 name="rate_by_client"
