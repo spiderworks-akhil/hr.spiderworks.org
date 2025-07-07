@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -11,14 +12,16 @@ import {
   DialogActions,
   Button,
   TextField,
-  Grid,
-  Slide,
+  Box,
 } from "@mui/material";
 import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
+import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
 
-const Transition = Slide;
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const validationSchema = yup.object().shape({
   name: yup.string().required("Role name is required").trim(),
@@ -38,11 +41,13 @@ const RoleFormPopup = ({ open, onClose, onSuccess, role }) => {
       name: "",
     },
     resolver: yupResolver(validationSchema),
+    mode: "onChange",
   });
 
   useEffect(() => {
     if (!open) {
       reset({ name: "" });
+      setError(null);
       return;
     }
 
@@ -115,7 +120,6 @@ const RoleFormPopup = ({ open, onClose, onSuccess, role }) => {
       onClose={onClose}
       TransitionComponent={Transition}
       transitionDuration={500}
-      TransitionProps={{ direction: "up" }}
       sx={{
         "& .MuiDialog-paper": {
           margin: 0,
@@ -123,22 +127,22 @@ const RoleFormPopup = ({ open, onClose, onSuccess, role }) => {
           right: 0,
           top: 0,
           bottom: 0,
-          width: "38%",
-          maxWidth: "none",
+          width: { xs: "100%", sm: "min(100%, 500px)" },
+          maxWidth: "500px",
           height: "100%",
           borderRadius: 0,
           maxHeight: "100%",
         },
       }}
     >
-      <DialogTitle>{role ? "Edit Role" : "Add Role"}</DialogTitle>
+      <DialogTitle className="text-lg font-semibold">
+        {role ? "Edit Role" : "Add Role"}
+      </DialogTitle>
       <DialogContent>
         {error && <div className="text-red-600 mb-4">{error}</div>}
-        <Grid container spacing={2} sx={{ mt: 1 }}>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Role Name
-            </label>
+        <Box display="flex" flexDirection="column" gap={2} mb={2}>
+          <Box>
+            <label className="block mb-1">Role Name *</label>
             <Controller
               name="name"
               control={control}
@@ -148,14 +152,15 @@ const RoleFormPopup = ({ open, onClose, onSuccess, role }) => {
                   fullWidth
                   variant="outlined"
                   size="small"
-                  InputProps={{ style: { height: "40px" } }}
+                  className="bg-white"
+                  InputProps={{ className: "h-10" }}
                   error={!!errors.name}
                   helperText={errors.name?.message}
                 />
               )}
             />
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </DialogContent>
       <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
         <Button

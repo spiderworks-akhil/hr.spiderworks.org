@@ -1,19 +1,39 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Head from "next/head";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
+import { BeatLoader } from "react-spinners";
 
 export default function AdminDashboardLayout({ children }) {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
 
   useEffect(() => {
+    if (status === "loading") return;
+
+    if (!session?.accessToken) {
+      console.log("No valid session token in layout, redirecting to /signin");
+      router.replace("/signin");
+    } else {
+      console.log(
+        "Valid session token found, redirecting to /dashboard/employees"
+      );
+      router.replace("/dashboard/employees");
+    }
+  }, [status, session, router]);
+
+  useEffect(() => {
     const handleResize = () => {
-      setIsMobileView(window.innerWidth < 768);
-      if (window.innerWidth >= 768) {
+      const mobile = window.innerWidth < 768;
+      setIsMobileView(mobile);
+      if (!mobile) {
         setIsMobileSidebarOpen(false);
       }
     };
@@ -36,6 +56,14 @@ export default function AdminDashboardLayout({ children }) {
       setIsMobileSidebarOpen(false);
     }
   };
+
+  if (status === "loading") {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <BeatLoader color="#2ac4ab" size={15} />
+      </div>
+    );
+  }
 
   return (
     <>

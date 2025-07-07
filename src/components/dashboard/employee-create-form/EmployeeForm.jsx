@@ -15,6 +15,8 @@ import {
   Slide,
   FormControlLabel,
   Checkbox,
+  Box,
+  Typography,
 } from "@mui/material";
 import { DesktopDatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
@@ -163,6 +165,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
   } = useForm({
     defaultValues,
     resolver: yupResolver(validationSchema),
+    mode: "onChange",
   });
 
   useEffect(() => {
@@ -286,7 +289,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
 
   const formatDateSimple = (momentDate) => {
     return momentDate && moment.isMoment(momentDate)
-      ? momentDate.format("YYYY-MM-DD")
+      ? momentDate.format("YYYY-MM-DD Zero")
       : null;
   };
 
@@ -439,628 +442,662 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
             right: 0,
             top: 0,
             bottom: 0,
-            width: "38%",
-            maxWidth: "none",
+            width: { xs: "100%", sm: "100%" },
+            maxWidth: "100%",
             height: "100%",
             borderRadius: 0,
             maxHeight: "100%",
           },
         }}
       >
-        <DialogTitle>{employee ? "Edit Employee" : "Add Employee"}</DialogTitle>
+        <DialogTitle className="text-lg font-semibold">
+          {employee ? "Edit Employee" : "Add Employee"}
+        </DialogTitle>
         <DialogContent>
           {error && <div className="text-red-600 mb-4">{error}</div>}
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Name
-              </label>
-              <Controller
-                name="name"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    variant="outlined"
-                    size="small"
-                    InputProps={{ style: { height: "40px" } }}
-                    error={!!errors.name}
-                    helperText={errors.name?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Employee ID
-              </label>
-              <TextField
-                fullWidth
-                disabled
-                value={employee?.id || ""}
-                variant="outlined"
-                size="small"
-                InputProps={{ style: { height: "40px" } }}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Personal Email
-              </label>
-              <Controller
-                name="personal_email"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    variant="outlined"
-                    size="small"
-                    InputProps={{ style: { height: "40px" } }}
-                    error={!!errors.personal_email}
-                    helperText={errors.personal_email?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Work Email
-              </label>
-              <Controller
-                name="work_email"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    variant="outlined"
-                    size="small"
-                    InputProps={{ style: { height: "40px" } }}
-                    error={!!errors.work_email}
-                    helperText={errors.work_email?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Personal Phone
-              </label>
-              <Controller
-                name="personal_phone"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    variant="outlined"
-                    size="small"
-                    InputProps={{ style: { height: "40px" } }}
-                    error={!!errors.personal_phone}
-                    helperText={errors.personal_phone?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Office Phone
-              </label>
-              <Controller
-                name="office_phone"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    variant="outlined"
-                    size="small"
-                    InputProps={{ style: { height: "40px" } }}
-                    error={!!errors.office_phone}
-                    helperText={errors.office_phone?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Official Date of Birth
-              </label>
-              <Controller
-                name="official_date_of_birth"
-                control={control}
-                render={({ field }) => (
-                  <DesktopDatePicker
-                    inputFormat="DD-MM-YYYY"
-                    value={field.value}
-                    onChange={field.onChange}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        fullWidth
-                        size="small"
-                        InputProps={{
-                          ...params.InputProps,
-                          style: { height: "40px" },
-                        }}
+          <Box display="flex" flexDirection="column" gap={2} mb={2}>
+            <Typography variant="h6" className="font-semibold">
+              Personal Details
+            </Typography>
+            <Box
+              display="flex"
+              flexWrap="wrap"
+              gap={2}
+              sx={{
+                "& > *": {
+                  flex: { xs: "1 1 100%", md: "1 1 calc(50% - 16px)" },
+                },
+              }}
+            >
+              <Box>
+                <label className="block mb-1">Name</label>
+                <Controller
+                  name="name"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      error={!!errors.name}
+                      helperText={errors.name?.message}
+                    />
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Employee ID</label>
+                <TextField
+                  fullWidth
+                  disabled
+                  value={employee?.id || ""}
+                  variant="outlined"
+                  size="small"
+                  className="bg-white"
+                  InputProps={{ className: "h-10" }}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Personal Email</label>
+                <Controller
+                  name="personal_email"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      error={!!errors.personal_email}
+                      helperText={errors.personal_email?.message}
+                    />
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Work Email</label>
+                <Controller
+                  name="work_email"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      error={!!errors.work_email}
+                      helperText={errors.work_email?.message}
+                    />
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Personal Phone</label>
+                <Controller
+                  name="personal_phone"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      error={!!errors.personal_phone}
+                      helperText={errors.personal_phone?.message}
+                    />
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Office Phone</label>
+                <Controller
+                  name="office_phone"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      error={!!errors.office_phone}
+                      helperText={errors.office_phone?.message}
+                    />
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Official Date of Birth</label>
+                <Controller
+                  name="official_date_of_birth"
+                  control={control}
+                  render={({ field }) => (
+                    <DesktopDatePicker
+                      inputFormat="DD-MM-YYYY"
+                      value={field.value}
+                      onChange={field.onChange}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          size: "small",
+                          error: !!errors.official_date_of_birth,
+                          helperText: errors.official_date_of_birth?.message,
+                          className: "bg-white",
+                          InputProps: { className: "h-10" },
+                        },
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Celebrated Date</label>
+                <Controller
+                  name="celebrated_date_of_birth"
+                  control={control}
+                  render={({ field }) => (
+                    <DesktopDatePicker
+                      inputFormat="DD-MM-YYYY"
+                      value={field.value}
+                      onChange={field.onChange}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          size: "small",
+                          error: !!errors.celebrated_date_of_birth,
+                          helperText: errors.celebrated_date_of_birth?.message,
+                          className: "bg-white",
+                          InputProps: { className: "h-10" },
+                        },
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Marriage Date</label>
+                <Controller
+                  name="marriage_date"
+                  control={control}
+                  render={({ field }) => (
+                    <DesktopDatePicker
+                      inputFormat="DD-MM-YYYY"
+                      value={field.value}
+                      onChange={field.onChange}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          size: "small",
+                          error: !!errors.marriage_date,
+                          helperText: errors.marriage_date?.message,
+                          className: "bg-white",
+                          InputProps: { className: "h-10" },
+                        },
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Facebook URL</label>
+                <Controller
+                  name="facebook_url"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      error={!!errors.facebook_url}
+                      helperText={errors.facebook_url?.message}
+                    />
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Instagram URL</label>
+                <Controller
+                  name="instagram_url"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      error={!!errors.instagram_url}
+                      helperText={errors.instagram_url?.message}
+                    />
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">LinkedIn URL</label>
+                <Controller
+                  name="linkedin_url"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      error={!!errors.linkedin_url}
+                      helperText={errors.linkedin_url?.message}
+                    />
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Blog URL</label>
+                <Controller
+                  name="blog_url"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      error={!!errors.blog_url}
+                      helperText={errors.blog_url?.message}
+                    />
+                  )}
+                />
+              </Box>
+              <Box sx={{ flex: "1 1 100%" }}>
+                <label className="block mb-1">Address</label>
+                <Controller
+                  name="address"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      multiline
+                      rows={4}
+                      className="bg-white"
+                      error={!!errors.address}
+                      helperText={errors.address?.message}
+                    />
+                  )}
+                />
+              </Box>
+            </Box>
+
+            <Typography variant="h6" className="font-semibold" sx={{ mt: 2 }}>
+              Employment Details
+            </Typography>
+            <Box
+              display="flex"
+              flexWrap="wrap"
+              gap={2}
+              sx={{
+                "& > *": {
+                  flex: { xs: "1 1 100%", md: "1 1 calc(50% - 16px)" },
+                },
+              }}
+            >
+              <Box>
+                <label className="block mb-1">Joining Date</label>
+                <Controller
+                  name="joining_date"
+                  control={control}
+                  render={({ field }) => (
+                    <DesktopDatePicker
+                      inputFormat="DD-MM-YYYY"
+                      value={field.value}
+                      onChange={field.onChange}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          size: "small",
+                          error: !!errors.joining_date,
+                          helperText: errors.joining_date?.message,
+                          className: "bg-white",
+                          InputProps: { className: "h-10" },
+                        },
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Releaving Date</label>
+                <Controller
+                  name="releaving_date"
+                  control={control}
+                  render={({ field }) => (
+                    <DesktopDatePicker
+                      inputFormat="DD-MM-YYYY"
+                      value={field.value}
+                      onChange={field.onChange}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          size: "small",
+                          error: !!errors.releaving_date,
+                          helperText: errors.releaving_date?.message,
+                          className: "bg-white",
+                          InputProps: { className: "h-10" },
+                        },
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Employee Level</label>
+                <Controller
+                  name="employee_level_id"
+                  control={control}
+                  render={({ field }) => (
+                    <div>
+                      <Select
+                        options={employeeLevelOptions}
+                        value={
+                          employeeLevelOptions.find(
+                            (opt) => opt.value === field.value
+                          ) || null
+                        }
+                        onChange={(selected) =>
+                          field.onChange(selected ? selected.value : null)
+                        }
+                        styles={customSelectStyles}
+                        placeholder="Select Employee Level..."
+                        isClearable
                       />
-                    )}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Celebrated Date
-              </label>
-              <Controller
-                name="celebrated_date_of_birth"
-                control={control}
-                render={({ field }) => (
-                  <DesktopDatePicker
-                    inputFormat="DD-MM-YYYY"
-                    value={field.value}
-                    onChange={field.onChange}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        fullWidth
-                        size="small"
-                        InputProps={{
-                          ...params.InputProps,
-                          style: { height: "40px" },
-                        }}
+                      {errors.employee_level_id && (
+                        <span className="text-red-600 text-xs mt-1 block">
+                          {errors.employee_level_id?.message}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Employee Type</label>
+                <Controller
+                  name="employee_type"
+                  control={control}
+                  render={({ field }) => (
+                    <div>
+                      <Select
+                        options={employeeTypeOptions}
+                        value={
+                          employeeTypeOptions.find(
+                            (opt) => opt.value === field.value
+                          ) || null
+                        }
+                        onChange={(selected) =>
+                          field.onChange(selected ? selected.value : null)
+                        }
+                        styles={customSelectStyles}
+                        placeholder="Select Employee Type..."
+                        isClearable
                       />
-                    )}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Marriage Date
-              </label>
-              <Controller
-                name="marriage_date"
-                control={control}
-                render={({ field }) => (
-                  <DesktopDatePicker
-                    inputFormat="DD-MM-YYYY"
-                    value={field.value}
-                    onChange={field.onChange}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        fullWidth
-                        size="small"
-                        InputProps={{
-                          ...params.InputProps,
-                          style: { height: "40px" },
-                        }}
+                      {errors.employee_type && (
+                        <span className="text-red-600 text-xs mt-1 block">
+                          {errors.employee_type?.message}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Department</label>
+                <Controller
+                  name="departments_id"
+                  control={control}
+                  render={({ field }) => (
+                    <div>
+                      <Select
+                        options={departmentOptions}
+                        value={
+                          departmentOptions.find(
+                            (opt) => opt.value === field.value
+                          ) || null
+                        }
+                        onChange={(selected) =>
+                          field.onChange(selected ? selected.value : null)
+                        }
+                        styles={customSelectStyles}
+                        placeholder="Select Department..."
+                        isClearable
                       />
-                    )}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Joining Date
-              </label>
-              <Controller
-                name="joining_date"
-                control={control}
-                render={({ field }) => (
-                  <DesktopDatePicker
-                    inputFormat="DD-MM-YYYY"
-                    value={field.value}
-                    onChange={field.onChange}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        fullWidth
-                        size="small"
-                        InputProps={{
-                          ...params.InputProps,
-                          style: { height: "40px" },
-                        }}
+                      {errors.departments_id && (
+                        <span className="text-red-600 text-xs mt-1 block">
+                          {errors.departments_id?.message}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Role</label>
+                <Controller
+                  name="employee_roles_id"
+                  control={control}
+                  render={({ field }) => (
+                    <div>
+                      <Select
+                        options={roleOptions}
+                        value={
+                          roleOptions.find(
+                            (opt) => opt.value === field.value
+                          ) || null
+                        }
+                        onChange={(selected) =>
+                          field.onChange(selected ? selected.value : null)
+                        }
+                        styles={customSelectStyles}
+                        placeholder="Select Role..."
+                        isClearable
                       />
-                    )}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Releaving Date
-              </label>
-              <Controller
-                name="releaving_date"
-                control={control}
-                render={({ field }) => (
-                  <DesktopDatePicker
-                    inputFormat="DD-MM-YYYY"
-                    value={field.value}
-                    onChange={field.onChange}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        fullWidth
-                        size="small"
-                        InputProps={{
-                          ...params.InputProps,
-                          style: { height: "40px" },
-                        }}
+                      {errors.employee_roles_id && (
+                        <span className="text-red-600 text-xs mt-1 block">
+                          {errors.employee_roles_id?.message}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Manager</label>
+                <Controller
+                  name="manager_id"
+                  control={control}
+                  render={({ field }) => (
+                    <div>
+                      <Select
+                        options={managerOptions}
+                        value={
+                          managerOptions.find(
+                            (opt) => opt.value === field.value
+                          ) || null
+                        }
+                        onChange={(selected) =>
+                          field.onChange(selected ? selected.value : null)
+                        }
+                        styles={customSelectStyles}
+                        placeholder="Select Manager..."
+                        isClearable
                       />
-                    )}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Employee Level
-              </label>
-              <Controller
-                name="employee_level_id"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    options={employeeLevelOptions}
-                    value={
-                      employeeLevelOptions.find(
-                        (opt) => opt.value === field.value
-                      ) || null
-                    }
-                    onChange={(selected) =>
-                      field.onChange(selected ? selected.value : null)
-                    }
-                    styles={customSelectStyles}
-                    placeholder="Select Employee Level..."
-                    isClearable
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Employee Type
-              </label>
-              <Controller
-                name="employee_type"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    options={employeeTypeOptions}
-                    value={
-                      employeeTypeOptions.find(
-                        (opt) => opt.value === field.value
-                      ) || null
-                    }
-                    onChange={(selected) =>
-                      field.onChange(selected ? selected.value : null)
-                    }
-                    styles={customSelectStyles}
-                    placeholder="Select Employee Type..."
-                    isClearable
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Department
-              </label>
-              <Controller
-                name="departments_id"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    options={departmentOptions}
-                    value={
-                      departmentOptions.find(
-                        (opt) => opt.value === field.value
-                      ) || null
-                    }
-                    onChange={(selected) =>
-                      field.onChange(selected ? selected.value : null)
-                    }
-                    styles={customSelectStyles}
-                    placeholder="Select Department..."
-                    isClearable
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Role
-              </label>
-              <Controller
-                name="employee_roles_id"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    options={roleOptions}
-                    value={
-                      roleOptions.find((opt) => opt.value === field.value) ||
-                      null
-                    }
-                    onChange={(selected) =>
-                      field.onChange(selected ? selected.value : null)
-                    }
-                    styles={customSelectStyles}
-                    placeholder="Select Role..."
-                    isClearable
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Manager
-              </label>
-              <Controller
-                name="manager_id"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    options={managerOptions}
-                    value={
-                      managerOptions.find((opt) => opt.value === field.value) ||
-                      null
-                    }
-                    onChange={(selected) =>
-                      field.onChange(selected ? selected.value : null)
-                    }
-                    styles={customSelectStyles}
-                    placeholder="Select Manager..."
-                    isClearable
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Additional Managers
-              </label>
-              <Controller
-                name="additional_manager_ids"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    isMulti
-                    options={managerOptions}
-                    value={managerOptions.filter((opt) =>
-                      field.value.includes(opt.value)
-                    )}
-                    onChange={(selected) =>
-                      field.onChange(
-                        selected ? selected.map((opt) => opt.value) : []
-                      )
-                    }
-                    styles={customSelectStyles}
-                    placeholder="Select Additional Managers..."
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Facebook URL
-              </label>
-              <Controller
-                name="facebook_url"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    variant="outlined"
-                    size="small"
-                    InputProps={{ style: { height: "40px" } }}
-                    error={!!errors.facebook_url}
-                    helperText={errors.facebook_url?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Instagram URL
-              </label>
-              <Controller
-                name="instagram_url"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    variant="outlined"
-                    size="small"
-                    InputProps={{ style: { height: "40px" } }}
-                    error={!!errors.instagram_url}
-                    helperText={errors.instagram_url?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                LinkedIn URL
-              </label>
-              <Controller
-                name="linkedin_url"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    variant="outlined"
-                    size="small"
-                    InputProps={{ style: { height: "40px" } }}
-                    error={!!errors.linkedin_url}
-                    helperText={errors.linkedin_url?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Blog URL
-              </label>
-              <Controller
-                name="blog_url"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    variant="outlined"
-                    size="small"
-                    InputProps={{ style: { height: "40px" } }}
-                    error={!!errors.blog_url}
-                    helperText={errors.blog_url?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Address
-              </label>
-              <Controller
-                name="address"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    variant="outlined"
-                    size="small"
-                    InputProps={{ style: { height: "40px" } }}
-                    error={!!errors.address}
-                    helperText={errors.address?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Remarks
-              </label>
-              <Controller
-                name="remarks"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    variant="outlined"
-                    size="small"
-                    multiline
-                    rows={4}
-                    error={!!errors.remarks}
-                    helperText={errors.remarks?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Reporting Email
-              </label>
-              <Controller
-                name="reporting_email"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    variant="outlined"
-                    size="small"
-                    InputProps={{ style: { height: "40px" } }}
-                    error={!!errors.reporting_email}
-                    helperText={errors.reporting_email?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Last Sign In Emails
-              </label>
-              <Controller
-                name="last_sign_in_email"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    variant="outlined"
-                    size="small"
-                    InputProps={{ style: { height: "40px" } }}
-                    error={!!errors.last_sign_in_email}
-                    helperText={errors.last_sign_in_email?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Last Sign Out Emails
-              </label>
-              <Controller
-                name="last_sign_out_email"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    variant="outlined"
-                    size="small"
-                    InputProps={{ style: { height: "40px" } }}
-                    error={!!errors.last_sign_out_email}
-                    helperText={errors.last_sign_out_email?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Leave Notification Mails
-              </label>
-              <Controller
-                name="leave_notification_mails"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    variant="outlined"
-                    size="small"
-                    InputProps={{ style: { height: "40px" } }}
-                    error={!!errors.leave_notification_mails}
-                    helperText={errors.leave_notification_mails?.message}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Controller
-                name="is_signin_mandatory"
-                control={control}
-                render={({ field }) => (
-                  <FormControlLabel
-                    control={<Checkbox {...field} checked={field.value} />}
-                    label="Sign In is mandatory for this employee."
-                  />
-                )}
-              />
-            </Grid>
-          </Grid>
+                      {errors.manager_id && (
+                        <span className="text-red-600 text-xs mt-1 block">
+                          {errors.manager_id?.message}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Additional Managers</label>
+                <Controller
+                  name="additional_manager_ids"
+                  control={control}
+                  render={({ field }) => (
+                    <div>
+                      <Select
+                        isMulti
+                        options={managerOptions}
+                        value={managerOptions.filter((opt) =>
+                          field.value.includes(opt.value)
+                        )}
+                        onChange={(selected) =>
+                          field.onChange(
+                            selected ? selected.map((opt) => opt.value) : []
+                          )
+                        }
+                        styles={customSelectStyles}
+                        placeholder="Select Additional Managers..."
+                      />
+                      {errors.additional_manager_ids && (
+                        <span className="text-red-600 text-xs mt-1 block">
+                          {errors.additional_manager_ids?.message}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Reporting Email</label>
+                <Controller
+                  name="reporting_email"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      error={!!errors.reporting_email}
+                      helperText={errors.reporting_email?.message}
+                    />
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Last Sign In Emails</label>
+                <Controller
+                  name="last_sign_in_email"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      error={!!errors.last_sign_in_email}
+                      helperText={errors.last_sign_in_email?.message}
+                    />
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Last Sign Out Emails</label>
+                <Controller
+                  name="last_sign_out_email"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      error={!!errors.last_sign_out_email}
+                      helperText={errors.last_sign_out_email?.message}
+                    />
+                  )}
+                />
+              </Box>
+              <Box>
+                <label className="block mb-1">Leave Notification Mails</label>
+                <Controller
+                  name="leave_notification_mails"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      error={!!errors.leave_notification_mails}
+                      helperText={errors.leave_notification_mails?.message}
+                    />
+                  )}
+                />
+              </Box>
+              <Box sx={{ flex: "1 1 100%" }}>
+                <label className="block mb-1">Remarks</label>
+                <Controller
+                  name="remarks"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      multiline
+                      rows={4}
+                      className="bg-white"
+                      error={!!errors.remarks}
+                      helperText={errors.remarks?.message}
+                    />
+                  )}
+                />
+              </Box>
+              <Box sx={{ flex: "1 1 100%" }}>
+                <Controller
+                  name="is_signin_mandatory"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControlLabel
+                      control={<Checkbox {...field} checked={field.value} />}
+                      label="Sign In is mandatory for this employee."
+                      className="text-sm"
+                    />
+                  )}
+                />
+              </Box>
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
           <Button

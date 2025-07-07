@@ -19,7 +19,8 @@ import {
   FaCalendarAlt,
   FaRegFileAlt,
   FaBook,
-  FaRegCalendarAlt
+  FaRegCalendarAlt,
+  FaUsers,
 } from "react-icons/fa";
 
 export default function Sidebar({
@@ -31,6 +32,12 @@ export default function Sidebar({
   const pathname = usePathname();
 
   const navItems = [
+    {
+      icon: <FaUsers className="w-6 h-6 flex-shrink-0" />,
+      label: "Users",
+      path: "/dashboard/users",
+      exact: false,
+    },
     {
       icon: <FiUsers className="w-6 h-6 flex-shrink-0" />,
       label: "Employees",
@@ -139,12 +146,18 @@ export default function Sidebar({
       path: "/dashboard/leave-ledger",
       exact: false,
     },
-      {
-    icon: <FaRegCalendarAlt className="w-6 h-6 flex-shrink-0" />,
-    label: "Company Calendar",
-    path: "/dashboard/company-calendar",
-    exact: false,
-  },
+    {
+      icon: <FaRegCalendarAlt className="w-6 h-6 flex-shrink-0" />,
+      label: "Company Calendar",
+      path: "/dashboard/company-calendar",
+      exact: false,
+    },
+    {
+      icon: <FaClipboardList className="w-6 h-6 flex-shrink-0" />,
+      label: "Recruitment Requests",
+      path: "/dashboard/recruitment-requests",
+      exact: false,
+    },
   ];
 
   const isActive = (item) => {

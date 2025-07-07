@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -11,15 +12,17 @@ import {
   DialogActions,
   Button,
   TextField,
-  Grid,
-  Slide,
+  Box,
 } from "@mui/material";
 import Select from "react-select";
 import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
+import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
 
-const Transition = Slide;
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const customSelectStyles = {
   control: (provided) => ({
@@ -28,9 +31,7 @@ const customSelectStyles = {
     borderRadius: "4px",
     minHeight: "40px",
     boxShadow: "none",
-    "&:hover": {
-      border: "1px solid #ccc",
-    },
+    "&:hover": { border: "1px solid #ccc" },
   }),
   menu: (provided) => ({
     ...provided,
@@ -44,9 +45,7 @@ const customSelectStyles = {
       ? "#e6f7f5"
       : "white",
     color: state.isSelected ? "white" : "black",
-    "&:hover": {
-      backgroundColor: state.isSelected ? "#2ac4ab" : "#e6f7f5",
-    },
+    "&:hover": { backgroundColor: state.isSelected ? "#2ac4ab" : "#e6f7f5" },
   }),
 };
 
@@ -76,6 +75,7 @@ const DepartmentFormPopup = ({ open, onClose, onSuccess, department }) => {
       description: "",
     },
     resolver: yupResolver(validationSchema),
+    mode: "onChange",
   });
 
   useEffect(() => {
@@ -86,6 +86,7 @@ const DepartmentFormPopup = ({ open, onClose, onSuccess, department }) => {
         parent_id: null,
         description: "",
       });
+      setError(null);
       return;
     }
 
@@ -115,6 +116,7 @@ const DepartmentFormPopup = ({ open, onClose, onSuccess, department }) => {
     } catch (err) {
       console.error("Error fetching employees:", err);
       setError("Failed to load employees for department head.");
+      toast.error("Failed to load employees.", { position: "top-right" });
     }
   };
 
@@ -133,6 +135,7 @@ const DepartmentFormPopup = ({ open, onClose, onSuccess, department }) => {
     } catch (err) {
       console.error("Error fetching departments:", err);
       setError("Failed to load departments for parent selection.");
+      toast.error("Failed to load departments.", { position: "top-right" });
     }
   };
 
@@ -182,9 +185,7 @@ const DepartmentFormPopup = ({ open, onClose, onSuccess, department }) => {
       toast.success(
         data.message ||
           `Department ${department ? "updated" : "created"} successfully!`,
-        {
-          position: "top-right",
-        }
+        { position: "top-right" }
       );
 
       onSuccess();
@@ -203,9 +204,7 @@ const DepartmentFormPopup = ({ open, onClose, onSuccess, department }) => {
       toast.error(
         err.message ||
           `Failed to ${department ? "update" : "create"} department.`,
-        {
-          position: "top-right",
-        }
+        { position: "top-right" }
       );
     } finally {
       setLoading(false);
@@ -228,7 +227,6 @@ const DepartmentFormPopup = ({ open, onClose, onSuccess, department }) => {
       onClose={onClose}
       TransitionComponent={Transition}
       transitionDuration={500}
-      TransitionProps={{ direction: "up" }}
       sx={{
         "& .MuiDialog-paper": {
           margin: 0,
@@ -236,24 +234,22 @@ const DepartmentFormPopup = ({ open, onClose, onSuccess, department }) => {
           right: 0,
           top: 0,
           bottom: 0,
-          width: "38%",
-          maxWidth: "none",
+          width: { xs: "100%", sm: "min(100%, 500px)" },
+          maxWidth: "500px",
           height: "100%",
           borderRadius: 0,
           maxHeight: "100%",
         },
       }}
     >
-      <DialogTitle>
+      <DialogTitle className="text-lg font-semibold">
         {department ? "Edit Department" : "Add Department"}
       </DialogTitle>
       <DialogContent>
         {error && <div className="text-red-600 mb-4">{error}</div>}
-        <Grid container spacing={2} sx={{ mt: 1 }}>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Department Name
-            </label>
+        <Box display="flex" flexDirection="column" gap={2} mb={2}>
+          <Box>
+            <label className="block mb-1">Department Name *</label>
             <Controller
               name="name"
               control={control}
@@ -263,66 +259,76 @@ const DepartmentFormPopup = ({ open, onClose, onSuccess, department }) => {
                   fullWidth
                   variant="outlined"
                   size="small"
-                  InputProps={{ style: { height: "40px" } }}
+                  className="bg-white"
+                  InputProps={{ className: "h-10" }}
                   error={!!errors.name}
                   helperText={errors.name?.message}
                 />
               )}
             />
-          </Grid>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Department Head
-            </label>
+          </Box>
+          <Box>
+            <label className="block mb-1">Department Head</label>
             <Controller
               name="department_head_id"
               control={control}
               render={({ field }) => (
-                <Select
-                  options={employeeOptions}
-                  value={
-                    employeeOptions.find((opt) => opt.value === field.value) ||
-                    null
-                  }
-                  onChange={(selected) =>
-                    field.onChange(selected ? selected.value : null)
-                  }
-                  styles={customSelectStyles}
-                  placeholder="Select Department Head..."
-                  isClearable
-                />
+                <div>
+                  <Select
+                    options={employeeOptions}
+                    value={
+                      employeeOptions.find(
+                        (opt) => opt.value === field.value
+                      ) || null
+                    }
+                    onChange={(selected) =>
+                      field.onChange(selected ? selected.value : null)
+                    }
+                    styles={customSelectStyles}
+                    placeholder="Select Department Head..."
+                    isClearable
+                  />
+                  {errors.department_head_id && (
+                    <span className="text-red-600 text-xs mt-1 block">
+                      {errors.department_head_id?.message}
+                    </span>
+                  )}
+                </div>
               )}
             />
-          </Grid>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Parent Department
-            </label>
+          </Box>
+          <Box>
+            <label className="block mb-1">Parent Department</label>
             <Controller
               name="parent_id"
               control={control}
               render={({ field }) => (
-                <Select
-                  options={departmentOptions}
-                  value={
-                    departmentOptions.find(
-                      (opt) => opt.value === field.value
-                    ) || null
-                  }
-                  onChange={(selected) =>
-                    field.onChange(selected ? selected.value : null)
-                  }
-                  styles={customSelectStyles}
-                  placeholder="Select Parent Department..."
-                  isClearable
-                />
+                <div>
+                  <Select
+                    options={departmentOptions}
+                    value={
+                      departmentOptions.find(
+                        (opt) => opt.value === field.value
+                      ) || null
+                    }
+                    onChange={(selected) =>
+                      field.onChange(selected ? selected.value : null)
+                    }
+                    styles={customSelectStyles}
+                    placeholder="Select Parent Department..."
+                    isClearable
+                  />
+                  {errors.parent_id && (
+                    <span className="text-red-600 text-xs mt-1 block">
+                      {errors.parent_id?.message}
+                    </span>
+                  )}
+                </div>
               )}
             />
-          </Grid>
-          <Grid item xs={12}>
-            <label style={{ display: "block", marginBottom: "4px" }}>
-              Description
-            </label>
+          </Box>
+          <Box>
+            <label className="block mb-1">Description</label>
             <Controller
               name="description"
               control={control}
@@ -334,13 +340,14 @@ const DepartmentFormPopup = ({ open, onClose, onSuccess, department }) => {
                   size="small"
                   multiline
                   rows={4}
+                  className="bg-white"
                   error={!!errors.description}
                   helperText={errors.description?.message}
                 />
               )}
             />
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </DialogContent>
       <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
         <Button
