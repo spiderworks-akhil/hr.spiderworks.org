@@ -19,7 +19,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             set -e
-            cd /home/hr/api.hr.spiderworks.org
+            cd /home/hr/hr.spiderworks.org
 
             echo "📥 Pulling latest changes from origin/main....."
             git pull origin main
