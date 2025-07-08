@@ -26,7 +26,7 @@ const SignIn = () => {
   const [signinEmail, setSigninEmail] = useState(null);
   const [token, setToken] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
-  const [countdown, setCountdown] = useState(30);
+  const [countdown, setCountdown] = useState(60);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -88,7 +88,7 @@ const SignIn = () => {
       if (result.status === "success") {
         setQrCodeImage(result.data.qrcode);
         setSigninEmail(result.data.email);
-        setCountdown(30);
+        setCountdown(60);
         setMessage({
           text:
             result.data.message ||
@@ -190,7 +190,7 @@ const SignIn = () => {
         setQrCodeImage(null);
         setSigninEmail(null);
         setToken("");
-        setCountdown(30);
+        setCountdown(60);
         setTimeout(() => {
           router.push("/dashboard");
         }, 1000);
