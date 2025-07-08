@@ -4,7 +4,10 @@ import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import {
   Button,
-  Modal,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Box,
   TextField,
   Typography,
@@ -359,7 +362,7 @@ const EmployeeNotes = ({ employee }) => {
             rowCount={total}
             onPaginationModelChange={(newModel) => setPage(newModel.page)}
             sx={{
-              border: 0,
+              border: "",
               boxShadow: "none",
               "& .MuiDataGrid-row.Mui-selected": {
                 backgroundColor: "rgba(234, 248, 244, 1)",
@@ -378,10 +381,9 @@ const EmployeeNotes = ({ employee }) => {
                 {
                   outline: "none",
                 },
-              "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell--sorted":
-                {
-                  outline: "none",
-                },
+              "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within,": {
+                outline: "none",
+              },
             }}
             slots={{
               noRowsOverlay: CustomNoRowsOverlay,
@@ -395,79 +397,74 @@ const EmployeeNotes = ({ employee }) => {
         )}
       </Paper>
 
-      <Modal open={openModal} onClose={handleCloseModal}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "white",
-            boxShadow: 24,
-            p: 4,
-            borderRadius: 2,
-          }}
-        >
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            {modalMode === "add" ? "Add Note" : "Edit Note"}
-          </Typography>
-          <Box sx={{ mb: 2 }}>
-            <label style={{ marginBottom: 4, display: "block" }}>Notes</label>
-            <TextField
-              fullWidth
-              multiline
-              rows={4}
-              placeholder="Enter notes"
-              value={formData.notes}
-              onChange={handleInputChange}
-              helperText={noteError}
-              variant="outlined"
-              FormHelperTextProps={{ style: { color: "red" } }}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  "&:hover fieldset": {
-                    borderColor: "rgba(42,196,171, 0.5)",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "rgb(42,196,171)",
-                  },
-                },
-              }}
-            />
-          </Box>
+      <Dialog
+        open={openModal}
+        onClose={handleCloseModal}
+        sx={{
+          "& .MuiDialog-paper": {
+            width: { xs: "90vw", sm: "500px" },
+            maxHeight: "80vh",
+            borderRadius: "8px",
+          },
+        }}
+      >
+        <DialogTitle className="text-lg font-semibold">
+          {modalMode === "add" ? "Add Note" : "Edit Note"}
+        </DialogTitle>
+        <DialogContent className="overflow-y-auto">
           {(formError || apiError) && (
-            <Typography color="error" sx={{ mb: 2 }}>
-              {formError || apiError}
-            </Typography>
+            <Box className="text-red-600 mb-4">{formError || apiError}</Box>
           )}
-          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
-            <Button
-              onClick={handleCloseModal}
-              sx={{
-                backgroundColor: "#ffebee",
-                color: "#ef5350",
-                "&:hover": { backgroundColor: "#ffcdd2" },
-                padding: "8px 16px",
-                borderRadius: "8px",
-              }}
-            >
-              Close
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              variant="contained"
-              sx={{
-                backgroundColor: "rgb(42,196,171)",
-                "&:hover": { backgroundColor: "rgb(35,170,148)" },
-              }}
-              disabled={loading}
-            >
-              {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
-            </Button>
+          <Box display="flex" flexDirection="column" gap={2} mt={1}>
+            <Box>
+              <label className="block mb-1 text-md">Notes *</label>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                placeholder="Enter notes"
+                value={formData.notes}
+                onChange={handleInputChange}
+                variant="outlined"
+                size="small"
+                className="bg-white"
+                error={!!noteError}
+                helperText={noteError}
+              />
+            </Box>
           </Box>
-        </Box>
-      </Modal>
+        </DialogContent>
+        <DialogActions
+          sx={{ justifyContent: "justify-between", px: 3, pb: 3, pt: 2 }}
+        >
+          <Button
+            onClick={handleCloseModal}
+            sx={{
+              backgroundColor: "#ffebee",
+              color: "#ef5350",
+              "&:hover": { backgroundColor: "#ffcdd2" },
+              padding: "8px 16px",
+              borderRadius: "8px",
+            }}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            sx={{
+              backgroundColor: "rgb(42,196,171)",
+              color: "white",
+              "&:hover": { backgroundColor: "rgb(36,170,148)" },
+              padding: "8px 16px",
+              borderRadius: "8px",
+            }}
+            disabled={loading}
+          >
+            {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Popover
         open={Boolean(deletePopover.anchorEl)}

@@ -392,7 +392,7 @@ const EmployeeSkillHobbies = ({ employee }) => {
           )}
           <Box display="flex" flexDirection="column" gap={2} mt={1}>
             <Box>
-              <label className="block mb-1 text-sm font-medium">Title *</label>
+              <label className="block mb-1 text-md">Title *</label>
               <TextField
                 fullWidth
                 name="title"
@@ -407,9 +407,7 @@ const EmployeeSkillHobbies = ({ employee }) => {
               />
             </Box>
             <Box>
-              <label className="block mb-1 text-sm font-medium">
-                Expertise *
-              </label>
+              <label className="block mb-1 text-md">Expertise *</label>
               <Select
                 options={expertiseOptions}
                 value={

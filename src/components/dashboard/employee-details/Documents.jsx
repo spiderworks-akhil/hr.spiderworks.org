@@ -475,7 +475,7 @@ const Documents = ({ employee }) => {
           )}
           <Box display="flex" flexDirection="column" gap={2} mt={1}>
             <Box>
-              <label className="block mb-1 text-sm font-medium">
+              <label className="block mb-1 text-md">
                 Title {modalMode === "add" && "*"}
               </label>
               <TextField
@@ -489,7 +489,7 @@ const Documents = ({ employee }) => {
               />
             </Box>
             <Box>
-              <label className="block mb-1 text-sm font-medium">
+              <label className="block mb-1 text-md">
                 Document File {modalMode === "add" && "*"}
               </label>
               <input

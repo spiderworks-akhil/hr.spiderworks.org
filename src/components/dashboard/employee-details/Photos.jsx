@@ -4,7 +4,10 @@ import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import {
   Button,
-  Modal,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Box,
   TextField,
   Typography,
@@ -522,95 +525,109 @@ const EmployeePhotos = ({ employee }) => {
         )}
       </Paper>
 
-      <Modal open={openModal} onClose={handleCloseModal}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "white",
-            boxShadow: 24,
-            p: 4,
-            borderRadius: 2,
-          }}
-        >
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            {modalMode === "add" ? "Add Photo" : "Edit Photo"}
-          </Typography>
-          <Box sx={{ mb: 2 }}>
-            <Select
-              options={photoTypeOptions}
-              value={
-                photoTypeOptions.find(
-                  (option) => option.value === formData.type
-                ) || null
-              }
-              onChange={handleInputChange}
-              placeholder="Select Photo Type"
-              styles={customSelectStyles}
-              isClearable
-            />
-            {typeError && (
-              <Typography
-                color="error"
-                variant="caption"
-                sx={{ fontSize: "0.75rem", color: "red" }}
-              >
-                {typeError}
-              </Typography>
-            )}
-          </Box>
-          <Box sx={{ mb: 2 }}>
-            <input
-              type="file"
-              accept="image/jpeg,image/jpg,image/png,image/webp"
-              onChange={handleFileChange}
-              style={{ display: "block", width: "100%" }}
-            />
-            {photoError && (
-              <Typography
-                color="error"
-                variant="caption"
-                sx={{ fontSize: "0.75rem", color: "red" }}
-              >
-                {photoError}
-              </Typography>
-            )}
-          </Box>
+      <Dialog
+        open={openModal}
+        onClose={handleCloseModal}
+        sx={{
+          "& .MuiDialog-paper": {
+            width: { xs: "90vw", sm: "500px" },
+            maxHeight: "80vh",
+            borderRadius: "8px",
+          },
+        }}
+      >
+        <DialogTitle className="text-lg font-semibold">
+          {modalMode === "add" ? "Add Photo" : "Edit Photo"}
+        </DialogTitle>
+        <DialogContent className="overflow-y-auto">
           {(formError || apiError) && (
-            <Typography color="error" sx={{ mb: 2 }}>
-              {formError || apiError}
-            </Typography>
+            <Box className="text-red-600 mb-4">{formError || apiError}</Box>
           )}
-          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
-            <Button
-              onClick={handleCloseModal}
-              sx={{
-                backgroundColor: "#ffebee",
-                color: "#ef5350",
-                "&:hover": { backgroundColor: "#ffcdd2" },
-                padding: "8px 16px",
-                borderRadius: "8px",
-              }}
-            >
-              Close
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              variant="contained"
-              sx={{
-                backgroundColor: "rgb(42,196,171)",
-                "&:hover": { backgroundColor: "rgb(35,170,148)" },
-              }}
-              disabled={loading}
-            >
-              {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
-            </Button>
+          <Box display="flex" flexDirection="column" gap={2} mt={1}>
+            <Box>
+              <label className="block mb-1 text-md">Photo Type *</label>
+              <Select
+                options={photoTypeOptions}
+                value={
+                  photoTypeOptions.find(
+                    (option) => option.value === formData.type
+                  ) || null
+                }
+                onChange={handleInputChange}
+                placeholder="Select Photo Type"
+                styles={customSelectStyles}
+                isClearable
+              />
+              {typeError && (
+                <Typography
+                  color="error"
+                  variant="caption"
+                  className="text-xs block"
+                  sx={{
+                    marginTop: "3px",
+                    marginLeft: "10px",
+                  }}
+                >
+                  {typeError}
+                </Typography>
+              )}
+            </Box>
+            <Box>
+              <label className="block mb-1 text-md">
+                Photo {modalMode === "add" ? "*" : ""}
+              </label>
+              <input
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                onChange={handleFileChange}
+                style={{ display: "block", width: "100%" }}
+              />
+              {photoError && (
+                <Typography
+                  color="error"
+                  variant="caption"
+                  className="text-xs block"
+                  sx={{
+                    marginTop: "4px",
+                  }}
+                >
+                  {photoError}
+                </Typography>
+              )}
+            </Box>
           </Box>
-        </Box>
-      </Modal>
+        </DialogContent>
+        <DialogActions
+          sx={{ justifyContent: "justify-between", px: 3, pb: 3, pt: 2 }}
+        >
+          <Button
+            onClick={handleCloseModal}
+            sx={{
+              backgroundColor: "#ffebee",
+              color: "#ef5350",
+              "&:hover": { backgroundColor: "#ffcdd2" },
+              padding: "8px 16px",
+              borderRadius: "8px",
+            }}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            sx={{
+              backgroundColor: "rgb(42,196,171)",
+              color: "white",
+              "&:hover": { backgroundColor: "rgb(36,170,148)" },
+              padding: "8px 16px",
+              borderRadius: "8px",
+            }}
+            disabled={loading}
+          >
+            {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Popover
         open={Boolean(deletePopover.anchorEl)}

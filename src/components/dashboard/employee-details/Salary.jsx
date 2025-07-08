@@ -570,9 +570,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
           <DialogContent className="overflow-y-auto">
             <Box display="flex" flexDirection="column" gap={2} mt={1}>
               <Box>
-                <label className="block mb-1 text-sm font-medium">
-                  Effective Date
-                </label>
+                <label className="block mb-1 text-md">Effective Date</label>
                 <Controller
                   name="effective_date"
                   control={control}
@@ -606,9 +604,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
                 />
               </Box>
               <Box>
-                <label className="block mb-1 text-sm font-medium">
-                  Basic Pay *
-                </label>
+                <label className="block mb-1 text-md">Basic Pay *</label>
                 <Controller
                   name="basic_pay"
                   control={control}
@@ -633,7 +629,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
                 />
               </Box>
               <Box>
-                <label className="block mb-1 text-sm font-medium">
+                <label className="block mb-1 text-md">
                   TDS Deduction Amount
                 </label>
                 <Controller
@@ -659,7 +655,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
                 />
               </Box>
               <Box>
-                <label className="block mb-1 text-sm font-medium">
+                <label className="block mb-1 text-md">
                   ESI Employee Share (%)
                 </label>
                 <Controller
@@ -685,7 +681,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
                 />
               </Box>
               <Box>
-                <label className="block mb-1 text-sm font-medium">
+                <label className="block mb-1 text-md">
                   ESI Employer Share (%)
                 </label>
                 <Controller
@@ -711,7 +707,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
                 />
               </Box>
               <Box>
-                <label className="block mb-1 text-sm font-medium">
+                <label className="block mb-1 text-md">
                   PF Employee Share (%)
                 </label>
                 <Controller
@@ -737,7 +733,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
                 />
               </Box>
               <Box>
-                <label className="block mb-1 text-sm font-medium">
+                <label className="block mb-1 text-md">
                   PF Employer Share (%)
                 </label>
                 <Controller
@@ -763,7 +759,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
                 />
               </Box>
               <Box>
-                <label className="block mb-1 text-sm font-medium">HRA</label>
+                <label className="block mb-1 text-md">HRA</label>
                 <Controller
                   name="hra"
                   control={control}
@@ -787,9 +783,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
                 />
               </Box>
               <Box>
-                <label className="block mb-1 text-sm font-medium">
-                  Travel Allowance
-                </label>
+                <label className="block mb-1 text-md">Travel Allowance</label>
                 <Controller
                   name="travel_allowance"
                   control={control}
@@ -813,9 +807,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
                 />
               </Box>
               <Box>
-                <label className="block mb-1 text-sm font-medium">
-                  Other Allowance
-                </label>
+                <label className="block mb-1 text-md">Other Allowance</label>
                 <Controller
                   name="other_allowance"
                   control={control}
@@ -839,9 +831,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
                 />
               </Box>
               <Box>
-                <label className="block mb-1 text-sm font-medium">
-                  Remarks
-                </label>
+                <label className="block mb-1 text-md">Remarks</label>
                 <Controller
                   name="remarks"
                   control={control}

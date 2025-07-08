@@ -4,12 +4,15 @@ import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import {
   Button,
-  Modal,
-  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   TextField,
   Typography,
   Popover,
   Paper,
+  Box,
 } from "@mui/material";
 import { MdEdit, MdDelete } from "react-icons/md";
 import moment from "moment";
@@ -299,7 +302,7 @@ const EmployeeEmergencyContacts = ({ employee }) => {
 
   return (
     <div className="p-6">
-      <Toaster position="top-right" reverseOrder={true} />
+      <Toaster position="top-right" reverseOutletModalrder={true} />
       {fetchError && (
         <Typography color="error" sx={{ mb: 2 }}>
           {fetchError}
@@ -307,6 +310,7 @@ const EmployeeEmergencyContacts = ({ employee }) => {
       )}
       <Box
         sx={{ display: "flex", justifyContent: "space-between", mb: 2, gap: 2 }}
+        Sensible
       >
         <TextField
           variant="outlined"
@@ -398,139 +402,148 @@ const EmployeeEmergencyContacts = ({ employee }) => {
         )}
       </Paper>
 
-      <Modal open={openModal} onClose={handleCloseModal}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "white",
-            boxShadow: 24,
-            p: 4,
-            borderRadius: 2,
-          }}
-        >
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            {modalMode === "add"
-              ? "Add Emergency Contact"
-              : "Edit Emergency Contact"}
-          </Typography>
-          <label style={{ marginBottom: 4, display: "block" }}>
-            Contact Name
-          </label>
-          <TextField
-            fullWidth
-            name="contact_name"
-            value={formData.contact_name}
-            onChange={handleInputChange}
-            helperText={
-              submitted && !formData.contact_name
-                ? "Contact name is required"
-                : ""
-            }
-            variant="outlined"
-            FormHelperTextProps={{ style: { color: "red" } }}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                "&:hover fieldset": {
-                  borderColor: "rgba(42,196,171, 0.5)",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "rgb(42,196,171)",
-                },
-              },
-            }}
-          />
-          <label style={{ marginBottom: 4, display: "block" }}>
-            Phone Number
-          </label>
-          <TextField
-            fullWidth
-            name="phone_number"
-            value={formData.phone_number}
-            onChange={handleInputChange}
-            helperText={
-              submitted && !formData.phone_number
-                ? "Phone number is required"
-                : submitted && !phoneRegex.test(formData.phone_number)
-                ? "Please enter a valid phone number (7–15 digits, optional + prefix, spaces, or dashes)"
-                : ""
-            }
-            variant="outlined"
-            FormHelperTextProps={{ style: { color: "red" } }}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                "&:hover fieldset": {
-                  borderColor: "rgba(42,196,171, 0.5)",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "rgb(42,196,171)",
-                },
-              },
-            }}
-          />
-          <label style={{ marginBottom: 4, display: "block" }}>
-            Relationship
-          </label>
-          <TextField
-            fullWidth
-            name="relationship"
-            value={formData.relationship}
-            onChange={handleInputChange}
-            helperText={
-              submitted && !formData.relationship
-                ? "Relationship is required"
-                : ""
-            }
-            variant="outlined"
-            FormHelperTextProps={{ style: { color: "red" } }}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                "&:hover fieldset": {
-                  borderColor: "rgba(42,196,171, 0.5)",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "rgb(42,196,171)",
-                },
-              },
-            }}
-          />
-          {apiError && (
-            <Typography color="error" sx={{ mb: 2 }}>
-              {apiError}
-            </Typography>
-          )}
-          <Box
-            sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 2 }}
-          >
-            <Button
-              onClick={handleCloseModal}
-              sx={{
-                backgroundColor: "#ffebee",
-                color: "#ef5350",
-                "&:hover": { backgroundColor: "#ffcdd2" },
-                padding: "8px 16px",
-                borderRadius: "8px",
-              }}
-            >
-              Close
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              variant="contained"
-              sx={{
-                backgroundColor: "rgb(42,196,171)",
-                "&:hover": { backgroundColor: "rgb(35,170,148)" },
-              }}
-              disabled={loading}
-            >
-              {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
-            </Button>
+      <Dialog
+        open={openModal}
+        onClose={handleCloseModal}
+        sx={{
+          "& .MuiDialog-paper": {
+            width: { xs: "90vw", sm: "500px" },
+            maxHeight: "80vh",
+            borderRadius: "8px",
+          },
+        }}
+      >
+        <DialogTitle className="text-lg font-semibold">
+          {modalMode === "add"
+            ? "Add Emergency Contact"
+            : "Edit Emergency Contact"}
+        </DialogTitle>
+        <DialogContent className="overflow-y-auto">
+          {apiError && <Box className="text-red-600 mb-4">{apiError}</Box>}
+          <Box display="flex" flexDirection="column" gap={2} mt={1}>
+            <Box>
+              <label className="block mb-1 text-md">Contact Name *</label>
+              <TextField
+                fullWidth
+                name="contact_name"
+                value={formData.contact_name}
+                onChange={handleInputChange}
+                error={submitted && !formData.contact_name}
+                helperText={
+                  submitted && !formData.contact_name
+                    ? "Contact name is required"
+                    : ""
+                }
+                variant="outlined"
+                size="small"
+                className="bg-white"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "&:hover fieldset": {
+                      borderColor: "rgba(42,196,171, 0.5)",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "rgb(42,196,171)",
+                    },
+                  },
+                }}
+              />
+            </Box>
+            <Box>
+              <label className="block mb-1 text-md">Phone Number *</label>
+              <TextField
+                fullWidth
+                name="phone_number"
+                value={formData.phone_number}
+                onChange={handleInputChange}
+                error={
+                  submitted &&
+                  (!formData.phone_number ||
+                    !phoneRegex.test(formData.phone_number))
+                }
+                helperText={
+                  submitted && !formData.phone_number
+                    ? "Phone number is required"
+                    : submitted && !phoneRegex.test(formData.phone_number)
+                    ? "Please enter a valid phone number (7–15 digits, optional + prefix, spaces, or dashes)"
+                    : ""
+                }
+                variant="outlined"
+                size="small"
+                className="bg-white"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "&:hover fieldset": {
+                      borderColor: "rgba(42,196,171, 0.5)",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "rgb(42,196,171)",
+                    },
+                  },
+                }}
+              />
+            </Box>
+            <Box>
+              <label className="block mb-1 text-md">Relationship *</label>
+              <TextField
+                fullWidth
+                name="relationship"
+                value={formData.relationship}
+                onChange={handleInputChange}
+                error={submitted && !formData.relationship}
+                helperText={
+                  submitted && !formData.relationship
+                    ? "Relationship is required"
+                    : ""
+                }
+                variant="outlined"
+                size="small"
+                className="bg-white"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "&:hover fieldset": {
+                      borderColor: "rgba(42,196,171, 0.5)",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "rgb(42,196,171)",
+                    },
+                  },
+                }}
+              />
+            </Box>
           </Box>
-        </Box>
-      </Modal>
+        </DialogContent>
+        <DialogActions
+          sx={{ justifyContent: "space-between", px: 3, pb: 3, pt: 2 }}
+        >
+          <Button
+            onClick={handleCloseModal}
+            sx={{
+              backgroundColor: "#ffebee",
+              color: "#ef5350",
+              "&:hover": { backgroundColor: "#ffcdd2" },
+              padding: "8px 16px",
+              borderRadius: "8px",
+            }}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            sx={{
+              backgroundColor: "rgb(42,196,171)",
+              color: "white",
+              "&:hover": { backgroundColor: "rgb(36,170,148)" },
+              padding: "8px 16px",
+              borderRadius: "8px",
+            }}
+            disabled={loading}
+          >
+            {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Popover
         open={Boolean(deletePopover.anchorEl)}
