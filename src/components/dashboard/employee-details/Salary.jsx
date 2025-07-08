@@ -4,7 +4,10 @@ import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import {
   Button,
-  Modal,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Box,
   TextField,
   Typography,
@@ -29,7 +32,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const [modalMode, setModalMode] = useState("add");
   const [deletePopover, setDeletePopover] = useState({
     anchorEl: null,
@@ -61,7 +64,6 @@ const EmployeeSalaryRevision = ({ employee }) => {
 
   const numberRegex = /^\d+(\.\d{0,2})?$/;
 
-  // Watch form fields for real-time grand_total calculation
   const formValues = watch([
     "basic_pay",
     "hra",
@@ -137,7 +139,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
     setPage(0);
   };
 
-  const handleOpenModal = (mode, revision = null) => {
+  const handleOpenDialog = (mode, revision = null) => {
     setModalMode(mode);
     if (mode === "edit" && revision) {
       reset({
@@ -172,16 +174,15 @@ const EmployeeSalaryRevision = ({ employee }) => {
         remarks: "",
       });
     }
-    setOpenModal(true);
+    setOpenDialog(true);
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
     reset();
   };
 
   const onSubmit = async (formData) => {
-    // Determine version based on employeeLevel
     let version = 0;
     if (
       employee.employeeLevel &&
@@ -282,7 +283,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
       });
 
       await fetchSalaryRevisions(page, searchQuery);
-      handleCloseModal();
+      handleCloseDialog();
     } catch (error) {
       console.error(
         `Failed to ${
@@ -442,7 +443,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
       sortable: false,
       renderCell: (params) => (
         <button
-          onClick={() => handleOpenModal("edit", params.row)}
+          onClick={() => handleOpenDialog("edit", params.row)}
           aria-label="Edit salary revision"
         >
           <MdEdit className="w-5 h-5 text-gray-500" />
@@ -466,109 +467,110 @@ const EmployeeSalaryRevision = ({ employee }) => {
   ];
 
   return (
-    <div className="p-6">
-      <Toaster position="top-right" reverseOrder={true} />
-      {fetchError && (
-        <Typography color="error" sx={{ mb: 2 }}>
-          {fetchError}
-        </Typography>
-      )}
-      <Box
-        sx={{ display: "flex", justifyContent: "space-between", mb: 2, gap: 2 }}
-      >
-        <TextField
-          variant="outlined"
-          placeholder="Search Salary Revisions"
-          value={searchQuery}
-          onChange={handleSearchChange}
-          sx={{
-            flex: 1,
-            maxWidth: 300,
-            "& .MuiOutlinedInput-root": {
-              borderRadius: "20px",
-              "& fieldset": { borderColor: "rgba(0, 0, 0, 0.2)" },
-              "&:hover fieldset": { borderColor: "rgba(0, 0, 0, 0.4)" },
-              "&.Mui-focused fieldset": { borderColor: "rgb(42,196,171)" },
-            },
-            "& .MuiInputBase-input": { padding: "10px 14px" },
-          }}
-        />
-        <Button
-          variant="contained"
-          sx={{
-            backgroundColor: "rgb(42,196,171)",
-            "&:hover": { backgroundColor: "rgb(35,170,148)" },
-          }}
-          onClick={() => handleOpenModal("add")}
-        >
-          Add Salary Revision
-        </Button>
-      </Box>
-      <Paper sx={{ width: "100%", boxShadow: "none" }}>
-        {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-            <BeatLoader color="rgb(42,196,171)" size={12} />
-          </Box>
-        ) : (
-          <DataGrid
-            rows={salaryRevisions}
-            columns={columns}
-            autoHeight
-            initialState={{
-              pagination: { paginationModel: { page, pageSize: 3 } },
-            }}
-            pagination
-            paginationMode="server"
-            rowCount={total}
-            onPaginationModelChange={(newModel) => setPage(newModel.page)}
-            sx={{
-              border: 0,
-              boxShadow: "none",
-              "& .MuiDataGrid-row.Mui-selected": {
-                backgroundColor: "rgba(234, 248, 244, 1)",
-                "&:hover": { backgroundColor: "rgba(234, 248, 244, 1)" },
-              },
-              "& .MuiDataGrid-cell": { border: "none" },
-              "& .MuiDataGrid-footerContainer": {
-                borderTop: "none",
-                borderBottom: "none",
-              },
-              "& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within, & .MuiDataGrid-columnHeader--sorted":
-                { outline: "none" },
-              "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell--sorted":
-                { outline: "none" },
-            }}
-            slots={{ noRowsOverlay: CustomNoRowsOverlay }}
-            slotProps={{ pagination: { showRowsPerPage: false } }}
-          />
+    <LocalizationProvider dateAdapter={AdapterMoment}>
+      <div className="p-6">
+        <Toaster position="top-right" reverseOrder={true} />
+        {fetchError && (
+          <Typography color="error" sx={{ mb: 2 }}>
+            {fetchError}
+          </Typography>
         )}
-      </Paper>
-
-      <Modal open={openModal} onClose={handleCloseModal}>
         <Box
           sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: { xs: "90%", sm: 600 },
-            maxHeight: { xs: "80vh", sm: "90vh" },
-            overflowY: "auto",
-            bgcolor: "white",
-            boxShadow: 24,
-            p: { xs: 2, sm: 4 },
-            borderRadius: 2,
+            display: "flex",
+            justifyContent: "space-between",
+            mb: 2,
+            gap: 2,
           }}
         >
-          <Typography variant="h6" sx={{ mb: 2 }}>
+          <TextField
+            variant="outlined"
+            placeholder="Search Salary Revisions"
+            value={searchQuery}
+            onChange={handleSearchChange}
+            sx={{
+              flex: 1,
+              maxWidth: 300,
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "20px",
+                "& fieldset": { borderColor: "rgba(0, 0, 0, 0.2)" },
+                "&:hover fieldset": { borderColor: "rgba(0, 0, 0, 0.4)" },
+                "&.Mui-focused fieldset": { borderColor: "rgb(42,196,171)" },
+              },
+              "& .MuiInputBase-input": { padding: "10px 14px" },
+            }}
+          />
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "rgb(42,196,171)",
+              "&:hover": { backgroundColor: "rgb(35,170,148)" },
+            }}
+            onClick={() => handleOpenDialog("add")}
+          >
+            Add Salary Revision
+          </Button>
+        </Box>
+        <Paper sx={{ width: "100%", boxShadow: "none" }}>
+          {loading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+              <BeatLoader color="rgb(42,196,171)" size={12} />
+            </Box>
+          ) : (
+            <DataGrid
+              rows={salaryRevisions}
+              columns={columns}
+              autoHeight
+              initialState={{
+                pagination: { paginationModel: { page, pageSize: 3 } },
+              }}
+              pagination
+              paginationMode="server"
+              rowCount={total}
+              onPaginationModelChange={(newModel) => setPage(newModel.page)}
+              sx={{
+                border: 0,
+                boxShadow: "none",
+                "& .MuiDataGrid-row.Mui-selected": {
+                  backgroundColor: "rgba(234, 248, 244, 1)",
+                  "&:hover": { backgroundColor: "rgba(234, 248, 244, 1)" },
+                },
+                "& .MuiDataGrid-cell": { border: "none" },
+                "& .MuiDataGrid-footerContainer": {
+                  borderTop: "none",
+                  borderBottom: "none",
+                },
+                "& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within, & .MuiDataGrid-columnHeader--sorted":
+                  { outline: "none" },
+                "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell--sorted":
+                  { outline: "none" },
+              }}
+              slots={{ noRowsOverlay: CustomNoRowsOverlay }}
+              slotProps={{ pagination: { showRowsPerPage: false } }}
+            />
+          )}
+        </Paper>
+
+        <Dialog
+          open={openDialog}
+          onClose={handleCloseDialog}
+          sx={{
+            "& .MuiDialog-paper": {
+              width: { xs: "90vw", sm: "500px" },
+              maxHeight: "80vh",
+              borderRadius: "8px",
+            },
+          }}
+        >
+          <DialogTitle className="text-lg font-semibold">
             {modalMode === "add"
               ? "Add Salary Revision"
               : "Edit Salary Revision"}
-          </Typography>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <label style={{ marginBottom: 4, display: "block" }}>
+          </DialogTitle>
+          <DialogContent className="overflow-y-auto">
+            <Box display="flex" flexDirection="column" gap={2} mt={1}>
+              <Box>
+                <label className="block mb-1 text-sm font-medium">
                   Effective Date
                 </label>
                 <Controller
@@ -602,9 +604,9 @@ const EmployeeSalaryRevision = ({ employee }) => {
                     </LocalizationProvider>
                   )}
                 />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <label style={{ marginBottom: 4, display: "block" }}>
+              </Box>
+              <Box>
+                <label className="block mb-1 text-sm font-medium">
                   Basic Pay *
                 </label>
                 <Controller
@@ -625,22 +627,13 @@ const EmployeeSalaryRevision = ({ employee }) => {
                       error={!!errors.basic_pay}
                       helperText={errors.basic_pay?.message}
                       onInput={handleNumericInput}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "&:hover fieldset": {
-                            borderColor: "rgba(42,196,171, 0.5)",
-                          },
-                          "&.Mui-focused fieldset": {
-                            borderColor: "rgb(42,196,171)",
-                          },
-                        },
-                      }}
+                      className="bg-white"
                     />
                   )}
                 />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <label style={{ marginBottom: 4, display: "block" }}>
+              </Box>
+              <Box>
+                <label className="block mb-1 text-sm font-medium">
                   TDS Deduction Amount
                 </label>
                 <Controller
@@ -660,22 +653,13 @@ const EmployeeSalaryRevision = ({ employee }) => {
                       error={!!errors.tds_deduction_amount}
                       helperText={errors.tds_deduction_amount?.message}
                       onInput={handleNumericInput}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "&:hover fieldset": {
-                            borderColor: "rgba(42,196,171, 0.5)",
-                          },
-                          "&.Mui-focused fieldset": {
-                            borderColor: "rgb(42,196,171)",
-                          },
-                        },
-                      }}
+                      className="bg-white"
                     />
                   )}
                 />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <label style={{ marginBottom: 4, display: "block" }}>
+              </Box>
+              <Box>
+                <label className="block mb-1 text-sm font-medium">
                   ESI Employee Share (%)
                 </label>
                 <Controller
@@ -695,22 +679,13 @@ const EmployeeSalaryRevision = ({ employee }) => {
                       error={!!errors.esi_employee_share}
                       helperText={errors.esi_employee_share?.message}
                       onInput={handleNumericInput}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "&:hover fieldset": {
-                            borderColor: "rgba(42,196,171, 0.5)",
-                          },
-                          "&.Mui-focused fieldset": {
-                            borderColor: "rgb(42,196,171)",
-                          },
-                        },
-                      }}
+                      className="bg-white"
                     />
                   )}
                 />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <label style={{ marginBottom: 4, display: "block" }}>
+              </Box>
+              <Box>
+                <label className="block mb-1 text-sm font-medium">
                   ESI Employer Share (%)
                 </label>
                 <Controller
@@ -730,22 +705,13 @@ const EmployeeSalaryRevision = ({ employee }) => {
                       error={!!errors.esi_employer_share}
                       helperText={errors.esi_employer_share?.message}
                       onInput={handleNumericInput}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "&:hover fieldset": {
-                            borderColor: "rgba(42,196,171, 0.5)",
-                          },
-                          "&.Mui-focused fieldset": {
-                            borderColor: "rgb(42,196,171)",
-                          },
-                        },
-                      }}
+                      className="bg-white"
                     />
                   )}
                 />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <label style={{ marginBottom: 4, display: "block" }}>
+              </Box>
+              <Box>
+                <label className="block mb-1 text-sm font-medium">
                   PF Employee Share (%)
                 </label>
                 <Controller
@@ -765,22 +731,13 @@ const EmployeeSalaryRevision = ({ employee }) => {
                       error={!!errors.pf_employee_share}
                       helperText={errors.pf_employee_share?.message}
                       onInput={handleNumericInput}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "&:hover fieldset": {
-                            borderColor: "rgba(42,196,171, 0.5)",
-                          },
-                          "&.Mui-focused fieldset": {
-                            borderColor: "rgb(42,196,171)",
-                          },
-                        },
-                      }}
+                      className="bg-white"
                     />
                   )}
                 />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <label style={{ marginBottom: 4, display: "block" }}>
+              </Box>
+              <Box>
+                <label className="block mb-1 text-sm font-medium">
                   PF Employer Share (%)
                 </label>
                 <Controller
@@ -800,22 +757,13 @@ const EmployeeSalaryRevision = ({ employee }) => {
                       error={!!errors.pf_employer_share}
                       helperText={errors.pf_employer_share?.message}
                       onInput={handleNumericInput}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "&:hover fieldset": {
-                            borderColor: "rgba(42,196,171, 0.5)",
-                          },
-                          "&.Mui-focused fieldset": {
-                            borderColor: "rgb(42,196,171)",
-                          },
-                        },
-                      }}
+                      className="bg-white"
                     />
                   )}
                 />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <label style={{ marginBottom: 4, display: "block" }}>HRA</label>
+              </Box>
+              <Box>
+                <label className="block mb-1 text-sm font-medium">HRA</label>
                 <Controller
                   name="hra"
                   control={control}
@@ -833,22 +781,13 @@ const EmployeeSalaryRevision = ({ employee }) => {
                       error={!!errors.hra}
                       helperText={errors.hra?.message}
                       onInput={handleNumericInput}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "&:hover fieldset": {
-                            borderColor: "rgba(42,196,171, 0.5)",
-                          },
-                          "&.Mui-focused fieldset": {
-                            borderColor: "rgb(42,196,171)",
-                          },
-                        },
-                      }}
+                      className="bg-white"
                     />
                   )}
                 />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <label style={{ marginBottom: 4, display: "block" }}>
+              </Box>
+              <Box>
+                <label className="block mb-1 text-sm font-medium">
                   Travel Allowance
                 </label>
                 <Controller
@@ -868,22 +807,13 @@ const EmployeeSalaryRevision = ({ employee }) => {
                       error={!!errors.travel_allowance}
                       helperText={errors.travel_allowance?.message}
                       onInput={handleNumericInput}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "&:hover fieldset": {
-                            borderColor: "rgba(42,196,171, 0.5)",
-                          },
-                          "&.Mui-focused fieldset": {
-                            borderColor: "rgb(42,196,171)",
-                          },
-                        },
-                      }}
+                      className="bg-white"
                     />
                   )}
                 />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <label style={{ marginBottom: 4, display: "block" }}>
+              </Box>
+              <Box>
+                <label className="block mb-1 text-sm font-medium">
                   Other Allowance
                 </label>
                 <Controller
@@ -903,22 +833,13 @@ const EmployeeSalaryRevision = ({ employee }) => {
                       error={!!errors.other_allowance}
                       helperText={errors.other_allowance?.message}
                       onInput={handleNumericInput}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "&:hover fieldset": {
-                            borderColor: "rgba(42,196,171, 0.5)",
-                          },
-                          "&.Mui-focused fieldset": {
-                            borderColor: "rgb(42,196,171)",
-                          },
-                        },
-                      }}
+                      className="bg-white"
                     />
                   )}
                 />
-              </Grid>
-              <Grid item xs={12}>
-                <label style={{ marginBottom: 4, display: "block" }}>
+              </Box>
+              <Box>
+                <label className="block mb-1 text-sm font-medium">
                   Remarks
                 </label>
                 <Controller
@@ -933,89 +854,78 @@ const EmployeeSalaryRevision = ({ employee }) => {
                       rows={3}
                       error={!!errors.remarks}
                       helperText={errors.remarks?.message}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "&:hover fieldset": {
-                            borderColor: "rgba(42,196,171, 0.5)",
-                          },
-                          "&.Mui-focused fieldset": {
-                            borderColor: "rgb(42,196,171)",
-                          },
-                        },
-                      }}
+                      className="bg-white"
                     />
                   )}
                 />
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="body1" sx={{ mt: 2 }}>
+              </Box>
+              <Box>
+                <Typography variant="body1" className="text-sm font-medium">
                   Grand Total: {calculateGrandTotal()}
                 </Typography>
-              </Grid>
-            </Grid>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: 1,
-                mt: 2,
-              }}
-            >
-              <Button
-                onClick={handleCloseModal}
-                sx={{
-                  backgroundColor: "#ffebee",
-                  color: "#ef5350",
-                  "&:hover": { backgroundColor: "#ffcdd2" },
-                  padding: "8px 16px",
-                  borderRadius: "8px",
-                }}
-              >
-                Close
-              </Button>
-              <Button
-                type="submit"
-                variant="contained"
-                sx={{
-                  backgroundColor: "rgb(42,196,171)",
-                  "&:hover": { backgroundColor: "rgb(35,170,148)" },
-                }}
-                disabled={loading}
-              >
-                {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
-              </Button>
+              </Box>
             </Box>
-          </form>
-        </Box>
-      </Modal>
-
-      <Popover
-        open={Boolean(deletePopover.anchorEl)}
-        anchorEl={deletePopover.anchorEl}
-        onClose={handleCloseDeletePopover}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        transformOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Box sx={{ p: 2 }}>
-          <Typography sx={{ mb: 2 }}>
-            Are you sure you want to delete this salary revision?
-          </Typography>
-          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
-            <Button onClick={handleCloseDeletePopover} variant="outlined">
+          </DialogContent>
+          <DialogActions
+            sx={{ justifyContent: "justify-between", px: 3, pb: 3, pt: 2 }}
+          >
+            <Button
+              onClick={handleCloseDialog}
+              sx={{
+                backgroundColor: "#ffebee",
+                color: "#ef5350",
+                "&:hover": { backgroundColor: "#ffcdd2" },
+                padding: "8px 16px",
+                borderRadius: "8px",
+              }}
+              disabled={loading}
+            >
               Cancel
             </Button>
             <Button
-              onClick={handleDelete}
-              variant="contained"
-              color="error"
+              onClick={handleSubmit(onSubmit)}
+              sx={{
+                backgroundColor: "rgb(42,196,171)",
+                color: "white",
+                "&:hover": { backgroundColor: "rgb(36,170,148)" },
+                padding: "8px 16px",
+                borderRadius: "8px",
+              }}
               disabled={loading}
             >
-              {loading ? <BeatLoader color="#fff" size={8} /> : "Delete"}
+              {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
             </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Popover
+          open={Boolean(deletePopover.anchorEl)}
+          anchorEl={deletePopover.anchorEl}
+          onClose={handleCloseDeletePopover}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+          transformOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Box sx={{ p: 2 }}>
+            <Typography sx={{ mb: 2 }}>
+              Are you sure you want to delete this salary revision?
+            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
+              <Button onClick={handleCloseDeletePopover} variant="outlined">
+                Cancel
+              </Button>
+              <Button
+                onClick={handleDelete}
+                variant="contained"
+                color="error"
+                disabled={loading}
+              >
+                {loading ? <BeatLoader color="#fff" size={8} /> : "Delete"}
+              </Button>
+            </Box>
           </Box>
-        </Box>
-      </Popover>
-    </div>
+        </Popover>
+      </div>
+    </LocalizationProvider>
   );
 };
 

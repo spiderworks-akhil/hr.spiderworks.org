@@ -479,7 +479,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
               }}
             >
               <Box>
-                <label className="block mb-1">Name</label>
+                <label className="block mb-1">Name *</label>
                 <Controller
                   name="name"
                   control={control}
