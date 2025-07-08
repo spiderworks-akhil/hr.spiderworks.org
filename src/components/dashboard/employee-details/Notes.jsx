@@ -8,11 +8,11 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Box,
   TextField,
   Typography,
   Popover,
   Paper,
+  Box,
 } from "@mui/material";
 import { MdEdit, MdDelete } from "react-icons/md";
 import moment from "moment";
@@ -362,7 +362,7 @@ const EmployeeNotes = ({ employee }) => {
             rowCount={total}
             onPaginationModelChange={(newModel) => setPage(newModel.page)}
             sx={{
-              border: "",
+              border: 0,
               boxShadow: "none",
               "& .MuiDataGrid-row.Mui-selected": {
                 backgroundColor: "rgba(234, 248, 244, 1)",
@@ -381,9 +381,10 @@ const EmployeeNotes = ({ employee }) => {
                 {
                   outline: "none",
                 },
-              "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within,": {
-                outline: "none",
-              },
+              "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell--sorted":
+                {
+                  outline: "none",
+                },
             }}
             slots={{
               noRowsOverlay: CustomNoRowsOverlay,
@@ -412,9 +413,7 @@ const EmployeeNotes = ({ employee }) => {
           {modalMode === "add" ? "Add Note" : "Edit Note"}
         </DialogTitle>
         <DialogContent className="overflow-y-auto">
-          {(formError || apiError) && (
-            <Box className="text-red-600 mb-4">{formError || apiError}</Box>
-          )}
+          {apiError && <Box className="text-red-600 mb-4">{apiError}</Box>}
           <Box display="flex" flexDirection="column" gap={2} mt={1}>
             <Box>
               <label className="block mb-1 text-md">Notes *</label>
@@ -422,21 +421,32 @@ const EmployeeNotes = ({ employee }) => {
                 fullWidth
                 multiline
                 rows={4}
+                name="notes"
                 placeholder="Enter notes"
                 value={formData.notes}
                 onChange={handleInputChange}
+                error={submitted && !formData.notes}
+                helperText={
+                  submitted && !formData.notes ? "Note is required" : ""
+                }
                 variant="outlined"
                 size="small"
                 className="bg-white"
-                error={!!noteError}
-                helperText={noteError}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "&:hover fieldset": {
+                      borderColor: "rgba(42,196,171, 0.5)",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "rgb(42,196,171)",
+                    },
+                  },
+                }}
               />
             </Box>
           </Box>
         </DialogContent>
-        <DialogActions
-          sx={{ justifyContent: "justify-between", px: 3, pb: 3, pt: 2 }}
-        >
+        <DialogActions sx={{ justifyContent: "", px: 3, pb: 3, pt: 2 }}>
           <Button
             onClick={handleCloseModal}
             sx={{

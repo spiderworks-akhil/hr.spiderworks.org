@@ -513,9 +513,7 @@ const EmployeeEmergencyContacts = ({ employee }) => {
             </Box>
           </Box>
         </DialogContent>
-        <DialogActions
-          sx={{ justifyContent: "space-between", px: 3, pb: 3, pt: 2 }}
-        >
+        <DialogActions sx={{ justifyContent: "", px: 3, pb: 3, pt: 2 }}>
           <Button
             onClick={handleCloseModal}
             sx={{
