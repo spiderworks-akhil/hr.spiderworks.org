@@ -3,9 +3,11 @@
 import Image from "next/image";
 import { useState } from "react";
 import { FiLogOut } from "react-icons/fi";
+import { useSession } from "next-auth/react";
 
 export default function Header({ toggleSidebar, isSidebarOpen, isMobileView }) {
   const [isLogoutPopupOpen, setIsLogoutPopupOpen] = useState(false);
+  const { data: session } = useSession();
 
   const handleTogglePopup = () => {
     setIsLogoutPopupOpen(!isLogoutPopupOpen);
@@ -93,10 +95,10 @@ export default function Header({ toggleSidebar, isSidebarOpen, isMobileView }) {
               </div>
               <div className="hidden md:flex flex-col items-start">
                 <span className="text-sm font-medium text-gray-700">
-                  John Doe
+                  {session?.user?.name || "-"}
                 </span>
                 <span className="text-xs font-medium text-gray-500">
-                  john.doe@example.com
+                  {session?.user?.email || "-"}
                 </span>
               </div>
             </button>
