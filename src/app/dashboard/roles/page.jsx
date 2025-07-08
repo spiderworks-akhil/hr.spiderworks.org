@@ -217,6 +217,7 @@ const Roles = () => {
               paginationMode="server"
               rowCount={total}
               onPaginationModelChange={(newModel) => setPage(newModel.page)}
+              pageSizeOptions={[]}
               sx={{
                 border: 0,
                 boxShadow: "none",
