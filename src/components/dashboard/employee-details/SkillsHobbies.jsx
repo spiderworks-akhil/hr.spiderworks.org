@@ -4,7 +4,10 @@ import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import {
   Button,
-  Modal,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Box,
   TextField,
   Typography,
@@ -26,7 +29,7 @@ const EmployeeSkillHobbies = ({ employee }) => {
   const [fetchError, setFetchError] = useState(null);
   const [modalError, setModalError] = useState(null);
   const [apiError, setApiError] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const [modalMode, setModalMode] = useState("add");
   const [formData, setFormData] = useState({ id: 0, title: "", expertise: "" });
   const [submitted, setSubmitted] = useState(false);
@@ -78,7 +81,7 @@ const EmployeeSkillHobbies = ({ employee }) => {
     setPage(0);
   };
 
-  const handleOpenModal = (mode, skillHobby = null) => {
+  const handleOpenDialog = (mode, skillHobby = null) => {
     setModalMode(mode);
     if (mode === "edit" && skillHobby) {
       setFormData({
@@ -92,11 +95,11 @@ const EmployeeSkillHobbies = ({ employee }) => {
     setModalError(null);
     setApiError(null);
     setSubmitted(false);
-    setOpenModal(true);
+    setOpenDialog(true);
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
     setFormData({ id: 0, title: "", expertise: "" });
     setModalError(null);
     setApiError(null);
@@ -170,7 +173,7 @@ const EmployeeSkillHobbies = ({ employee }) => {
       }
 
       await fetchSkillHobbies(page, searchQuery);
-      handleCloseModal();
+      handleCloseDialog();
     } catch (error) {
       console.error(
         `Failed to ${modalMode === "add" ? "create" : "update"} skill/hobby:`,
@@ -244,7 +247,7 @@ const EmployeeSkillHobbies = ({ employee }) => {
       sortable: false,
       renderCell: (params) => (
         <button
-          onClick={() => handleOpenModal("edit", params.row)}
+          onClick={() => handleOpenDialog("edit", params.row)}
           aria-label="Edit skill/hobby"
         >
           <MdEdit className="w-5 h-5 text-gray-500" />
@@ -308,7 +311,7 @@ const EmployeeSkillHobbies = ({ employee }) => {
             backgroundColor: "rgb(42,196,171)",
             "&:hover": { backgroundColor: "rgb(35,170,148)" },
           }}
-          onClick={() => handleOpenModal("add")}
+          onClick={() => handleOpenDialog("add")}
         >
           Add Skill/Hobby
         </Button>
@@ -367,149 +370,151 @@ const EmployeeSkillHobbies = ({ employee }) => {
         )}
       </Paper>
 
-      <Modal open={openModal} onClose={handleCloseModal}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "white",
-            boxShadow: 24,
-            p: 4,
-            borderRadius: 2,
-          }}
-        >
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            {modalMode === "add" ? "Add Skill/Hobby" : "Edit Skill/Hobby"}
-          </Typography>
-          <label style={{ marginBottom: 4, display: "block" }}>Title</label>
-          <TextField
-            fullWidth
-            name="title"
-            value={formData.title}
-            onChange={handleInputChange}
-            helperText={submitted && !formData.title ? "Title is required" : ""}
-            variant="outlined"
-            FormHelperTextProps={{ style: { color: "red" } }}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                "&:hover fieldset": {
-                  borderColor: "rgba(42,196,171, 0.5)",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "rgb(42,196,171)",
-                },
-              },
-            }}
-          />
-          <Box mt={1}>
-            <Select
-              options={expertiseOptions}
-              value={
-                expertiseOptions.find(
-                  (option) => option.value === formData.expertise
-                ) || null
-              }
-              onChange={handleExpertiseChange}
-              placeholder="Select Expertise"
-              isSearchable
-              isClearable
-              styles={{
-                control: (provided, state) => ({
-                  ...provided,
-                  borderRadius: "4px",
-                  padding: "2px 4px",
-                  backgroundColor: "white",
-                  borderColor: state.isFocused
-                    ? "rgb(42,196,171)"
-                    : state.isHovered
-                    ? "rgba(42,196,171, 0.5)"
-                    : "rgba(0, 0, 0, 0.2)",
-                  boxShadow: state.isFocused
-                    ? "0 0 0 1px rgb(42,196,171)"
-                    : "none",
-                  "&:hover": {
-                    borderColor: state.isFocused
-                      ? "rgb(42,196,171)"
-                      : "rgba(42,196,171, 0.5)",
-                  },
-                }),
-                menu: (provided) => ({
-                  ...provided,
-                  borderRadius: "4px",
-                  marginTop: "4px",
-                  zIndex: 9999,
-                }),
-                option: (provided, state) => ({
-                  ...provided,
-                  backgroundColor: state.isSelected
-                    ? "#2ac4ab"
-                    : state.isFocused
-                    ? "rgba(42,196,171, 0.05)"
-                    : "white",
-                  color: state.isSelected ? "white" : "black",
-                  "&:hover": {
-                    backgroundColor: state.isSelected
-                      ? "#2ac4ab"
-                      : "rgba(42,196,171, 0.05)",
-                  },
-                }),
-                singleValue: (provided) => ({
-                  ...provided,
-                  color: "black",
-                }),
-                placeholder: (provided) => ({
-                  ...provided,
-                  color: "rgba(0, 0, 0, 0.6)",
-                }),
-              }}
-            />
-          </Box>
-          {submitted && !formData.expertise && (
-            <Typography
-              color="error"
-              variant="caption"
-              sx={{ mb: 2, fontSize: "0.75rem", color: "red" }}
-            >
-              Expertise is required
-            </Typography>
-          )}
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        sx={{
+          "& .MuiDialog-paper": {
+            width: { xs: "90vw", sm: "500px" },
+            maxHeight: "80vh",
+            borderRadius: "8px",
+          },
+        }}
+      >
+        <DialogTitle className="text-lg font-semibold">
+          {modalMode === "add" ? "Add Skill/Hobby" : "Edit Skill/Hobby"}
+        </DialogTitle>
+        <DialogContent className="overflow-y-auto">
           {apiError && (
-            <Typography color="error" sx={{ mb: 2 }}>
+            <Typography color="error" sx={{ mb: 2, fontSize: "0.75rem" }}>
               {apiError}
             </Typography>
           )}
-          <Box
-            sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 2 }}
-          >
-            <Button
-              onClick={handleCloseModal}
-              sx={{
-                backgroundColor: "#ffebee",
-                color: "#ef5350",
-                "&:hover": { backgroundColor: "#ffcdd2" },
-                padding: "8px 16px",
-                borderRadius: "8px",
-              }}
-            >
-              Close
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              variant="contained"
-              sx={{
-                backgroundColor: "rgb(42,196,171)",
-                "&:hover": { backgroundColor: "rgb(35,170,148)" },
-              }}
-              disabled={loading}
-            >
-              {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
-            </Button>
+          <Box display="flex" flexDirection="column" gap={2} mt={1}>
+            <Box>
+              <label className="block mb-1 text-sm font-medium">Title *</label>
+              <TextField
+                fullWidth
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                size="small"
+                error={submitted && !formData.title}
+                helperText={
+                  submitted && !formData.title ? "Title is required" : ""
+                }
+                className="bg-white"
+              />
+            </Box>
+            <Box>
+              <label className="block mb-1 text-sm font-medium">
+                Expertise *
+              </label>
+              <Select
+                options={expertiseOptions}
+                value={
+                  expertiseOptions.find(
+                    (option) => option.value === formData.expertise
+                  ) || null
+                }
+                onChange={handleExpertiseChange}
+                placeholder="Select Expertise"
+                isSearchable
+                isClearable
+                styles={{
+                  control: (provided, state) => ({
+                    ...provided,
+                    borderRadius: "4px",
+                    padding: "2px 4px",
+                    backgroundColor: "white",
+                    borderColor: state.isFocused
+                      ? "rgb(42,196,171)"
+                      : state.isHovered
+                      ? "rgba(42,196,171, 0.5)"
+                      : "rgba(0, 0, 0, 0.2)",
+                    boxShadow: state.isFocused
+                      ? "0 0 0 1px rgb(42,196,171)"
+                      : "none",
+                    "&:hover": {
+                      borderColor: state.isFocused
+                        ? "rgb(42,196,171)"
+                        : "rgba(42,196,171, 0.5)",
+                    },
+                    minHeight: "36px",
+                  }),
+                  menu: (provided) => ({
+                    ...provided,
+                    borderRadius: "4px",
+                    marginTop: "4px",
+                    zIndex: 9999,
+                  }),
+                  option: (provided, state) => ({
+                    ...provided,
+                    backgroundColor: state.isSelected
+                      ? "#2ac4ab"
+                      : state.isFocused
+                      ? "rgba(42,196,171, 0.05)"
+                      : "white",
+                    color: state.isSelected ? "white" : "black",
+                    "&:hover": {
+                      backgroundColor: state.isSelected
+                        ? "#2ac4ab"
+                        : "rgba(42,196,171, 0.05)",
+                    },
+                  }),
+                  singleValue: (provided) => ({
+                    ...provided,
+                    color: "black",
+                  }),
+                  placeholder: (provided) => ({
+                    ...provided,
+                    color: "rgba(0, 0, 0, 0.6)",
+                  }),
+                }}
+              />
+              {submitted && !formData.expertise && (
+                <Typography
+                  color="error"
+                  variant="caption"
+                  sx={{ fontSize: "0.75rem" }}
+                >
+                  Expertise is required
+                </Typography>
+              )}
+            </Box>
           </Box>
-        </Box>
-      </Modal>
+        </DialogContent>
+        <DialogActions
+          sx={{ justifyContent: "justify-between", px: 3, pb: 3, pt: 2 }}
+        >
+          <Button
+            onClick={handleCloseDialog}
+            sx={{
+              backgroundColor: "#ffebee",
+              color: "#ef5350",
+              "&:hover": { backgroundColor: "#ffcdd2" },
+              padding: "8px 16px",
+              borderRadius: "8px",
+            }}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            sx={{
+              backgroundColor: "rgb(42,196,171)",
+              color: "white",
+              "&:hover": { backgroundColor: "rgb(36,170,148)" },
+              padding: "8px 16px",
+              borderRadius: "8px",
+            }}
+            disabled={loading}
+          >
+            {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Popover
         open={Boolean(deletePopover.anchorEl)}

@@ -4,7 +4,10 @@ import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import {
   Button,
-  Modal,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Box,
   TextField,
   Typography,
@@ -28,7 +31,7 @@ const Documents = ({ employee }) => {
   const [fileError, setFileError] = useState(null);
   const [formError, setFormError] = useState(null);
   const [apiError, setApiError] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const [modalMode, setModalMode] = useState("add");
   const [formData, setFormData] = useState({ id: 0, title: "", file: null });
   const [submitted, setSubmitted] = useState(false);
@@ -74,7 +77,7 @@ const Documents = ({ employee }) => {
     setPage(0);
   };
 
-  const handleOpenModal = (mode, doc = null) => {
+  const handleOpenDialog = (mode, doc = null) => {
     setModalMode(mode);
     if (mode === "edit" && doc) {
       setFormData({ id: doc.id, title: doc.title, file: null });
@@ -86,11 +89,11 @@ const Documents = ({ employee }) => {
     setFormError(null);
     setApiError(null);
     setSubmitted(false);
-    setOpenModal(true);
+    setOpenDialog(true);
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
     setFormData({ id: 0, title: "", file: null });
     setTitleError(null);
     setFileError(null);
@@ -223,7 +226,7 @@ const Documents = ({ employee }) => {
       });
 
       await fetchDocuments(page, searchQuery);
-      handleCloseModal();
+      handleCloseDialog();
     } catch (error) {
       console.error(
         `Failed to ${modalMode === "add" ? "create" : "update"} document:`,
@@ -305,7 +308,7 @@ const Documents = ({ employee }) => {
               className="text-blue-600 hover:text-blue-700"
               aria-label={`View document ${fileName}`}
             >
-              <MdVisibility className="w5 h-5" />
+              <MdVisibility className="w-5 h-5" />
             </a>
           </Box>
         );
@@ -326,7 +329,7 @@ const Documents = ({ employee }) => {
       sortable: false,
       renderCell: (params) => (
         <button
-          onClick={() => handleOpenModal("edit", params.row)}
+          onClick={() => handleOpenDialog("edit", params.row)}
           aria-label="Edit document"
         >
           <MdEdit className="w-5 h-5 text-gray-500" />
@@ -391,7 +394,7 @@ const Documents = ({ employee }) => {
             backgroundColor: "rgb(42,196,171)",
             "&:hover": { backgroundColor: "rgb(35,170,148)" },
           }}
-          onClick={() => handleOpenModal("add")}
+          onClick={() => handleOpenDialog("add")}
         >
           Upload Document
         </Button>
@@ -450,103 +453,94 @@ const Documents = ({ employee }) => {
         )}
       </Paper>
 
-      <Modal open={openModal} onClose={handleCloseModal}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "white",
-            boxShadow: 24,
-            p: 4,
-            borderRadius: 2,
-          }}
-        >
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            {modalMode === "add" ? "Upload Document" : "Edit Document"}
-          </Typography>
-          <Box sx={{ mb: 2 }}>
-            <label style={{ marginBottom: 4, display: "block" }}>Title</label>
-            <TextField
-              fullWidth
-              value={formData.title}
-              onChange={handleInputChange}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "4px",
-                  "& fieldset": {
-                    borderColor: "rgba(0, 0, 0, 0.2)",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: "rgba(42,196,171, 0.5)",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "rgb(42,196,171)",
-                  },
-                },
-              }}
-            />
-            {titleError && (
-              <Typography
-                color="error"
-                variant="caption"
-                sx={{ fontSize: "0.75rem", color: "red" }}
-              >
-                {titleError}
-              </Typography>
-            )}
-          </Box>
-          <Box sx={{ mb: 2 }}>
-            <input
-              type="file"
-              accept=".pdf,.doc,.docx"
-              onChange={handleInputChange}
-              style={{ display: "block", width: "100%" }}
-            />
-            {fileError && (
-              <Typography
-                color="error"
-                variant="caption"
-                sx={{ fontSize: "0.75rem", color: "red" }}
-              >
-                {fileError}
-              </Typography>
-            )}
-          </Box>
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        sx={{
+          "& .MuiDialog-paper": {
+            width: { xs: "90vw", sm: "500px" },
+            maxHeight: "80vh",
+            borderRadius: "8px",
+          },
+        }}
+      >
+        <DialogTitle className="text-lg font-semibold">
+          {modalMode === "add" ? "Upload Document" : "Edit Document"}
+        </DialogTitle>
+        <DialogContent className="overflow-y-auto">
           {(formError || apiError) && (
-            <Typography color="error" sx={{ mb: 2 }}>
+            <Typography color="error" sx={{ mb: 2, fontSize: "0.75rem" }}>
               {formError || apiError}
             </Typography>
           )}
-          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
-            <Button
-              onClick={handleCloseModal}
-              sx={{
-                backgroundColor: "#ffebee",
-                color: "#ef5350",
-                "&:hover": { backgroundColor: "#ffcdd2" },
-                padding: "8px 16px",
-                borderRadius: "8px",
-              }}
-            >
-              Close
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              variant="contained"
-              sx={{
-                backgroundColor: "rgb(42,196,171)",
-                "&:hover": { backgroundColor: "rgb(35,170,148)" },
-              }}
-              disabled={loading}
-            >
-              {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
-            </Button>
+          <Box display="flex" flexDirection="column" gap={2} mt={1}>
+            <Box>
+              <label className="block mb-1 text-sm font-medium">
+                Title {modalMode === "add" && "*"}
+              </label>
+              <TextField
+                fullWidth
+                value={formData.title}
+                onChange={handleInputChange}
+                size="small"
+                error={!!titleError}
+                helperText={titleError}
+                className="bg-white"
+              />
+            </Box>
+            <Box>
+              <label className="block mb-1 text-sm font-medium">
+                Document File {modalMode === "add" && "*"}
+              </label>
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={handleInputChange}
+                style={{ display: "block", width: "100%" }}
+              />
+              {fileError && (
+                <Typography
+                  color="error"
+                  variant="caption"
+                  sx={{ fontSize: "0.75rem" }}
+                >
+                  {fileError}
+                </Typography>
+              )}
+            </Box>
           </Box>
-        </Box>
-      </Modal>
+        </DialogContent>
+        <DialogActions
+          sx={{ justifyContent: "justify-between", px: 3, pb: 3, pt: 2 }}
+        >
+          <Button
+            onClick={handleCloseDialog}
+            sx={{
+              backgroundColor: "#ffebee",
+              color: "#ef5350",
+              "&:hover": { backgroundColor: "#ffcdd2" },
+              padding: "8px 16px",
+              borderRadius: "8px",
+            }}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            sx={{
+              backgroundColor: "rgb(42,196,171)",
+              color: "white",
+              "&:hover": { backgroundColor: "rgb(36,170,148)" },
+              padding: "8px 16px",
+              borderRadius: "8px",
+            }}
+            disabled={loading}
+          >
+            {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Popover
         open={Boolean(deletePopover.anchorEl)}
