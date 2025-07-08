@@ -59,6 +59,7 @@ const customSelectStyles = {
 
 const validationSchema = yup.object().shape({
   name: yup.string().required("Name is required").trim(),
+  employee_code: yup.string().nullable().trim(),
   personal_email: yup.string().nullable().email("Invalid email address").trim(),
   work_email: yup.string().nullable().email("Invalid email address").trim(),
   personal_phone: yup
@@ -122,6 +123,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
 
   const defaultValues = {
     name: "",
+    employee_code: "",
     personal_email: "",
     work_email: "",
     personal_phone: "",
@@ -181,6 +183,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
     if (employee) {
       reset({
         name: employee.name || "",
+        employee_code: employee.employee_code || "",
         personal_email: employee.personal_email || "",
         work_email: employee.work_email || "",
         personal_phone: employee.personal_phone || "",
@@ -307,6 +310,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
 
       const payload = {
         name: formData.name.trim(),
+        employee_code: formData.employee_code.trim(),
         personal_email: formData.personal_email || null,
         work_email: formData.work_email || null,
         personal_phone: formData.personal_phone || null,
@@ -498,15 +502,22 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                 />
               </Box>
               <Box>
-                <label className="block mb-1">Employee ID</label>
-                <TextField
-                  fullWidth
-                  disabled
-                  value={employee?.id || ""}
-                  variant="outlined"
-                  size="small"
-                  className="bg-white"
-                  InputProps={{ className: "h-10" }}
+                <label className="block mb-1">Employee Code</label>
+                <Controller
+                  name="employee_code"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      variant="outlined"
+                      size="small"
+                      className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      error={!!errors.employee_code}
+                      helperText={errors.employee_code?.message}
+                    />
+                  )}
                 />
               </Box>
               <Box>
