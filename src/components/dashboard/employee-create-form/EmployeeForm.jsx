@@ -323,7 +323,6 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
       let userId = null;
 
       if (!employee) {
-        // Step 1: Create user in auth service
         const authUserData = {
           name: formData.name.trim(),
           email: formData.work_email || null,
@@ -355,7 +354,6 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
         }
         userId = Number(authUser.data?.data?.id);
 
-        // Step 2: Fetch all users from auth service
         const fetchAllResponse = await fetch(
           `${BASE_AUTH_URL}/api/user-auth/fetch-all`,
           {
@@ -371,7 +369,6 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
 
         const authUsers = await fetchAllResponse.json();
 
-        // Step 3: Transform and sync users
         const transformedUsers = (authUsers.data || authUsers).map((user) => {
           let first_name = null;
           let last_name = null;
@@ -464,7 +461,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
         designation: formData.designation || null,
         confirmation_date: formatDateSimple(formData.confirmation_date),
         current_employee: formData.current_employee ? 1 : 0,
-        user_id: userId,
+        ...(employee ? {} : { user_id: userId }),
       };
 
       const url = employee
