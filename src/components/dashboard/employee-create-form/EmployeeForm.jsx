@@ -11,7 +11,6 @@ import {
   DialogActions,
   Button,
   TextField,
-  Grid,
   Slide,
   FormControlLabel,
   Checkbox,
@@ -24,7 +23,7 @@ import moment from "moment";
 import Select from "react-select";
 import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
-import { BASE_URL } from "@/services/baseUrl";
+import { BASE_URL, BASE_AUTH_URL } from "@/services/baseUrl";
 
 const Transition = Slide;
 
@@ -111,6 +110,7 @@ const validationSchema = yup.object().shape({
   manager_id: yup.number().nullable(),
   additional_manager_ids: yup.array().of(yup.number()).nullable(),
   designation: yup.string().nullable().trim(),
+  current_employee: yup.boolean().nullable(),
 });
 
 const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
@@ -120,6 +120,9 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
   const [levels, setLevels] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  console.log(employee);
+  console.log(departments);
 
   const defaultValues = {
     name: "",
@@ -160,6 +163,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
     has_showcase_portal_access: 0,
     designation: "",
     confirmation_date: null,
+    current_employee: true,
   };
 
   const {
@@ -234,6 +238,10 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
         confirmation_date: employee.confirmation_date
           ? moment(employee.confirmation_date)
           : null,
+        current_employee:
+          typeof employee.current_employee === "number"
+            ? Boolean(employee.current_employee)
+            : employee.current_employee !== false,
       });
     } else {
       reset(defaultValues);
@@ -242,7 +250,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
 
   const fetchManagers = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/api/employees/list`);
+      const response = await fetch(`${BASE_URL}/api/employees/list?limit=1000`);
       if (!response.ok) throw new Error("Failed to fetch managers");
       const data = await response.json();
       setManagers(data.data?.employees || []);
@@ -254,7 +262,9 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
 
   const fetchDepartments = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/api/department/list`);
+      const response = await fetch(
+        `${BASE_URL}/api/department/list?limit=1000`
+      );
       if (!response.ok) throw new Error("Failed to fetch departments");
       const data = await response.json();
       setDepartments(data.data?.departments || []);
@@ -266,7 +276,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
 
   const fetchRoles = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/api/role/list`);
+      const response = await fetch(`${BASE_URL}/api/role/list?limit=1000`);
       if (!response.ok) throw new Error("Failed to fetch roles");
       const data = await response.json();
       setRoles(data.data?.roles || []);
@@ -278,7 +288,9 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
 
   const fetchLevels = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/api/employee-level/list`);
+      const response = await fetch(
+        `${BASE_URL}/api/employee-level/list?limit=1000`
+      );
       if (!response.ok) throw new Error("Failed to fetch employee levels");
       const data = await response.json();
       setLevels(data.data?.employeeLevels || []);
@@ -307,6 +319,96 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
     try {
       setLoading(true);
       setError(null);
+
+      let userId = null;
+
+      if (!employee) {
+        // Step 1: Create user in auth service
+        const authUserData = {
+          name: formData.name.trim(),
+          email: formData.work_email || null,
+          phone: formData.office_phone || null,
+          type: "HR",
+          password: "123@Spiderworks",
+        };
+
+        const authResponse = await fetch(
+          `${BASE_AUTH_URL}/api/user-auth/register`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(authUserData),
+            credentials: "include",
+          }
+        );
+
+        if (!authResponse.ok) {
+          const errorData = await authResponse.json();
+          throw new Error(
+            errorData.message || "Failed to create user in auth service"
+          );
+        }
+
+        const authUser = await authResponse.json();
+        if (!authUser.data?.data?.id) {
+          throw new Error("Auth user creation did not return an ID");
+        }
+        userId = Number(authUser.data?.data?.id);
+
+        // Step 2: Fetch all users from auth service
+        const fetchAllResponse = await fetch(
+          `${BASE_AUTH_URL}/api/user-auth/fetch-all`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+          }
+        );
+
+        if (!fetchAllResponse.ok) {
+          throw new Error("Failed to fetch users from auth service");
+        }
+
+        const authUsers = await fetchAllResponse.json();
+
+        // Step 3: Transform and sync users
+        const transformedUsers = (authUsers.data || authUsers).map((user) => {
+          let first_name = null;
+          let last_name = null;
+          if (user.name) {
+            const nameParts = user.name.trim().split(" ");
+            first_name = nameParts[0] || null;
+            last_name =
+              nameParts.length > 1 ? nameParts.slice(1).join(" ") : null;
+          }
+
+          return {
+            id: parseInt(user.id, 10),
+            first_name,
+            last_name,
+            email: user.email || null,
+            phone: user.phone || null,
+          };
+        });
+
+        const syncResponse = await fetch(`${BASE_URL}/api/users/syncing`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ users: transformedUsers }),
+        });
+
+        if (!syncResponse.ok) {
+          const errorData = await syncResponse.json();
+          throw new Error(errorData.message || "Failed to sync users");
+        }
+
+        const syncData = await syncResponse.json();
+        toast.success(syncData.message || "Users synced successfully!", {
+          position: "top-right",
+        });
+      }
 
       const payload = {
         name: formData.name.trim(),
@@ -361,6 +463,8 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
         has_showcase_portal_access: formData.has_showcase_portal_access ? 1 : 0,
         designation: formData.designation || null,
         confirmation_date: formatDateSimple(formData.confirmation_date),
+        current_employee: formData.current_employee ? 1 : 0,
+        user_id: userId,
       };
 
       const url = employee
@@ -1154,6 +1258,19 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                     <FormControlLabel
                       control={<Checkbox {...field} checked={field.value} />}
                       label="Sign In is mandatory for this employee."
+                      className="text-sm"
+                    />
+                  )}
+                />
+              </Box>
+              <Box sx={{ flex: "1 1 100%" }}>
+                <Controller
+                  name="current_employee"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControlLabel
+                      control={<Checkbox {...field} checked={field.value} />}
+                      label="Current Employee (checked = Yes, unchecked = No)"
                       className="text-sm"
                     />
                   )}
