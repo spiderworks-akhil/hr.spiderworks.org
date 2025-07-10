@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { MdEdit, MdDelete, MdSync } from "react-icons/md";
+import { FaKey } from "react-icons/fa";
 import { BeatLoader } from "react-spinners";
 import { DataGrid } from "@mui/x-data-grid";
 import { Button, Popover, Typography, Box, Paper } from "@mui/material";
@@ -57,6 +58,7 @@ const Users = () => {
   const [editUser, setEditUser] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const [userToDelete, setUserToDelete] = useState(null);
+  const [updating2FAUserId, setUpdating2FAUserId] = useState(null);
 
   const roleOptions = [
     { value: "STANDARD_USER", label: "Standard User" },
@@ -110,6 +112,30 @@ const Users = () => {
                 .replace(/\b\w/g, (c) => c.toUpperCase())
             : "-"}
         </span>
+      ),
+    },
+    {
+      field: "update2fa",
+      headerName: "Update 2FA",
+      width: 120,
+      sortable: false,
+      renderCell: (params) => (
+        <button
+          onClick={() => handleUpdate2FA(params.row)}
+          aria-label="Update 2FA"
+          disabled={updating2FAUserId === params.row.id}
+          className={`flex items-center justify-center w-8 h-8 rounded mt-2 ${
+            updating2FAUserId === params.row.id
+              ? "bg-gray-200"
+              : "bg-[rgb(42,196,171)] hover:bg-[rgb(30,150,130)]"
+          } text-white`}
+        >
+          {updating2FAUserId === params.row.id ? (
+            <BeatLoader color="#2ac4ab" size={8} />
+          ) : (
+            <FaKey className="w-4 h-4" />
+          )}
+        </button>
       ),
     },
     {
@@ -335,6 +361,38 @@ const Users = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdate2FA = async (user) => {
+    if (!user?.email) {
+      toast.error("User email not found.", { position: "top-right" });
+      return;
+    }
+    setUpdating2FAUserId(user.id);
+    try {
+      const response = await fetch(
+        `${BASE_AUTH_URL}/api/user-auth/update-2fa`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: user.email }),
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update 2FA");
+      }
+      const data = await response.json();
+      toast.success(data.message || "2FA updated successfully!", {
+        position: "top-right",
+      });
+    } catch (error) {
+      toast.error(error.message || "Failed to update 2FA.", {
+        position: "top-right",
+      });
+    } finally {
+      setUpdating2FAUserId(null);
     }
   };
 
