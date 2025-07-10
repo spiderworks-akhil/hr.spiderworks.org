@@ -24,6 +24,7 @@ import Select from "react-select";
 import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
 import { BASE_URL, BASE_AUTH_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const Transition = Slide;
 
@@ -119,6 +120,7 @@ const validationSchema = yup.object().shape({
 });
 
 const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
+  const { data: session } = useSession();
   const [managers, setManagers] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [roles, setRoles] = useState([]);
@@ -321,6 +323,14 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
       setLoading(true);
       setError(null);
 
+      if (!session?.user?.id) {
+        toast.error("User session not found. Please sign in again.", {
+          position: "top-right",
+        });
+        setLoading(false);
+        return;
+      }
+
       let userId = null;
 
       if (!employee) {
@@ -462,6 +472,12 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
         designation: formData.designation || null,
         confirmation_date: formatDateSimple(formData.confirmation_date),
         ...(employee ? {} : { user_id: userId }),
+        ...(employee
+          ? { updated_by: Number(session.user.id) }
+          : {
+              created_by: Number(session.user.id),
+              updated_by: Number(session.user.id),
+            }),
       };
 
       const url = employee
