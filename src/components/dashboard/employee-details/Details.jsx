@@ -148,7 +148,11 @@ const Details = ({ employee }) => {
         <div className="pb-3 border-b border-gray-200 hover:bg-gray-50 transition-colors">
           <p className="text-sm text-gray-600 font-semibold">Employee Type:</p>
           <p className="text-base text-gray-800">
-            {employee.employee_type || "Not Available"}
+            {employee.employee_type === 1
+              ? "Current Employee"
+              : employee.employee_type === 0
+              ? "Ex-Employee"
+              : "Not Available"}
           </p>
         </div>
         <div className="pb-3 border-b border-gray-200 hover:bg-gray-50 transition-colors">

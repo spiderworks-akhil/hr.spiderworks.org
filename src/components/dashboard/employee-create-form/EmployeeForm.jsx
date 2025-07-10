@@ -104,13 +104,18 @@ const validationSchema = yup.object().shape({
   address: yup.string().nullable().trim(),
   remarks: yup.string().nullable().trim(),
   employee_level_id: yup.number().nullable(),
-  employee_type: yup.string().nullable().trim(),
+  employee_type: yup
+    .number()
+    .oneOf(
+      [0, 1],
+      "Employee type must be either Current Employee (1) or Ex-Employee (0)"
+    )
+    .required("Employee type is required"),
   departments_id: yup.number().nullable(),
   employee_roles_id: yup.number().nullable(),
   manager_id: yup.number().nullable(),
   additional_manager_ids: yup.array().of(yup.number()).nullable(),
   designation: yup.string().nullable().trim(),
-  current_employee: yup.boolean().nullable(),
 });
 
 const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
@@ -120,9 +125,6 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
   const [levels, setLevels] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  console.log(employee);
-  console.log(departments);
 
   const defaultValues = {
     name: "",
@@ -137,7 +139,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
     joining_date: null,
     releaving_date: null,
     employee_level_id: null,
-    employee_type: "",
+    employee_type: 1,
     departments_id: null,
     employee_roles_id: null,
     manager_id: null,
@@ -163,7 +165,6 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
     has_showcase_portal_access: 0,
     designation: "",
     confirmation_date: null,
-    current_employee: true,
   };
 
   const {
@@ -208,7 +209,11 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
           ? moment(employee.releaving_date)
           : null,
         employee_level_id: employee.employeeLevel?.id || null,
-        employee_type: employee.employee_type || "",
+        employee_type:
+          employee.employee_type !== null &&
+          employee.employee_type !== undefined
+            ? employee.employee_type
+            : 1,
         departments_id: employee.departments_id || null,
         employee_roles_id: employee.employee_roles_id || null,
         manager_id: employee.manager_id || null,
@@ -238,10 +243,6 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
         confirmation_date: employee.confirmation_date
           ? moment(employee.confirmation_date)
           : null,
-        current_employee:
-          typeof employee.current_employee === "number"
-            ? Boolean(employee.current_employee)
-            : employee.current_employee !== false,
       });
     } else {
       reset(defaultValues);
@@ -426,7 +427,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
         employee_level_id: formData.employee_level_id
           ? Number(formData.employee_level_id)
           : null,
-        employee_type: formData.employee_type || null,
+        employee_type: Number(formData.employee_type),
         departments_id: formData.departments_id
           ? Number(formData.departments_id)
           : null,
@@ -460,7 +461,6 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
         has_showcase_portal_access: formData.has_showcase_portal_access ? 1 : 0,
         designation: formData.designation || null,
         confirmation_date: formatDateSimple(formData.confirmation_date),
-        current_employee: formData.current_employee ? 1 : 0,
         ...(employee ? {} : { user_id: userId }),
       };
 
@@ -521,9 +521,8 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
   }));
 
   const employeeTypeOptions = [
-    { value: "Consultant", label: "Consultant" },
-    { value: "Employee", label: "Employee" },
-    { value: "Ex-Employee", label: "Ex-Employee" },
+    { value: 1, label: "Current Employee" },
+    { value: 0, label: "Ex-Employee" },
   ];
 
   const departmentOptions = departments.map((dept) => ({
@@ -1020,7 +1019,6 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                         }
                         styles={customSelectStyles}
                         placeholder="Select Employee Type..."
-                        isClearable
                       />
                       {errors.employee_type && (
                         <span className="text-red-600 text-xs mt-1 block">
@@ -1255,19 +1253,6 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                     <FormControlLabel
                       control={<Checkbox {...field} checked={field.value} />}
                       label="Sign In is mandatory for this employee."
-                      className="text-sm"
-                    />
-                  )}
-                />
-              </Box>
-              <Box sx={{ flex: "1 1 100%" }}>
-                <Controller
-                  name="current_employee"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControlLabel
-                      control={<Checkbox {...field} checked={field.value} />}
-                      label="Current Employee (checked = Yes, unchecked = No)"
                       className="text-sm"
                     />
                   )}

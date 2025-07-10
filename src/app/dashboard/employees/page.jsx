@@ -329,9 +329,9 @@ const Employees = () => {
       const [employeesRes, rolesRes, departmentsRes, levelsRes] =
         await Promise.all([
           fetch(`${BASE_URL}/api/employees/list?${query}`),
-          fetch(`${BASE_URL}/api/role/list`),
-          fetch(`${BASE_URL}/api/department/list`),
-          fetch(`${BASE_URL}/api/employee-level/list`),
+          fetch(`${BASE_URL}/api/role/list?limit=1000`),
+          fetch(`${BASE_URL}/api/department/list?limit=1000`),
+          fetch(`${BASE_URL}/api/employee-level/list?limit=1000`),
         ]);
 
       if (
@@ -369,9 +369,8 @@ const Employees = () => {
       setTotal(employeesData.data?.total || 0);
 
       const staticTypes = [
-        { value: "Consultant", label: "Consultant" },
-        { value: "Employee", label: "Employee" },
-        { value: "Ex-Employee", label: "Ex-Employee" },
+        { value: 1, label: "Current Employee" },
+        { value: 0, label: "Ex-Employee" },
       ];
       const levels = (levelsData.data?.employeeLevels || []).map((level) => ({
         value: level.id,
