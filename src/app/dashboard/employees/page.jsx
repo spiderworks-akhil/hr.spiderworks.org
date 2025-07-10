@@ -213,6 +213,7 @@ const Employees = () => {
 
   const handleUpdatePermissions = async () => {
     if (!employeeToEditPermissions) return;
+    handleClosePermissionsPopover();
     try {
       setLoading(true);
       setFetchError(null);
@@ -244,7 +245,6 @@ const Employees = () => {
         department,
         employeeLevel
       );
-      handleClosePermissionsPopover();
     } catch (error) {
       console.error("Failed to update permissions:", error);
       setFetchError(
