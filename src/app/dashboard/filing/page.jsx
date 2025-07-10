@@ -11,11 +11,11 @@ import dynamic from "next/dynamic";
 import { BASE_URL } from "@/services/baseUrl";
 
 const ComplianceFormPopup = dynamic(
-  () => import("@/components/dashboard/compliance-form/ComplianceFormPopup"),
+  () => import("@/components/dashboard/filing-form/FilingFormPopup"),
   { ssr: false }
 );
 
-const Compliance = () => {
+const Filing = () => {
   const [compliances, setCompliances] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
@@ -357,4 +357,4 @@ const Compliance = () => {
   );
 };
 
-export default Compliance;
+export default Filing;

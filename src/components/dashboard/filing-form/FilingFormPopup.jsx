@@ -66,7 +66,7 @@ const customSelectStyles = {
   }),
 };
 
-const ComplianceFormPopup = ({ open, onClose, onSuccess, compliance }) => {
+const FilingFormPopup = ({ open, onClose, onSuccess, compliance }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -404,4 +404,4 @@ const ComplianceFormPopup = ({ open, onClose, onSuccess, compliance }) => {
   );
 };
 
-export default ComplianceFormPopup;
+export default FilingFormPopup;
