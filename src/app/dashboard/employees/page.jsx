@@ -87,12 +87,10 @@ const Employees = () => {
       ),
     },
     {
-      field: "last_sign_in_email",
-      headerName: "Last Sign In Date",
-      width: 120,
-      renderCell: (params) => (
-        <>{params.value ? moment(params.value).format("DD-MM-YYYY") : "-"}</>
-      ),
+      field: "designation",
+      headerName: "Designation",
+      width: 150,
+      renderCell: (params) => <>{params.value || "-"}</>,
     },
     {
       field: "edit",
@@ -356,6 +354,7 @@ const Employees = () => {
           department_name: emp.Department?.name || "-",
           manager_name: emp.manager?.name || "-",
           employee_level_name: emp.employeeLevel?.name || "-",
+          designation: emp.designation || "-",
         }));
 
       if (employees.length !== employeesData.data?.employees?.length) {

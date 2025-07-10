@@ -241,7 +241,10 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
         has_accounts_portal_access: employee.has_accounts_portal_access || 0,
         has_admin_portal_access: employee.has_admin_portal_access || 0,
         has_showcase_portal_access: employee.has_showcase_portal_access || 0,
-        designation: employee.designation || "",
+        designation:
+          employee.designation && employee.designation.trim() !== "-"
+            ? employee.designation
+            : "",
         confirmation_date: employee.confirmation_date
           ? moment(employee.confirmation_date)
           : null,
@@ -469,7 +472,10 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
         has_accounts_portal_access: formData.has_accounts_portal_access ? 1 : 0,
         has_admin_portal_access: formData.has_admin_portal_access ? 1 : 0,
         has_showcase_portal_access: formData.has_showcase_portal_access ? 1 : 0,
-        designation: formData.designation || null,
+        designation:
+          formData.designation && formData.designation.trim() !== "-"
+            ? formData.designation
+            : null,
         confirmation_date: formatDateSimple(formData.confirmation_date),
         ...(employee ? {} : { user_id: userId }),
         ...(employee
