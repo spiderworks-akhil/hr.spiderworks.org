@@ -52,9 +52,9 @@ const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
     defaultValues: {
       name: "",
       description: "",
-      ratable_by_client: 0,
-      ratable_by_manager: 0,
-      ratable_by_self: 0,
+      ratable_by_client: 1,
+      ratable_by_manager: 1,
+      ratable_by_self: 1,
       type: "STAR_RATING",
     },
     resolver: yupResolver(validationSchema),
@@ -88,9 +88,9 @@ const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
       reset({
         name: "",
         description: "",
-        ratable_by_client: 0,
-        ratable_by_manager: 0,
-        ratable_by_self: 0,
+        ratable_by_client: 1,
+        ratable_by_manager: 1,
+        ratable_by_self: 1,
         type: "STAR_RATING",
       });
     }
@@ -198,7 +198,7 @@ const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
             control={control}
             render={({ field }) => (
               <FormControl component="fieldset">
-                <label className="block mb-1 font-medium">Type *</label>
+                <label className="block mb-1">Type *</label>
                 <RadioGroup
                   row
                   {...field}

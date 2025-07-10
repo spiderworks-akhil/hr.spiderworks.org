@@ -86,9 +86,9 @@ const EmployeeEvaluationTemplateFormPopup = ({
     defaultValues: {
       name: "",
       status: "Draft",
-      rate_by_client: 0,
-      rate_by_manager: 0,
-      rate_by_self: 0,
+      rate_by_client: 1,
+      rate_by_manager: 1,
+      rate_by_self: 1,
     },
     resolver: yupResolver(validationSchema),
     mode: "onChange",
@@ -99,9 +99,9 @@ const EmployeeEvaluationTemplateFormPopup = ({
       reset({
         name: "",
         status: "Draft",
-        rate_by_client: 0,
-        rate_by_manager: 0,
-        rate_by_self: 0,
+        rate_by_client: 1,
+        rate_by_manager: 1,
+        rate_by_self: 1,
       });
       setError(null);
       return;
@@ -119,9 +119,9 @@ const EmployeeEvaluationTemplateFormPopup = ({
       reset({
         name: "",
         status: "Draft",
-        rate_by_client: 0,
-        rate_by_manager: 0,
-        rate_by_self: 0,
+        rate_by_client: 1,
+        rate_by_manager: 1,
+        rate_by_self: 1,
       });
     }
   }, [template, open, reset]);
