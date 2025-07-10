@@ -183,20 +183,20 @@ export default function Sidebar({
       exact: false,
     },
     {
-      icon: <FaClipboardList className="w-6 h-6 flex-shrink-0" />, // Compliance icon
+      icon: <FaClipboardList className="w-6 h-6 flex-shrink-0" />,
       label: "Compliance",
       path: "/dashboard/compliance",
       exact: false,
       isParent: true,
       children: [
         {
-          icon: <FaClipboardList className="w-5 h-5 flex-shrink-0" />, // Filing icon
+          icon: <FaClipboardList className="w-5 h-5 flex-shrink-0" />,
           label: "Filing",
           path: "/dashboard/filing",
           exact: false,
         },
         {
-          icon: <FaCalendarAlt className="w-5 h-5 flex-shrink-0" />, // Board Meetings icon
+          icon: <FaCalendarAlt className="w-5 h-5 flex-shrink-0" />,
           label: "Board Meetings",
           path: "/dashboard/board-meetings",
           exact: false,
@@ -204,14 +204,14 @@ export default function Sidebar({
       ],
     },
     {
-      icon: <FaClipboardList className="w-6 h-6 flex-shrink-0" />, // Recruitments icon
+      icon: <FaClipboardList className="w-6 h-6 flex-shrink-0" />,
       label: "Recruitments",
       path: "/dashboard/recruitments",
       exact: false,
       isParent: true,
       children: [
         {
-          icon: <FaClipboardList className="w-5 h-5 flex-shrink-0" />, // Recruitment Requests icon
+          icon: <FaClipboardList className="w-5 h-5 flex-shrink-0" />,
           label: "Recruitment Requests",
           path: "/dashboard/recruitment-requests",
           exact: false,
@@ -271,7 +271,6 @@ export default function Sidebar({
   const [anchorEl, setAnchorEl] = useState(null);
   const [hoveredParent, setHoveredParent] = useState(null);
 
-  // Auto-expand menus if any of their children are active
   useState(() => {
     if (isMasterDataActive()) {
       setIsMasterDataOpen(true);
@@ -420,7 +419,7 @@ export default function Sidebar({
                           </>
                         )}
                       </div>
-                      {/* Expanded submenu for open sidebar */}
+
                       {showContent &&
                         ((item.label === "Master Data" && isMasterDataOpen) ||
                           (item.label === "Attendance" && isAttendanceOpen) ||
@@ -473,7 +472,6 @@ export default function Sidebar({
         </div>
       </aside>
 
-      {/* MUI Popover for collapsed sidebar submenus */}
       <Popover
         open={open}
         anchorEl={anchorEl}

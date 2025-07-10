@@ -14,6 +14,9 @@ import {
   Checkbox,
   FormControlLabel,
   Box,
+  FormControl,
+  RadioGroup,
+  Radio,
 } from "@mui/material";
 import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
@@ -30,6 +33,10 @@ const validationSchema = yup.object().shape({
   ratable_by_client: yup.number().default(0),
   ratable_by_manager: yup.number().default(0),
   ratable_by_self: yup.number().default(0),
+  type: yup
+    .string()
+    .oneOf(["STAR_RATING", "DESCRIPTIVE"])
+    .required("Type is required"),
 });
 
 const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
@@ -48,6 +55,7 @@ const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
       ratable_by_client: 0,
       ratable_by_manager: 0,
       ratable_by_self: 0,
+      type: "STAR_RATING",
     },
     resolver: yupResolver(validationSchema),
     mode: "onChange",
@@ -61,6 +69,7 @@ const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
         ratable_by_client: 0,
         ratable_by_manager: 0,
         ratable_by_self: 0,
+        type: "STAR_RATING",
       });
       setError(null);
       return;
@@ -73,6 +82,7 @@ const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
         ratable_by_client: parameter.ratable_by_client || 0,
         ratable_by_manager: parameter.ratable_by_manager || 0,
         ratable_by_self: parameter.ratable_by_self || 0,
+        type: parameter.type || "STAR_RATING",
       });
     } else {
       reset({
@@ -81,6 +91,7 @@ const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
         ratable_by_client: 0,
         ratable_by_manager: 0,
         ratable_by_self: 0,
+        type: "STAR_RATING",
       });
     }
   }, [parameter, open, reset]);
@@ -96,6 +107,7 @@ const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
         ratable_by_client: formData.ratable_by_client ? 1 : 0,
         ratable_by_manager: formData.ratable_by_manager ? 1 : 0,
         ratable_by_self: formData.ratable_by_self ? 1 : 0,
+        type: formData.type,
       };
 
       const method = parameter ? "PUT" : "POST";
@@ -179,6 +191,54 @@ const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
       </DialogTitle>
       <DialogContent>
         {error && <div className="text-red-600 mb-4">{error}</div>}
+
+        <Box mb={2}>
+          <Controller
+            name="type"
+            control={control}
+            render={({ field }) => (
+              <FormControl component="fieldset">
+                <label className="block mb-1 font-medium">Type *</label>
+                <RadioGroup
+                  row
+                  {...field}
+                  value={field.value}
+                  onChange={(e) => field.onChange(e.target.value)}
+                >
+                  <FormControlLabel
+                    value="STAR_RATING"
+                    control={
+                      <Radio
+                        sx={{
+                          color: "rgb(42,196,171)",
+                          "&.Mui-checked": { color: "rgb(42,196,171)" },
+                        }}
+                      />
+                    }
+                    label="Star Rating"
+                  />
+                  <FormControlLabel
+                    value="DESCRIPTIVE"
+                    control={
+                      <Radio
+                        sx={{
+                          color: "rgb(42,196,171)",
+                          "&.Mui-checked": { color: "rgb(42,196,171)" },
+                        }}
+                      />
+                    }
+                    label="Descriptive"
+                  />
+                </RadioGroup>
+                {errors.type && (
+                  <span className="text-red-600 text-xs">
+                    {errors.type.message}
+                  </span>
+                )}
+              </FormControl>
+            )}
+          />
+        </Box>
 
         <Box display="flex" flexDirection="column" gap={2} mb={2}>
           <Box>

@@ -85,6 +85,7 @@ const Staffs = ({ template }) => {
   const [evaluateDialogOpen, setEvaluateDialogOpen] = useState(false);
   const [selectedEvaluation, setSelectedEvaluation] = useState(null);
   const [ratings, setRatings] = useState({});
+  const [descriptions, setDescriptions] = useState({});
   const [remarks, setRemarks] = useState("");
   const [improvements, setImprovements] = useState("");
 
@@ -393,6 +394,7 @@ const Staffs = ({ template }) => {
   const handleOpenEvaluateDialog = (evalItem) => {
     setSelectedEvaluation(evalItem);
     setRatings({});
+    setDescriptions({});
     setRemarks(evalItem.evaluation_remarks || "");
     setImprovements(evalItem.improvements_suggested || "");
     setApiError(null);
@@ -401,16 +403,24 @@ const Staffs = ({ template }) => {
 
     const existingResponses = evaluationResponses[evalItem.id] || [];
     const initialRatings = {};
+    const initialDescriptions = {};
     existingResponses.forEach((res) => {
-      initialRatings[res.parameter_mapping_id] = res.response_value;
+      if (res.response_value !== null && res.response_value !== undefined) {
+        initialRatings[res.parameter_mapping_id] = res.response_value;
+      }
+      if (res.description !== null && res.description !== undefined) {
+        initialDescriptions[res.parameter_mapping_id] = res.description;
+      }
     });
     setRatings(initialRatings);
+    setDescriptions(initialDescriptions);
   };
 
   const handleCloseEvaluateDialog = () => {
     setEvaluateDialogOpen(false);
     setSelectedEvaluation(null);
     setRatings({});
+    setDescriptions({});
     setRemarks("");
     setImprovements("");
     setApiError(null);
@@ -424,15 +434,31 @@ const Staffs = ({ template }) => {
     }));
   };
 
+  const handleDescriptionChange = (parameterId, value) => {
+    setDescriptions((prev) => ({
+      ...prev,
+      [parameterId]: value,
+    }));
+  };
+
   const handleEvaluateSubmit = async () => {
     setSubmitted(true);
 
+    const parameter_responses =
+      selectedEvaluation.template?.parameterMapping?.map((param) => {
+        const type = param.parameter.type;
+        return {
+          parameter_mapping_id: param.id,
+          response_value:
+            type === "STAR_RATING" ? ratings[param.id] || null : null,
+          description:
+            type === "DESCRIPTIVE" ? descriptions[param.id] || null : null,
+        };
+      }) || [];
+
     const payload = {
       employee_evaluation_id: selectedEvaluation.id,
-      parameter_responses: Object.entries(ratings).map(([paramId, value]) => ({
-        parameter_mapping_id: Number(paramId),
-        response_value: value,
-      })),
+      parameter_responses,
       evaluation_remarks: remarks || null,
       improvements_suggested: improvements || null,
       created_by: null,
@@ -980,26 +1006,50 @@ const Staffs = ({ template }) => {
                     <Typography sx={{ fontWeight: 200, marginBottom: 0.5 }}>
                       {param.parameter.name}
                     </Typography>
-                    <Box sx={{ display: "flex", gap: 1 }}>
-                      {[1, 2, 3, 4, 5].map((value) => (
-                        <button
-                          key={value}
-                          onClick={() => handleRatingChange(param.id, value)}
-                          style={{
-                            background: "none",
-                            border: "none",
-                            cursor: "pointer",
-                          }}
-                          aria-label={`Rate ${value} stars for ${param.parameter.name}`}
-                        >
-                          {ratings[param.id] >= value ? (
-                            <MdStar className="w-6 h-6 text-yellow-500" />
-                          ) : (
-                            <MdStarBorder className="w-6 h-6 text-gray-400" />
-                          )}
-                        </button>
-                      ))}
-                    </Box>
+                    {param.parameter.type === "STAR_RATING" ? (
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        {[1, 2, 3, 4, 5].map((value) => (
+                          <button
+                            key={value}
+                            onClick={() => handleRatingChange(param.id, value)}
+                            style={{
+                              background: "none",
+                              border: "none",
+                              cursor: "pointer",
+                            }}
+                            aria-label={`Rate ${value} stars for ${param.parameter.name}`}
+                          >
+                            {ratings[param.id] >= value ? (
+                              <MdStar className="w-6 h-6 text-yellow-500" />
+                            ) : (
+                              <MdStarBorder className="w-6 h-6 text-gray-400" />
+                            )}
+                          </button>
+                        ))}
+                      </Box>
+                    ) : (
+                      <TextField
+                        fullWidth
+                        multiline
+                        minRows={2}
+                        value={descriptions[param.id] || ""}
+                        onChange={(e) =>
+                          handleDescriptionChange(param.id, e.target.value)
+                        }
+                        variant="outlined"
+                        placeholder="Enter description"
+                        sx={{
+                          "& .MuiOutlinedInput-root": {
+                            "&:hover fieldset": {
+                              borderColor: "rgba(42,196,171, 0.5)",
+                            },
+                            "&.Mui-focused fieldset": {
+                              borderColor: "rgb(42,196,171)",
+                            },
+                          },
+                        }}
+                      />
+                    )}
                   </Box>
                 ))
               ) : (
