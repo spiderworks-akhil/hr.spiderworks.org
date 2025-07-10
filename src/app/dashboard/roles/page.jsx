@@ -187,6 +187,16 @@ const Roles = () => {
         </button>
       </div>
 
+      <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-4">
+        <input
+          type="text"
+          placeholder="Search Roles"
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className="border border-gray-300 rounded-md px-3 py-2 w-full md:w-1/4 focus:outline-none focus:ring-1 focus:ring-[rgb(42,196,171)]"
+        />
+      </div>
+
       {loading ? (
         <div className="flex justify-center items-center h-64">
           <BeatLoader color="#2ac4ab" height={50} width={5} />
@@ -195,16 +205,6 @@ const Roles = () => {
         <div className="text-center text-red-600 py-10">{fetchError}</div>
       ) : (
         <>
-          <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-4">
-            <input
-              type="text"
-              placeholder="Search Roles"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              className="border border-gray-300 rounded-md px-3 py-2 w-full md:w-1/4 focus:outline-none focus:ring-1 focus:ring-[rgb(42,196,171)]"
-            />
-          </div>
-
           <Paper sx={{ width: "100%", boxShadow: "none" }}>
             <DataGrid
               rows={roles}

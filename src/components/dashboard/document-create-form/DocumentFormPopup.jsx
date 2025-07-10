@@ -308,7 +308,7 @@ const DocumentFormPopup = ({ open, onClose, onSuccess, document: doc }) => {
       const fetchCategories = async () => {
         try {
           const response = await fetch(
-            `${BASE_URL}/api/document-category/list`
+            `${BASE_URL}/api/document-category/list?limit=1000`
           );
           if (!response.ok) throw new Error("Failed to fetch categories");
           const data = await response.json();
@@ -320,7 +320,9 @@ const DocumentFormPopup = ({ open, onClose, onSuccess, document: doc }) => {
 
       const fetchEmployees = async () => {
         try {
-          const response = await fetch(`${BASE_URL}/api/employees/list`);
+          const response = await fetch(
+            `${BASE_URL}/api/employees/list?limit=1000`
+          );
           if (!response.ok) throw new Error("Failed to fetch employees");
           const data = await response.json();
           setEmployees(data?.data?.employees || []);

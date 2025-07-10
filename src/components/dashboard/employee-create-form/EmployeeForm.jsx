@@ -1172,7 +1172,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                 />
               </Box>
               <Box>
-                <label className="block mb-1">Reporting Email</label>
+                <label className="block mb-1">Reporting Emails</label>
                 <Controller
                   name="reporting_email"
                   control={control}
@@ -1229,7 +1229,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                 />
               </Box>
               <Box>
-                <label className="block mb-1">Leave Notification Mails</label>
+                <label className="block mb-1">Leave Notification Emails</label>
                 <Controller
                   name="leave_notification_mails"
                   control={control}

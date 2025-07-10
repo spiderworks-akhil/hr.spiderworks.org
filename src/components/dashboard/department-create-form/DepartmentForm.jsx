@@ -109,7 +109,7 @@ const DepartmentFormPopup = ({ open, onClose, onSuccess, department }) => {
 
   const fetchEmployees = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/api/employees/list`);
+      const response = await fetch(`${BASE_URL}/api/employees/list?limit=1000`);
       if (!response.ok) throw new Error("Failed to fetch employees");
       const data = await response.json();
       setEmployees(data.data?.employees || []);
@@ -122,7 +122,9 @@ const DepartmentFormPopup = ({ open, onClose, onSuccess, department }) => {
 
   const fetchDepartments = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/api/department/list`);
+      const response = await fetch(
+        `${BASE_URL}/api/department/list?limit=1000`
+      );
       if (!response.ok) throw new Error("Failed to fetch departments");
       const data = await response.json();
 

@@ -52,7 +52,7 @@ const StarRatings = () => {
   const [starRatings, setStarRatings] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
-  const [limit] = useState(3);
+  const [limit] = useState(50);
   const [givenById, setGivenById] = useState(null);
   const [givenToId, setGivenToId] = useState(null);
   const [employeeId, setEmployeeId] = useState(null);
@@ -189,7 +189,7 @@ const StarRatings = () => {
 
   const fetchEmployees = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/api/employees/list`);
+      const response = await fetch(`${BASE_URL}/api/employees/list?limit=1000`);
       if (!response.ok) {
         throw new Error("Failed to fetch employees");
       }

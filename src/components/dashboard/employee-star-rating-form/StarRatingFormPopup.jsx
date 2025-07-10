@@ -98,7 +98,7 @@ const StarRatingFormPopup = ({ open, onClose, onSuccess, starRating }) => {
 
   const fetchEmployees = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/api/employees/list`);
+      const response = await fetch(`${BASE_URL}/api/employees/list?limit=1000`);
       if (!response.ok) {
         throw new Error("Failed to fetch employees");
       }
