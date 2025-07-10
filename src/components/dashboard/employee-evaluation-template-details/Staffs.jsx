@@ -608,37 +608,6 @@ const Staffs = ({ template }) => {
       ),
     },
     {
-      field: "responses",
-      headerName: "Responses",
-      width: 200,
-      renderCell: (params) => {
-        const responses = evaluationResponses[params.row.id] || [];
-        return (
-          <Box>
-            {responses.length > 0 ? (
-              responses.map((res) => (
-                <Typography
-                  key={res.parameter_mapping_id}
-                  variant="body2"
-                  sx={{ mt: 1.5 }}
-                >
-                  {res.response_value}/5
-                </Typography>
-              ))
-            ) : (
-              <Typography
-                variant="body2"
-                color="textSecondary"
-                sx={{ mt: 1.5 }}
-              >
-                No responses
-              </Typography>
-            )}
-          </Box>
-        );
-      },
-    },
-    {
       field: "evaluate",
       headerName: "Evaluate",
       width: 100,
