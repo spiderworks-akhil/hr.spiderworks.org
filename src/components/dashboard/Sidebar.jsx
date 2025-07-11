@@ -29,6 +29,9 @@ import {
   FaUsers,
   FaDatabase,
   FaClock,
+  FaFolderOpen,
+  FaUserPlus,
+  FaFileSignature,
 } from "react-icons/fa";
 import { useState } from "react";
 import { Popover } from "@mui/material";
@@ -190,7 +193,7 @@ export default function Sidebar({
       isParent: true,
       children: [
         {
-          icon: <FaClipboardList className="w-5 h-5 flex-shrink-0" />,
+          icon: <FaFolderOpen className="w-5 h-5 flex-shrink-0" />,
           label: "Filing",
           path: "/dashboard/filing",
           exact: false,
@@ -204,14 +207,14 @@ export default function Sidebar({
       ],
     },
     {
-      icon: <FaClipboardList className="w-6 h-6 flex-shrink-0" />,
+      icon: <FaUserPlus className="w-6 h-6 flex-shrink-0 ml-1" />,
       label: "Recruitments",
       path: "/dashboard/recruitments",
       exact: false,
       isParent: true,
       children: [
         {
-          icon: <FaClipboardList className="w-5 h-5 flex-shrink-0" />,
+          icon: <FaFileSignature className="w-5 h-5 flex-shrink-0" />,
           label: "Recruitment Requests",
           path: "/dashboard/recruitment-requests",
           exact: false,
@@ -491,6 +494,7 @@ export default function Sidebar({
             pointerEvents: "auto",
             marginLeft: "8px",
             minWidth: "192px",
+            boxShadow: "0px 2px 8px rgba(0,0,0,0.08)",
           },
         }}
         slotProps={{
