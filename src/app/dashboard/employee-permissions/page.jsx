@@ -169,7 +169,7 @@ const EmployeePermissions = () => {
             `${BASE_AUTH_URL}/api/user-auth/isadmin/${session.user.id}`
           );
           const data = await res.json();
-          setIsAdmin(data === true || data.isAdmin === true);
+          setIsAdmin(data?.data?.isAdmin === true);
         } catch (e) {
           setIsAdmin(false);
         } finally {
