@@ -81,7 +81,7 @@ const LeaveApplication = () => {
   const [leaveApplications, setLeaveApplications] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
-  const [limit] = useState(50);
+  const [limit] = useState(100);
   const [employeeId, setEmployeeId] = useState(null);
   const [from, setFrom] = useState(null);
   const [to, setTo] = useState(null);

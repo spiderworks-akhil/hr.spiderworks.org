@@ -111,7 +111,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
       const response = await fetch(
         `${BASE_URL}/api/employee-salary-revision/list/${employee.id}?page=${
           page + 1
-        }&limit=3${search ? `&keyword=${encodeURIComponent(search)}` : ""}`
+        }&limit=100${search ? `&keyword=${encodeURIComponent(search)}` : ""}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch salary revisions");
@@ -522,7 +522,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
               columns={columns}
               autoHeight
               initialState={{
-                pagination: { paginationModel: { page, pageSize: 3 } },
+                pagination: { paginationModel: { page, pageSize: 100 } },
               }}
               pagination
               paginationMode="server"

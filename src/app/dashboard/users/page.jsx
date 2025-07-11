@@ -49,7 +49,7 @@ const Users = () => {
   const [users, setUsers] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
-  const [limit] = useState(50);
+  const [limit] = useState(100);
   const [keyword, setKeyword] = useState("");
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(false);

@@ -40,7 +40,7 @@ const Documents = ({ employee }) => {
     documentId: null,
   });
 
-  const MAX_FILE_SIZE_5MB = 5 * 1024 * 1024; // 5MB in bytes
+  const MAX_FILE_SIZE_5MB = 5 * 1024 * 1024;
 
   const fetchDocuments = async (page, search = "") => {
     try {
@@ -49,7 +49,7 @@ const Documents = ({ employee }) => {
       const response = await fetch(
         `${BASE_URL}/api/employee-documents/list/${employee.id}?page=${
           page + 1
-        }&limit=3${search ? `&keyword=${encodeURIComponent(search)}` : ""}`
+        }&limit=100${search ? `&keyword=${encodeURIComponent(search)}` : ""}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch documents");
@@ -410,7 +410,7 @@ const Documents = ({ employee }) => {
             columns={columns}
             autoHeight
             initialState={{
-              pagination: { paginationModel: { page, pageSize: 3 } },
+              pagination: { paginationModel: { page, pageSize: 100 } },
             }}
             pagination
             paginationMode="server"

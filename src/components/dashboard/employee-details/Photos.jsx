@@ -108,7 +108,7 @@ const EmployeePhotos = ({ employee }) => {
       const response = await fetch(
         `${BASE_URL}/api/employee-photos/list/${employee.id}?page=${
           page + 1
-        }&limit=3${search ? `&keyword=${encodeURIComponent(search)}` : ""}`
+        }&limit=100${search ? `&keyword=${encodeURIComponent(search)}` : ""}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch photos");
@@ -482,7 +482,7 @@ const EmployeePhotos = ({ employee }) => {
             columns={columns}
             autoHeight
             initialState={{
-              pagination: { paginationModel: { page, pageSize: 3 } },
+              pagination: { paginationModel: { page, pageSize: 100 } },
             }}
             pagination
             paginationMode="server"

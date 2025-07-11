@@ -52,7 +52,7 @@ const StarRatings = () => {
   const [starRatings, setStarRatings] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
-  const [limit] = useState(50);
+  const [limit] = useState(100);
   const [givenById, setGivenById] = useState(null);
   const [givenToId, setGivenToId] = useState(null);
   const [employeeId, setEmployeeId] = useState(null);

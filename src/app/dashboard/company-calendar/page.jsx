@@ -76,7 +76,7 @@ const CompanyCalendar = () => {
   const [companyCalendars, setCompanyCalendars] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
-  const [limit] = useState(50);
+  const [limit] = useState(100);
   const [isHoliday, setIsHoliday] = useState(null);
   const [month, setMonth] = useState(null);
   const [loading, setLoading] = useState(false);

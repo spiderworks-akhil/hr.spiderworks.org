@@ -13,7 +13,7 @@ const Roles = () => {
   const [roles, setRoles] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
-  const [limit] = useState(50);
+  const [limit] = useState(100);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState(null);
