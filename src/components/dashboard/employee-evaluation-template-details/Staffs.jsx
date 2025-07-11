@@ -939,8 +939,8 @@ const Staffs = ({ template }) => {
         onClose={handleCloseEvaluateDialog}
         sx={{
           "& .MuiDialog-paper": {
-            width: { xs: "90vw", sm: "500px" },
-            maxHeight: "80vh",
+            width: { xs: "98vw", sm: "700px" },
+            maxHeight: "90vh",
             borderRadius: "8px",
           },
         }}
@@ -996,7 +996,7 @@ const Staffs = ({ template }) => {
                       <TextField
                         fullWidth
                         multiline
-                        minRows={2}
+                        minRows={4}
                         value={descriptions[param.id] || ""}
                         onChange={(e) =>
                           handleDescriptionChange(param.id, e.target.value)
@@ -1028,7 +1028,7 @@ const Staffs = ({ template }) => {
               <TextField
                 fullWidth
                 multiline
-                rows={3}
+                rows={4}
                 value={remarks}
                 onChange={(e) => setRemarks(e.target.value)}
                 variant="outlined"
