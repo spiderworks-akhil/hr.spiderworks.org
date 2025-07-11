@@ -64,6 +64,7 @@ const Users = () => {
     { value: "STANDARD_USER", label: "Standard User" },
     { value: "HR_ASSISTANT", label: "HR Assistant" },
     { value: "HR_HEAD", label: "HR Head" },
+    { value: "NO_ACCESS", label: "No Access" },
   ];
 
   const columns = [

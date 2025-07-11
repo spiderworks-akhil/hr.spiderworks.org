@@ -75,7 +75,10 @@ const createValidationSchema = yup.object().shape({
     .min(1, "Phone cannot be empty"),
   role: yup
     .string()
-    .oneOf(["STANDARD_USER", "HR_ASSISTANT", "HR_HEAD"], "Invalid role")
+    .oneOf(
+      ["STANDARD_USER", "HR_ASSISTANT", "HR_HEAD", "NO_ACCESS"],
+      "Invalid role"
+    )
     .nullable(),
 });
 
@@ -87,7 +90,10 @@ const editValidationSchema = yup.object().shape({
   phone: yup.string().nullable().trim(),
   role: yup
     .string()
-    .oneOf(["STANDARD_USER", "HR_ASSISTANT", "HR_HEAD"], "Invalid role")
+    .oneOf(
+      ["STANDARD_USER", "HR_ASSISTANT", "HR_HEAD", "NO_ACCESS"],
+      "Invalid role"
+    )
     .required("Role is required"),
 });
 
@@ -118,6 +124,7 @@ const UserFormPopup = ({ open, onClose, onSuccess, user }) => {
     { value: "STANDARD_USER", label: "Standard User" },
     { value: "HR_ASSISTANT", label: "HR Assistant" },
     { value: "HR_HEAD", label: "HR Head" },
+    { value: "NO_ACCESS", label: "No Access" },
   ];
 
   useEffect(() => {
