@@ -87,7 +87,6 @@ const Staffs = ({ template }) => {
   const [ratings, setRatings] = useState({});
   const [descriptions, setDescriptions] = useState({});
   const [remarks, setRemarks] = useState("");
-  const [improvements, setImprovements] = useState("");
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -396,7 +395,6 @@ const Staffs = ({ template }) => {
     setRatings({});
     setDescriptions({});
     setRemarks(evalItem.evaluation_remarks || "");
-    setImprovements(evalItem.improvements_suggested || "");
     setApiError(null);
     setSubmitted(false);
     setEvaluateDialogOpen(true);
@@ -422,7 +420,6 @@ const Staffs = ({ template }) => {
     setRatings({});
     setDescriptions({});
     setRemarks("");
-    setImprovements("");
     setApiError(null);
     setSubmitted(false);
   };
@@ -460,7 +457,6 @@ const Staffs = ({ template }) => {
       employee_evaluation_id: selectedEvaluation.id,
       parameter_responses,
       evaluation_remarks: remarks || null,
-      improvements_suggested: improvements || null,
       created_by: null,
       updated_by: null,
     };
@@ -1035,28 +1031,6 @@ const Staffs = ({ template }) => {
                 rows={3}
                 value={remarks}
                 onChange={(e) => setRemarks(e.target.value)}
-                variant="outlined"
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "&:hover fieldset": {
-                      borderColor: "rgba(42,196,171, 0.5)",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "rgb(42,196,171)",
-                    },
-                  },
-                  mb: 2,
-                }}
-              />
-              <label style={{ marginBottom: 4, display: "block" }}>
-                Improvements Suggested
-              </label>
-              <TextField
-                fullWidth
-                multiline
-                rows={3}
-                value={improvements}
-                onChange={(e) => setImprovements(e.target.value)}
                 variant="outlined"
                 sx={{
                   "& .MuiOutlinedInput-root": {
