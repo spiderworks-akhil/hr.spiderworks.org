@@ -4,14 +4,128 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { DataGrid } from "@mui/x-data-grid";
-import { Box, Paper } from "@mui/material";
+import { Box, Paper, Switch } from "@mui/material";
 import { BeatLoader } from "react-spinners";
 import toast, { Toaster } from "react-hot-toast";
-import { BASE_URL } from "@/services/baseUrl";
+import { BASE_URL, BASE_AUTH_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
+const ToggleSwitch = ({ checked, onChange }) => (
+  <Switch
+    checked={checked}
+    onChange={onChange}
+    sx={{
+      "& .MuiSwitch-switchBase.Mui-checked": {
+        color: "#4ade80",
+      },
+      "& .MuiSwitch-switchBase": {
+        color: "#f87171",
+      },
+      "& .Mui-checked + .MuiSwitch-track": {
+        backgroundColor: "#4ade80",
+      },
+      "& .MuiSwitch-track": {
+        backgroundColor: "#f87171",
+      },
+    }}
+  />
+);
+
+const mapPermissionsToAuthDto = (permissions) => ({
+  accounts: permissions.has_accounts_portal_access,
+  works: permissions.has_work_portal_access,
+  hr: permissions.has_hr_portal_access,
+  client: permissions.has_client_portal_access,
+  inventory: permissions.has_inventory_portal_access,
+  super_admin: permissions.has_super_admin_access,
+  admin: permissions.has_admin_portal_access,
+  showcase: permissions.has_showcase_portal_access,
+  type: "HR",
+});
+
+const handleTogglePermission = async (
+  employee,
+  key,
+  session,
+  employees,
+  setEmployees
+) => {
+  try {
+    if (!session?.user?.id) {
+      toast.error("User session not found. Please sign in again.", {
+        position: "top-right",
+      });
+      return;
+    }
+
+    const newPermissions = {
+      has_work_portal_access: !!employee.has_work_portal_access,
+      has_hr_portal_access: !!employee.has_hr_portal_access,
+      has_client_portal_access: !!employee.has_client_portal_access,
+      has_inventory_portal_access: !!employee.has_inventory_portal_access,
+      has_super_admin_access: !!employee.has_super_admin_access,
+      has_accounts_portal_access: !!employee.has_accounts_portal_access,
+      has_admin_portal_access: !!employee.has_admin_portal_access,
+      has_showcase_portal_access: !!employee.has_showcase_portal_access,
+    };
+    newPermissions[key] = !employee[key];
+
+    const userId = employee.user_id;
+    const adminId = session.user.id;
+
+    const authPayload = mapPermissionsToAuthDto(newPermissions);
+    const authRes = await fetch(
+      `${BASE_AUTH_URL}/api/user-auth/permission/${userId}/${adminId}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(authPayload),
+      }
+    );
+    if (!authRes.ok) {
+      const errorData = await authRes.json().catch(() => ({}));
+      toast.error(
+        errorData.message || "Failed to update user auth permissions",
+        { position: "top-right" }
+      );
+      return;
+    }
+
+    const hrRes = await fetch(
+      `${BASE_URL}/api/employees/permissions/update?id=${employee.id}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newPermissions),
+      }
+    );
+    if (!hrRes.ok) {
+      const errorData = await hrRes.json().catch(() => ({}));
+      toast.error(errorData.message || "Failed to update HR permissions", {
+        position: "top-right",
+      });
+      return;
+    }
+
+    toast.success("Permissions updated successfully!", {
+      position: "top-right",
+    });
+
+    setEmployees(
+      employees.map((emp) =>
+        emp.id === employee.id ? { ...emp, ...newPermissions } : emp
+      )
+    );
+  } catch (error) {
+    console.error("Failed to update permissions:", error);
+    toast.error("Failed to update permissions.", { position: "top-right" });
+  }
+};
+
 const EmployeePermissions = () => {
+  const { data: session } = useSession();
   const [employees, setEmployees] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
@@ -19,6 +133,9 @@ const EmployeePermissions = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState(null);
+
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminChecked, setAdminChecked] = useState(false);
 
   const [employeeType, setEmployeeType] = useState({
     value: 1,
@@ -44,105 +161,27 @@ const EmployeePermissions = () => {
   const [allDepartmentOptions, setAllDepartmentOptions] = useState([]);
   const [employeeLevelOptions, setEmployeeLevelOptions] = useState([]);
 
-  const columns = [
-    { field: "name", headerName: "Employee Name", width: 200 },
-    {
-      field: "work_portal",
-      headerName: "Work Portal",
-      width: 120,
-      sortable: false,
-      renderCell: (params) =>
-        params.row.has_work_portal_access ? (
-          <FaCheckCircle className="w-5 h-5 text-green-500 mt-3" />
-        ) : (
-          <FaTimesCircle className="w-5 h-5 text-red-500 mt-3" />
-        ),
-    },
-    {
-      field: "hr_portal",
-      headerName: "HR Portal",
-      width: 120,
-      sortable: false,
-      renderCell: (params) =>
-        params.row.has_hr_portal_access ? (
-          <FaCheckCircle className="w-5 h-5 text-green-500 mt-3" />
-        ) : (
-          <FaTimesCircle className="w-5 h-5 text-red-500 mt-3" />
-        ),
-    },
-    {
-      field: "client_portal",
-      headerName: "Client Portal",
-      width: 120,
-      sortable: false,
-      renderCell: (params) =>
-        params.row.has_client_portal_access ? (
-          <FaCheckCircle className="w-5 h-5 text-green-500 mt-3" />
-        ) : (
-          <FaTimesCircle className="w-5 h-5 text-red-500 mt-3" />
-        ),
-    },
-    {
-      field: "inventory_portal",
-      headerName: "Inventory Portal",
-      width: 120,
-      sortable: false,
-      renderCell: (params) =>
-        params.row.has_inventory_portal_access ? (
-          <FaCheckCircle className="w-5 h-5 text-green-500 mt-3" />
-        ) : (
-          <FaTimesCircle className="w-5 h-5 text-red-500 mt-3" />
-        ),
-    },
-    {
-      field: "super_admin",
-      headerName: "Super Admin",
-      width: 120,
-      sortable: false,
-      renderCell: (params) =>
-        params.row.has_super_admin_access ? (
-          <FaCheckCircle className="w-5 h-5 text-green-500 mt-3" />
-        ) : (
-          <FaTimesCircle className="w-5 h-5 text-red-500 mt-3" />
-        ),
-    },
-    {
-      field: "accounts_portal",
-      headerName: "Accounts Portal",
-      width: 120,
-      sortable: false,
-      renderCell: (params) =>
-        params.row.has_accounts_portal_access ? (
-          <FaCheckCircle className="w-5 h-5 text-green-500 mt-3" />
-        ) : (
-          <FaTimesCircle className="w-5 h-5 text-red-500 mt-3" />
-        ),
-    },
-    {
-      field: "admin_portal",
-      headerName: "Admin Portal",
-      width: 120,
-      sortable: false,
-      renderCell: (params) =>
-        params.row.has_admin_portal_access ? (
-          <FaCheckCircle className="w-5 h-5 text-green-500 mt-3" />
-        ) : (
-          <FaTimesCircle className="w-5 h-5 text-red-500 mt-3" />
-        ),
-    },
-    {
-      field: "showcase_portal",
-      headerName: "Showcase Portal",
-      width: 120,
-      sortable: false,
-      renderCell: (params) =>
-        params.row.has_showcase_portal_access ? (
-          <FaCheckCircle className="w-5 h-5 text-green-500 mt-3" />
-        ) : (
-          <FaTimesCircle className="w-5 h-5 text-red-500 mt-3" />
-        ),
-    },
-  ];
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (session?.user?.id) {
+        try {
+          const res = await fetch(
+            `${BASE_AUTH_URL}/api/user-auth/isadmin/${session.user.id}`
+          );
+          const data = await res.json();
+          setIsAdmin(data === true || data.isAdmin === true);
+        } catch (e) {
+          setIsAdmin(false);
+        } finally {
+          setAdminChecked(true);
+        }
+      } else {
+        setIsAdmin(false);
+        setAdminChecked(true);
+      }
+    };
+    checkAdmin();
+  }, [session]);
 
   const fetchEmployees = async (
     pageNum,
@@ -358,6 +397,93 @@ const EmployeePermissions = () => {
     </Box>
   );
 
+  const renderPermissionCell = (row, key) => {
+    if (isAdmin) {
+      return (
+        <ToggleSwitch
+          checked={row[key]}
+          onChange={() =>
+            handleTogglePermission(row, key, session, employees, setEmployees)
+          }
+        />
+      );
+    } else {
+      return row[key] ? (
+        <FaCheckCircle color="#4ade80" size={20} className="mt-3" />
+      ) : (
+        <FaTimesCircle color="#f87171" size={20} className="mt-3" />
+      );
+    }
+  };
+
+  const columns = [
+    { field: "name", headerName: "Employee Name", width: 200 },
+    {
+      field: "work_portal",
+      headerName: "Work Portal",
+      width: 120,
+      sortable: false,
+      renderCell: (params) =>
+        renderPermissionCell(params.row, "has_work_portal_access"),
+    },
+    {
+      field: "hr_portal",
+      headerName: "HR Portal",
+      width: 120,
+      sortable: false,
+      renderCell: (params) =>
+        renderPermissionCell(params.row, "has_hr_portal_access"),
+    },
+    {
+      field: "client_portal",
+      headerName: "Client Portal",
+      width: 120,
+      sortable: false,
+      renderCell: (params) =>
+        renderPermissionCell(params.row, "has_client_portal_access"),
+    },
+    {
+      field: "inventory_portal",
+      headerName: "Inventory Portal",
+      width: 120,
+      sortable: false,
+      renderCell: (params) =>
+        renderPermissionCell(params.row, "has_inventory_portal_access"),
+    },
+    {
+      field: "super_admin",
+      headerName: "Super Admin",
+      width: 120,
+      sortable: false,
+      renderCell: (params) =>
+        renderPermissionCell(params.row, "has_super_admin_access"),
+    },
+    {
+      field: "accounts_portal",
+      headerName: "Accounts Portal",
+      width: 120,
+      sortable: false,
+      renderCell: (params) =>
+        renderPermissionCell(params.row, "has_accounts_portal_access"),
+    },
+    {
+      field: "admin_portal",
+      headerName: "Admin Portal",
+      width: 120,
+      sortable: false,
+      renderCell: (params) =>
+        renderPermissionCell(params.row, "has_admin_portal_access"),
+    },
+    {
+      field: "showcase_portal",
+      headerName: "Showcase Portal",
+      width: 120,
+      sortable: false,
+      renderCell: (params) =>
+        renderPermissionCell(params.row, "has_showcase_portal_access"),
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-white p-4">
       <Toaster position="top-right" reverseOrder={true} />
@@ -411,7 +537,6 @@ const EmployeePermissions = () => {
         />
       </div>
 
-      {/* Portal Access Filters */}
       <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-4">
         <Select
           options={[
@@ -506,7 +631,11 @@ const EmployeePermissions = () => {
         />
       </div>
 
-      {loading ? (
+      {!adminChecked ? (
+        <div className="flex justify-center items-center h-64">
+          <BeatLoader color="#2ac4ab" height={50} width={5} />
+        </div>
+      ) : loading ? (
         <div className="flex justify-center items-center h-64">
           <BeatLoader color="#2ac4ab" height={50} width={5} />
         </div>

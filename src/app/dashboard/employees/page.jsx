@@ -18,11 +18,13 @@ import moment from "moment";
 import Link from "next/link";
 import toast, { Toaster } from "react-hot-toast";
 import EmployeeFormPopup from "@/components/dashboard/employee-create-form/EmployeeForm";
-import { BASE_URL } from "@/services/baseUrl";
+import { BASE_URL, BASE_AUTH_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
 const Employees = () => {
+  const { data: session } = useSession();
   const [employees, setEmployees] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
@@ -214,12 +216,52 @@ const Employees = () => {
     });
   };
 
+  const mapPermissionsToAuthDto = (permissions) => ({
+    accounts: permissions.has_accounts_portal_access,
+    works: permissions.has_work_portal_access,
+    hr: permissions.has_hr_portal_access,
+    client: permissions.has_client_portal_access,
+    inventory: permissions.has_inventory_portal_access,
+    super_admin: permissions.has_super_admin_access,
+    admin: permissions.has_admin_portal_access,
+    showcase: permissions.has_showcase_portal_access,
+    type: "HR",
+  });
+
   const handleUpdatePermissions = async () => {
     if (!employeeToEditPermissions) return;
     handleClosePermissionsPopover();
     try {
       setLoading(true);
       setFetchError(null);
+
+      if (!session?.user?.id) {
+        toast.error("User session not found. Please sign in again.", {
+          position: "top-right",
+        });
+        setLoading(false);
+        return;
+      }
+
+      const authPayload = mapPermissionsToAuthDto(permissions);
+      const userId = employeeToEditPermissions.user_id;
+      const adminId = session.user.id;
+
+      const authRes = await fetch(
+        `${BASE_AUTH_URL}/api/user-auth/permission/${userId}/${adminId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(authPayload),
+        }
+      );
+
+      if (!authRes.ok) {
+        const errorData = await authRes.json();
+        throw new Error(
+          errorData.message || "Failed to update user auth permissions"
+        );
+      }
 
       const response = await fetch(
         `${BASE_URL}/api/employees/permissions/update?id=${employeeToEditPermissions.id}`,
@@ -250,9 +292,6 @@ const Employees = () => {
       );
     } catch (error) {
       console.error("Failed to update permissions:", error);
-      setFetchError(
-        error.message || "Failed to update permissions. Please try again."
-      );
       toast.error(error.message || "Failed to update permissions.", {
         position: "top-right",
       });
