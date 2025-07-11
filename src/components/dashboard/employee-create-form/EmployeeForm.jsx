@@ -599,12 +599,17 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
               flexWrap="wrap"
               gap={2}
               sx={{
-                "& > *": {
-                  flex: { xs: "1 1 100%", md: "1 1 calc(50% - 16px)" },
+                "& > .field-box": {
+                  flex: { xs: "1 1 100%", md: "1 1 calc(33.33% - 16px)" },
+                  minWidth: { md: "0" },
+                },
+                "& > .full-width-box": {
+                  flex: "1 1 100%",
+                  minWidth: 0,
                 },
               }}
             >
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Name *</label>
                 <Controller
                   name="name"
@@ -623,7 +628,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Employee Code</label>
                 <Controller
                   name="employee_code"
@@ -642,7 +647,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Personal Email</label>
                 <Controller
                   name="personal_email"
@@ -661,7 +666,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Work Email</label>
                 <Controller
                   name="work_email"
@@ -680,7 +685,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Personal Phone</label>
                 <Controller
                   name="personal_phone"
@@ -699,7 +704,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Office Phone</label>
                 <Controller
                   name="office_phone"
@@ -718,7 +723,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Official Date of Birth</label>
                 <Controller
                   name="official_date_of_birth"
@@ -742,7 +747,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Celebrated Date</label>
                 <Controller
                   name="celebrated_date_of_birth"
@@ -766,7 +771,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Marriage Date</label>
                 <Controller
                   name="marriage_date"
@@ -790,7 +795,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Facebook URL</label>
                 <Controller
                   name="facebook_url"
@@ -809,7 +814,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Instagram URL</label>
                 <Controller
                   name="instagram_url"
@@ -828,7 +833,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">LinkedIn URL</label>
                 <Controller
                   name="linkedin_url"
@@ -847,7 +852,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Blog URL</label>
                 <Controller
                   name="blog_url"
@@ -866,7 +871,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box sx={{ flex: "1 1 100%" }}>
+              <Box className="full-width-box">
                 <label className="block mb-1">Address</label>
                 <Controller
                   name="address"
@@ -896,12 +901,17 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
               flexWrap="wrap"
               gap={2}
               sx={{
-                "& > *": {
-                  flex: { xs: "1 1 100%", md: "1 1 calc(50% - 16px)" },
+                "& > .field-box": {
+                  flex: { xs: "1 1 100%", md: "1 1 calc(33.33% - 16px)" },
+                  minWidth: { md: "0" },
+                },
+                "& > .full-width-box": {
+                  flex: "1 1 100%",
+                  minWidth: 0,
                 },
               }}
             >
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Joining Date</label>
                 <Controller
                   name="joining_date"
@@ -925,7 +935,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Releaving Date</label>
                 <Controller
                   name="releaving_date"
@@ -949,7 +959,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Designation</label>
                 <Controller
                   name="designation"
@@ -968,7 +978,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Confirmation Date</label>
                 <Controller
                   name="confirmation_date"
@@ -992,7 +1002,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Employee Level</label>
                 <Controller
                   name="employee_level_id"
@@ -1022,7 +1032,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Employee Type</label>
                 <Controller
                   name="employee_type"
@@ -1051,7 +1061,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Department</label>
                 <Controller
                   name="departments_id"
@@ -1081,7 +1091,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Role</label>
                 <Controller
                   name="employee_roles_id"
@@ -1111,7 +1121,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Manager</label>
                 <Controller
                   name="manager_id"
@@ -1141,7 +1151,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Additional Managers</label>
                 <Controller
                   name="additional_manager_ids"
@@ -1171,7 +1181,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Reporting Emails</label>
                 <Controller
                   name="reporting_email"
@@ -1190,7 +1200,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Last Sign In Emails</label>
                 <Controller
                   name="last_sign_in_email"
@@ -1209,7 +1219,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Last Sign Out Emails</label>
                 <Controller
                   name="last_sign_out_email"
@@ -1228,7 +1238,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box>
+              <Box className="field-box">
                 <label className="block mb-1">Leave Notification Emails</label>
                 <Controller
                   name="leave_notification_mails"
@@ -1247,7 +1257,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box sx={{ flex: "1 1 100%" }}>
+              <Box className="full-width-box">
                 <label className="block mb-1">Remarks</label>
                 <Controller
                   name="remarks"
@@ -1267,7 +1277,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   )}
                 />
               </Box>
-              <Box sx={{ flex: "1 1 100%" }}>
+              <Box className="full-width-box">
                 <Controller
                   name="is_signin_mandatory"
                   control={control}
