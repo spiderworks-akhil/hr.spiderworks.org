@@ -89,8 +89,14 @@ const PeerFeedbackFormPopup = ({ open, onClose, onSuccess, feedback }) => {
 
   const fetchEmployees = async (search = "") => {
     try {
-      const query = search ? `?keyword=${encodeURIComponent(search)}` : "";
-      const response = await fetch(`${BASE_URL}/api/employees/list${query}`);
+      const queryParams = new URLSearchParams();
+      if (search) {
+        queryParams.append("keyword", search);
+      }
+      queryParams.append("limit", "1000");
+
+      const query = queryParams.toString();
+      const response = await fetch(`${BASE_URL}/api/employees/list?${query}`);
       if (!response.ok) {
         throw new Error("Failed to fetch employees");
       }

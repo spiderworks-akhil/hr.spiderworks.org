@@ -122,7 +122,7 @@ const RecruitmentRequestFormPopup = ({
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/api/users/list`);
+        const response = await fetch(`${BASE_URL}/api/users/list?limit=1000`);
         if (!response.ok) {
           throw new Error("Failed to fetch users");
         }

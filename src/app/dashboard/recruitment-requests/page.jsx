@@ -52,7 +52,7 @@ const RecruitmentRequestPage = () => {
   const [recruitmentRequests, setRecruitmentRequests] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
-  const [limit] = useState(3);
+  const [limit] = useState(100);
   const [requestedBy, setRequestedBy] = useState(null);
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -314,7 +314,7 @@ const RecruitmentRequestPage = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/api/users/list`);
+        const response = await fetch(`${BASE_URL}/api/users/list?limit=1000`);
         if (!response.ok) {
           throw new Error("Failed to fetch users");
         }
