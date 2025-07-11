@@ -230,6 +230,17 @@ const Employees = () => {
 
   const handleUpdatePermissions = async () => {
     if (!employeeToEditPermissions) return;
+
+    const sessionUserId = parseInt(session?.user?.id, 10);
+    const employeeUserId = parseInt(employeeToEditPermissions?.user_id, 10);
+    if (sessionUserId && employeeUserId && sessionUserId === employeeUserId) {
+      toast.error("You cannot change your own permissions.", {
+        position: "top-right",
+      });
+      handleClosePermissionsPopover();
+      return;
+    }
+
     handleClosePermissionsPopover();
     try {
       setLoading(true);
@@ -665,28 +676,63 @@ const Employees = () => {
             Edit Permissions for {employeeToEditPermissions?.name}
           </Typography>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-            {Object.keys(permissions).map((key) => (
+            {Object.keys(permissions)
+              .filter((key) => key !== "has_super_admin_access")
+              .map((key) => (
+                <FormControlLabel
+                  key={key}
+                  control={
+                    <Checkbox
+                      checked={permissions[key]}
+                      onChange={handlePermissionChange}
+                      name={key}
+                      sx={{
+                        color: "#2ac4ab",
+                        "&.Mui-checked": { color: "#2ac4ab" },
+                      }}
+                    />
+                  }
+                  label={key
+                    .replace(/has_|_access/g, "")
+                    .replace(/_/g, " ")
+                    .toLowerCase()
+                    .replace(/\b\w/g, (char) => char.toUpperCase())}
+                  sx={{ textTransform: "capitalize" }}
+                />
+              ))}
+            <Box
+              sx={{
+                backgroundColor: "#f5f5f5",
+                borderRadius: 1,
+                p: 1.5,
+                mt: 2,
+                display: "flex",
+                alignItems: "center",
+                fontWeight: "bold",
+              }}
+            >
               <FormControlLabel
-                key={key}
+                key="has_super_admin_access"
                 control={
                   <Checkbox
-                    checked={permissions[key]}
+                    checked={permissions["has_super_admin_access"]}
                     onChange={handlePermissionChange}
-                    name={key}
+                    name="has_super_admin_access"
                     sx={{
-                      color: "#2ac4ab",
-                      "&.Mui-checked": { color: "#2ac4ab" },
+                      color: "#e53935",
+                      "&.Mui-checked": { color: "#e53935" },
                     }}
                   />
                 }
-                label={key
-                  .replace(/has_|_access/g, "")
-                  .replace(/_/g, " ")
-                  .toLowerCase()
-                  .replace(/\b\w/g, (char) => char.toUpperCase())}
-                sx={{ textTransform: "capitalize" }}
+                label={"Super Admin"}
+                sx={{
+                  textTransform: "capitalize",
+                  fontWeight: "bold",
+                  color: "#e53935",
+                  flex: 1,
+                }}
               />
-            ))}
+            </Box>
           </Box>
           <Box
             sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 3 }}

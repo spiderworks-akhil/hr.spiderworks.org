@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { DataGrid } from "@mui/x-data-grid";
-import { Box, Paper, Switch } from "@mui/material";
+import { Box, Paper, Switch, FormControlLabel, Checkbox } from "@mui/material";
 import { BeatLoader } from "react-spinners";
 import toast, { Toaster } from "react-hot-toast";
 import { BASE_URL, BASE_AUTH_URL } from "@/services/baseUrl";
@@ -55,6 +55,13 @@ const handleTogglePermission = async (
   try {
     if (!session?.user?.id) {
       toast.error("User session not found. Please sign in again.", {
+        position: "top-right",
+      });
+      return;
+    }
+
+    if (parseInt(session?.user?.id) === parseInt(employee.user_id)) {
+      toast.error("You cannot change your own permissions.", {
         position: "top-right",
       });
       return;
@@ -419,6 +426,16 @@ const EmployeePermissions = () => {
   const columns = [
     { field: "name", headerName: "Employee Name", width: 200 },
     {
+      field: "super_admin",
+      headerName: "Super Admin",
+      width: 120,
+      sortable: false,
+      renderCell: (params) =>
+        renderPermissionCell(params.row, "has_super_admin_access"),
+      cellClassName: "super-admin-cell",
+      headerClassName: "super-admin-header",
+    },
+    {
       field: "work_portal",
       headerName: "Work Portal",
       width: 120,
@@ -451,14 +468,6 @@ const EmployeePermissions = () => {
         renderPermissionCell(params.row, "has_inventory_portal_access"),
     },
     {
-      field: "super_admin",
-      headerName: "Super Admin",
-      width: 120,
-      sortable: false,
-      renderCell: (params) =>
-        renderPermissionCell(params.row, "has_super_admin_access"),
-    },
-    {
       field: "accounts_portal",
       headerName: "Accounts Portal",
       width: 120,
@@ -484,6 +493,35 @@ const EmployeePermissions = () => {
     },
   ];
 
+  const customSelectStyles = {
+    control: (provided) => ({
+      ...provided,
+      border: "1px solid #ccc",
+      borderRadius: "4px",
+      minHeight: "40px",
+      boxShadow: "none",
+      "&:hover": {
+        border: "1px solid #ccc",
+      },
+    }),
+    menu: (provided) => ({
+      ...provided,
+      zIndex: 9999,
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected
+        ? "#2ac4ab"
+        : state.isFocused
+        ? "#e6f7f5"
+        : "white",
+      color: state.isSelected ? "white" : "black",
+      "&:hover": {
+        backgroundColor: state.isSelected ? "#2ac4ab" : "#e6f7f5",
+      },
+    }),
+  };
+
   return (
     <div className="min-h-screen bg-white p-4">
       <Toaster position="top-right" reverseOrder={true} />
@@ -508,6 +546,7 @@ const EmployeePermissions = () => {
           placeholder="Employee Type"
           className="w-full md:w-1/5"
           isClearable
+          styles={customSelectStyles}
         />
         <Select
           options={employeeRoleOptions}
@@ -517,6 +556,7 @@ const EmployeePermissions = () => {
           className="w-full md:w-1/5"
           isClearable
           onInputChange={filterRoles}
+          styles={customSelectStyles}
         />
         <Select
           options={departmentOptions}
@@ -526,6 +566,7 @@ const EmployeePermissions = () => {
           className="w-full md:w-1/5"
           isClearable
           onInputChange={filterDepartments}
+          styles={customSelectStyles}
         />
         <Select
           options={employeeLevelOptions}
@@ -534,100 +575,181 @@ const EmployeePermissions = () => {
           placeholder="Employee Level"
           className="w-full md:w-1/5"
           isClearable
+          styles={customSelectStyles}
         />
       </div>
 
       <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-4">
-        <Select
-          options={[
-            { value: 1, label: "Has Access" },
-            { value: 0, label: "No Access" },
-          ]}
-          value={workPortalAccess}
-          onChange={setWorkPortalAccess}
-          placeholder="Work Portal Access"
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={!!workPortalAccess}
+              onChange={(e) =>
+                setWorkPortalAccess(
+                  e.target.checked ? { value: 1, label: "Has Access" } : null
+                )
+              }
+              color="primary"
+              sx={{
+                color: "#2ac4ab",
+                "&.Mui-checked": {
+                  color: "#2ac4ab",
+                },
+              }}
+            />
+          }
+          label="Work Portal Access"
           className="w-full md:w-1/4"
-          isClearable
         />
-        <Select
-          options={[
-            { value: 1, label: "Has Access" },
-            { value: 0, label: "No Access" },
-          ]}
-          value={hrPortalAccess}
-          onChange={setHrPortalAccess}
-          placeholder="HR Portal Access"
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={!!hrPortalAccess}
+              onChange={(e) =>
+                setHrPortalAccess(
+                  e.target.checked ? { value: 1, label: "Has Access" } : null
+                )
+              }
+              color="primary"
+              sx={{
+                color: "#2ac4ab",
+                "&.Mui-checked": {
+                  color: "#2ac4ab",
+                },
+              }}
+            />
+          }
+          label="HR Portal Access"
           className="w-full md:w-1/4"
-          isClearable
         />
-        <Select
-          options={[
-            { value: 1, label: "Has Access" },
-            { value: 0, label: "No Access" },
-          ]}
-          value={clientPortalAccess}
-          onChange={setClientPortalAccess}
-          placeholder="Client Portal Access"
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={!!clientPortalAccess}
+              onChange={(e) =>
+                setClientPortalAccess(
+                  e.target.checked ? { value: 1, label: "Has Access" } : null
+                )
+              }
+              color="primary"
+              sx={{
+                color: "#2ac4ab",
+                "&.Mui-checked": {
+                  color: "#2ac4ab",
+                },
+              }}
+            />
+          }
+          label="Client Portal Access"
           className="w-full md:w-1/4"
-          isClearable
         />
-        <Select
-          options={[
-            { value: 1, label: "Has Access" },
-            { value: 0, label: "No Access" },
-          ]}
-          value={inventoryPortalAccess}
-          onChange={setInventoryPortalAccess}
-          placeholder="Inventory Portal Access"
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={!!inventoryPortalAccess}
+              onChange={(e) =>
+                setInventoryPortalAccess(
+                  e.target.checked ? { value: 1, label: "Has Access" } : null
+                )
+              }
+              color="primary"
+              sx={{
+                color: "#2ac4ab",
+                "&.Mui-checked": {
+                  color: "#2ac4ab",
+                },
+              }}
+            />
+          }
+          label="Inventory Portal Access"
           className="w-full md:w-1/4"
-          isClearable
         />
       </div>
 
       <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-4">
-        <Select
-          options={[
-            { value: 1, label: "Has Access" },
-            { value: 0, label: "No Access" },
-          ]}
-          value={superAdminAccess}
-          onChange={setSuperAdminAccess}
-          placeholder="Super Admin Access"
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={!!superAdminAccess}
+              onChange={(e) =>
+                setSuperAdminAccess(
+                  e.target.checked ? { value: 1, label: "Has Access" } : null
+                )
+              }
+              color="primary"
+              sx={{
+                color: "#2ac4ab",
+                "&.Mui-checked": {
+                  color: "#2ac4ab",
+                },
+              }}
+            />
+          }
+          label="Super Admin Access"
           className="w-full md:w-1/4"
-          isClearable
         />
-        <Select
-          options={[
-            { value: 1, label: "Has Access" },
-            { value: 0, label: "No Access" },
-          ]}
-          value={accountsPortalAccess}
-          onChange={setAccountsPortalAccess}
-          placeholder="Accounts Portal Access"
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={!!accountsPortalAccess}
+              onChange={(e) =>
+                setAccountsPortalAccess(
+                  e.target.checked ? { value: 1, label: "Has Access" } : null
+                )
+              }
+              color="primary"
+              sx={{
+                color: "#2ac4ab",
+                "&.Mui-checked": {
+                  color: "#2ac4ab",
+                },
+              }}
+            />
+          }
+          label="Accounts Portal Access"
           className="w-full md:w-1/4"
-          isClearable
         />
-        <Select
-          options={[
-            { value: 1, label: "Has Access" },
-            { value: 0, label: "No Access" },
-          ]}
-          value={adminPortalAccess}
-          onChange={setAdminPortalAccess}
-          placeholder="Admin Portal Access"
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={!!adminPortalAccess}
+              onChange={(e) =>
+                setAdminPortalAccess(
+                  e.target.checked ? { value: 1, label: "Has Access" } : null
+                )
+              }
+              color="primary"
+              sx={{
+                color: "#2ac4ab",
+                "&.Mui-checked": {
+                  color: "#2ac4ab",
+                },
+              }}
+            />
+          }
+          label="Admin Portal Access"
           className="w-full md:w-1/4"
-          isClearable
         />
-        <Select
-          options={[
-            { value: 1, label: "Has Access" },
-            { value: 0, label: "No Access" },
-          ]}
-          value={showcasePortalAccess}
-          onChange={setShowcasePortalAccess}
-          placeholder="Showcase Portal Access"
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={!!showcasePortalAccess}
+              onChange={(e) =>
+                setShowcasePortalAccess(
+                  e.target.checked ? { value: 1, label: "Has Access" } : null
+                )
+              }
+              color="primary"
+              sx={{
+                color: "#2ac4ab",
+                "&.Mui-checked": {
+                  color: "#2ac4ab",
+                },
+              }}
+            />
+          }
+          label="Showcase Portal Access"
           className="w-full md:w-1/4"
-          isClearable
         />
       </div>
 
