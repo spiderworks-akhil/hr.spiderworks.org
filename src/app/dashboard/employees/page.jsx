@@ -28,7 +28,10 @@ const Employees = () => {
   const [page, setPage] = useState(0);
   const [limit] = useState(50);
   const [keyword, setKeyword] = useState("");
-  const [employeeType, setEmployeeType] = useState(null);
+  const [employeeType, setEmployeeType] = useState({
+    value: 1,
+    label: "Current Employee",
+  });
   const [employeeRole, setEmployeeRole] = useState(null);
   const [department, setDepartment] = useState(null);
   const [employeeLevel, setEmployeeLevel] = useState(null);

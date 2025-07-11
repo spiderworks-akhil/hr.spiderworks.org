@@ -98,7 +98,9 @@ const AwardWinnerFormPopup = ({ open, onClose, onSuccess, awardWinner }) => {
 
   const fetchEmployees = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/api/employees/list`);
+      const response = await fetch(
+        `${BASE_URL}/api/employees/list?page=1&limit=1000`
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch employees");
       }
@@ -112,7 +114,9 @@ const AwardWinnerFormPopup = ({ open, onClose, onSuccess, awardWinner }) => {
 
   const fetchAwardPrograms = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/api/award-programs/list`);
+      const response = await fetch(
+        `${BASE_URL}/api/award-programs/list?page=1&limit=1000`
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch award programs");
       }

@@ -99,7 +99,7 @@ const Staffs = ({ template }) => {
   const fetchEmployees = async () => {
     try {
       const response = await fetch(
-        `${BASE_URL}/api/employees/list?page=1&limit=100`
+        `${BASE_URL}/api/employees/list?page=1&limit=1000`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch employees");
@@ -119,7 +119,7 @@ const Staffs = ({ template }) => {
       const responses = {};
       for (const evalId of evaluationIds) {
         const response = await fetch(
-          `${BASE_URL}/api/employee-evaluation-responses/list?page=1&limit=100&employeeEvaluationId=${evalId}`
+          `${BASE_URL}/api/employee-evaluation-responses/list?page=1&limit=1000&employeeEvaluationId=${evalId}`
         );
         if (!response.ok) {
           throw new Error(`Failed to fetch responses for evaluation ${evalId}`);
@@ -141,7 +141,7 @@ const Staffs = ({ template }) => {
       setLoading(true);
       setFetchError(null);
       const response = await fetch(
-        `${BASE_URL}/api/employee-evaluations/list?page=${page + 1}&limit=3${
+        `${BASE_URL}/api/employee-evaluations/list?page=${page + 1}&limit=100${
           search ? `&keyword=${encodeURIComponent(search)}` : ""
         }&templateId=${template.id}`
       );
@@ -709,7 +709,7 @@ const Staffs = ({ template }) => {
             columns={columns}
             autoHeight
             initialState={{
-              pagination: { paginationModel: { page, pageSize: 3 } },
+              pagination: { paginationModel: { page, pageSize: 100 } },
             }}
             pagination
             paginationMode="server"

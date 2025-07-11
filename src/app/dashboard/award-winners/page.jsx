@@ -20,7 +20,7 @@ const AwardWinners = () => {
   const [awardWinners, setAwardWinners] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
-  const [limit] = useState(3);
+  const [limit] = useState(100);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState(null);
@@ -35,18 +35,20 @@ const AwardWinners = () => {
       field: "description",
       headerName: "Description",
       width: 250,
-    renderCell: (params) => (
-    <>{params.row.description && params.row.description.trim() !== "" ? params.row.description : "-"}</>
-  ),
+      renderCell: (params) => (
+        <>
+          {params.row.description && params.row.description.trim() !== ""
+            ? params.row.description
+            : "-"}
+        </>
+      ),
     },
     {
       field: "awarder_date",
       headerName: "Awarder Date",
       width: 150,
       renderCell: (params) => (
-        <>
-          {params.value ? moment(params.value).format("DD-MM-YYYY") : "-"}
-        </>
+        <>{params.value ? moment(params.value).format("DD-MM-YYYY") : "-"}</>
       ),
     },
     {
@@ -54,16 +56,25 @@ const AwardWinners = () => {
       headerName: "Employee",
       width: 150,
       renderCell: (params) => (
-    <>{params.row.employee?.name && params.row.employee.name.trim() !== "" ? params.row.employee.name : "-"}</>
-  ),
+        <>
+          {params.row.employee?.name && params.row.employee.name.trim() !== ""
+            ? params.row.employee.name
+            : "-"}
+        </>
+      ),
     },
     {
       field: "awardProgram",
       headerName: "Award Program",
       width: 150,
-    renderCell: (params) => (
-    <>{params.row.awardProgram?.title && params.row.awardProgram.title.trim() !== "" ? params.row.awardProgram.title : "-"}</>
-  ),
+      renderCell: (params) => (
+        <>
+          {params.row.awardProgram?.title &&
+          params.row.awardProgram.title.trim() !== ""
+            ? params.row.awardProgram.title
+            : "-"}
+        </>
+      ),
     },
     {
       field: "edit",
@@ -239,6 +250,16 @@ const AwardWinners = () => {
         </button>
       </div>
 
+      <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-4">
+        <input
+          type="text"
+          placeholder="Search Award Winners"
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className="border border-gray-300 rounded-md px-3 py-2 w-full md:w-1/4 focus:outline-none focus:ring-1 focus:ring-[rgb(42,196,171)]"
+        />
+      </div>
+
       {loading ? (
         <div className="flex justify-center items-center h-64">
           <BeatLoader color="#2ac4ab" size={15} />
@@ -247,16 +268,6 @@ const AwardWinners = () => {
         <div className="text-center text-red-600 py-10">{fetchError}</div>
       ) : (
         <>
-          <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-4">
-            <input
-              type="text"
-              placeholder="Search Award Winners"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              className="border border-gray-300 rounded-md px-3 py-2 w-full md:w-1/4 focus:outline-none focus:ring-1 focus:ring-[rgb(42,196,171)]"
-            />
-          </div>
-
           <Paper sx={{ width: "100%", boxShadow: "none" }}>
             <DataGrid
               rows={awardWinners}
