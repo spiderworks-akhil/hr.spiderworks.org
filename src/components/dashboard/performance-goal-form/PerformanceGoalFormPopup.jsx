@@ -22,6 +22,7 @@ import Select from "react-select";
 import { FaStar } from "react-icons/fa";
 import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -120,6 +121,7 @@ const PerformanceGoalFormPopup = ({
   onSuccess,
   performanceGoal,
 }) => {
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [employees, setEmployees] = useState([]);
@@ -231,6 +233,12 @@ const PerformanceGoalFormPopup = ({
         user_ids: formData.user_ids || [],
         green_star_count: formData.green_star_count || 0,
         red_star_count: formData.red_star_count || 0,
+        ...(performanceGoal
+          ? { updated_by: session?.user?.id || null }
+          : {
+              created_by: session?.user?.id || null,
+              updated_by: session?.user?.id || null,
+            }),
       };
 
       const method = performanceGoal ? "PUT" : "POST";

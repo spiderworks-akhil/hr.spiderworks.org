@@ -29,6 +29,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import Select from "react-select";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const PerformanceGoalFormPopup = dynamic(
   () =>
@@ -99,6 +100,7 @@ const StarRating = ({ value, onChange, color, disabled }) => {
 };
 
 const PerformanceGoals = () => {
+  const { data: session } = useSession();
   const [performanceGoals, setPerformanceGoals] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
@@ -471,6 +473,12 @@ const PerformanceGoals = () => {
         green_star_count: formData.green_star_count || 0,
         red_star_count: formData.red_star_count || 0,
         reviewer_id: formData.reviewer_id || null,
+        ...(!reviewGoal?.reviewed_date
+          ? {
+              created_by: session?.user?.id || null,
+              updated_by: session?.user?.id || null,
+            }
+          : { updated_by: session?.user?.id || null }),
       };
 
       const response = await fetch(
