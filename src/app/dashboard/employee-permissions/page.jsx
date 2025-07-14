@@ -105,7 +105,10 @@ const handleTogglePermission = async (
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPermissions),
+        body: JSON.stringify({
+          ...newPermissions,
+          updated_by: session?.user?.id || null,
+        }),
       }
     );
     if (!hrRes.ok) {
