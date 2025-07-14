@@ -631,7 +631,6 @@ const Employees = () => {
       No employees found
     </Box>
   );
-  
 
   return (
     <div className="min-h-screen bg-white p-4">
