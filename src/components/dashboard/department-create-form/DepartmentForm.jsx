@@ -19,6 +19,7 @@ import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
 import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -61,6 +62,7 @@ const DepartmentFormPopup = ({ open, onClose, onSuccess, department }) => {
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { data: session, status: sessionStatus } = useSession();
 
   const {
     control,
@@ -153,6 +155,8 @@ const DepartmentFormPopup = ({ open, onClose, onSuccess, department }) => {
       setLoading(true);
       setError(null);
 
+      const userId = session?.user?.id;
+
       const payload = {
         name: formData.name.trim(),
         department_head_id: formData.department_head_id
@@ -160,6 +164,9 @@ const DepartmentFormPopup = ({ open, onClose, onSuccess, department }) => {
           : null,
         parent_id: formData.parent_id ? Number(formData.parent_id) : null,
         description: formData.description ? formData.description.trim() : null,
+        ...(department
+          ? { updated_by: userId }
+          : { created_by: userId, updated_by: userId }),
       };
 
       const method = department ? "PUT" : "POST";
@@ -374,7 +381,7 @@ const DepartmentFormPopup = ({ open, onClose, onSuccess, department }) => {
             padding: "8px 16px",
             borderRadius: "8px",
           }}
-          disabled={loading}
+          disabled={loading || sessionStatus !== "authenticated"}
         >
           {loading ? (
             <BeatLoader color="#fff" size={8} />
