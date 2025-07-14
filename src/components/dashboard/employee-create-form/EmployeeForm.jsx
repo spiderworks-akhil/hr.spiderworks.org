@@ -61,7 +61,11 @@ const validationSchema = yup.object().shape({
   name: yup.string().required("Name is required").trim(),
   employee_code: yup.string().nullable().trim(),
   personal_email: yup.string().nullable().email("Invalid email address").trim(),
-  work_email: yup.string().nullable().email("Invalid email address").trim(),
+  work_email: yup
+    .string()
+    .required("Work email is required")
+    .email("Invalid email address")
+    .trim(),
   personal_phone: yup
     .string()
     .nullable()
@@ -72,7 +76,7 @@ const validationSchema = yup.object().shape({
     .trim(),
   office_phone: yup
     .string()
-    .nullable()
+    .required("Office phone is required")
     .matches(/^\+?[1-9]\d{1,14}$/, {
       message: "Invalid phone number (e.g., +1234567890)",
       excludeEmptyString: true,
@@ -586,7 +590,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
         }}
       >
         <DialogTitle className="text-lg font-semibold">
-          {employee ? "Edit Employee" : "Add Employee"}
+          {employee ? "Edit Employee" : "Create Employee"}
         </DialogTitle>
         <DialogContent>
           {error && <div className="text-red-600 mb-4">{error}</div>}
@@ -667,7 +671,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                 />
               </Box>
               <Box className="field-box">
-                <label className="block mb-1">Work Email</label>
+                <label className="block mb-1">Work Email *</label>
                 <Controller
                   name="work_email"
                   control={control}
@@ -705,7 +709,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                 />
               </Box>
               <Box className="field-box">
-                <label className="block mb-1">Office Phone</label>
+                <label className="block mb-1">Office Phone *</label>
                 <Controller
                   name="office_phone"
                   control={control}

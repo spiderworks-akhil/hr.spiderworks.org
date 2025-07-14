@@ -2,7 +2,12 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { MdOutlineSecurity, MdEdit, MdDelete } from "react-icons/md";
+import {
+  MdOutlineSecurity,
+  MdEdit,
+  MdDelete,
+  MdPersonAdd,
+} from "react-icons/md";
 import { BeatLoader } from "react-spinners";
 import { DataGrid } from "@mui/x-data-grid";
 import {
@@ -13,6 +18,10 @@ import {
   Paper,
   Checkbox,
   FormControlLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import moment from "moment";
 import Link from "next/link";
@@ -43,6 +52,11 @@ const Employees = () => {
   const [employeeToDelete, setEmployeeToDelete] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [editEmployee, setEditEmployee] = useState(null);
+
+  const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [availableUsers, setAvailableUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const [permissionAnchorEl, setPermissionAnchorEl] = useState(null);
   const [employeeToEditPermissions, setEmployeeToEditPermissions] =
@@ -144,6 +158,126 @@ const Employees = () => {
   const handleOpenAddDialog = () => {
     setEditEmployee(null);
     setOpenDialog(true);
+  };
+
+  const handleOpenCreateModal = async () => {
+    setOpenCreateModal(true);
+    await fetchAvailableUsers();
+  };
+
+  const handleCloseCreateModal = () => {
+    setOpenCreateModal(false);
+    setSelectedUser(null);
+    setAvailableUsers([]);
+  };
+
+  const fetchAvailableUsers = async () => {
+    try {
+      setLoadingUsers(true);
+
+      const authResponse = await fetch(
+        `${BASE_AUTH_URL}/api/user-auth/fetch-all`
+      );
+      if (!authResponse.ok) {
+        throw new Error("Failed to fetch users from auth service");
+      }
+      const authUsers = await authResponse.json();
+
+      const existingEmployeeUserIds = employees
+        .map((emp) => parseInt(emp.user_id, 10))
+        .filter((id) => !isNaN(id));
+
+      const availableUsers = (authUsers.data || authUsers).filter(
+        (user) => !existingEmployeeUserIds.includes(parseInt(user.id, 10))
+      );
+
+      setAvailableUsers(availableUsers);
+    } catch (error) {
+      console.error("Failed to fetch available users:", error);
+      toast.error("Failed to load available users.", { position: "top-right" });
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  const handleUserSelect = (user) => {
+    setSelectedUser(user);
+  };
+
+  const handleCreateEmployeeFromUser = async () => {
+    if (!selectedUser) {
+      toast.error("Please select a user first.", { position: "top-right" });
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      if (!session?.user?.id) {
+        toast.error("User session not found. Please sign in again.", {
+          position: "top-right",
+        });
+        setLoading(false);
+        return;
+      }
+
+      const userPermissions = selectedUser.permissions || {};
+      const permissions = {
+        has_work_portal_access: userPermissions.work ? 1 : 0,
+        has_hr_portal_access: userPermissions.hr ? 1 : 0,
+        has_client_portal_access: userPermissions.client ? 1 : 0,
+        has_inventory_portal_access: userPermissions.inventory ? 1 : 0,
+        has_super_admin_access: userPermissions.super_admin ? 1 : 0,
+        has_accounts_portal_access: userPermissions.account ? 1 : 0,
+        has_admin_portal_access: userPermissions.admin ? 1 : 0,
+        has_showcase_portal_access: userPermissions.showcase ? 1 : 0,
+      };
+
+      const employeePayload = {
+        name: selectedUser.name || "",
+        work_email: selectedUser.email || null,
+        office_phone: selectedUser.phone || null,
+        employee_type: 1,
+        user_id: parseInt(selectedUser.id, 10),
+        created_by: Number(session.user.id),
+        updated_by: Number(session.user.id),
+        ...permissions,
+      };
+
+      const response = await fetch(`${BASE_URL}/api/employees/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(employeePayload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create employee");
+      }
+
+      const data = await response.json();
+      toast.success(data.message || "Employee created successfully!", {
+        position: "top-right",
+      });
+
+      setOpenCreateModal(false);
+      setSelectedUser(null);
+      await fetchEmployees(
+        page,
+        keyword,
+        employeeType,
+        employeeRole,
+        department,
+        employeeLevel
+      );
+    } catch (error) {
+      console.error("Failed to create employee:", error);
+      toast.error(error.message || "Failed to create employee.", {
+        position: "top-right",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleOpenEditDialog = (employee) => {
@@ -505,12 +639,22 @@ const Employees = () => {
         <h1 className="text-xl font-semibold text-gray-800">
           Employees ({total})
         </h1>
-        <button
-          onClick={handleOpenAddDialog}
-          className="bg-[rgb(42,196,171)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
-        >
-          <span>+ Add Employee</span>
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={handleOpenCreateModal}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center space-x-2 hover:bg-blue-700"
+          >
+            <MdPersonAdd className="w-4 h-4" />
+            <span>Add Employee</span>
+          </button>
+          <button
+            onClick={handleOpenAddDialog}
+            className="bg-[rgb(42,196,171)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
+          >
+            <MdPersonAdd className="w-5 h-5" />
+            <span>+ Create Employee</span>
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-4">
@@ -616,6 +760,244 @@ const Employees = () => {
         onSuccess={handleSuccess}
         employee={editEmployee}
       />
+
+      <Dialog
+        open={openCreateModal}
+        onClose={handleCloseCreateModal}
+        maxWidth="sm"
+        fullWidth
+        disableEscapeKeyDown
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            boxShadow: "0 10px 40px rgba(0,0,0,0.15)",
+            border: "1px solid #e5e7eb",
+            overflow: "hidden",
+          },
+        }}
+        sx={{
+          "& .MuiDialog-paper": {
+            margin: 2,
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            pb: 1,
+            color: "#1f2937",
+            px: 3,
+            py: 2.5,
+            borderBottom: "1px solid #e5e7eb",
+          }}
+        >
+          <Typography
+            variant="body1"
+            sx={{ mb: 0.5, fontWeight: "bold", fontSize: "1.125rem" }}
+          >
+            Add Employee from User
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{ color: "#6b7280", fontSize: "0.875rem" }}
+          >
+            Select a user to create an employee record with their existing
+            permissions
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ p: 0 }}>
+          {loadingUsers ? (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+              <Box sx={{ textAlign: "center" }}>
+                <BeatLoader color="#2ac4ab" size={12} />
+                <Typography
+                  variant="body2"
+                  sx={{ mt: 2, color: "text.secondary" }}
+                >
+                  Loading available users...
+                </Typography>
+              </Box>
+            </Box>
+          ) : availableUsers.length === 0 ? (
+            <Box sx={{ textAlign: "center", py: 6, px: 3 }}>
+              <Typography variant="h6" sx={{ color: "text.secondary", mb: 1 }}>
+                No Available Users
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                All users are already registered as employees.
+              </Typography>
+            </Box>
+          ) : (
+            <Box sx={{ maxHeight: 500, overflow: "auto" }}>
+              <Box sx={{ p: 2, borderBottom: "1px solid #e5e7eb" }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontWeight: "medium" }}
+                >
+                  {availableUsers.length} user
+                  {availableUsers.length !== 1 ? "s" : ""} available
+                </Typography>
+              </Box>
+              <Box sx={{ p: 0 }}>
+                {availableUsers.map((user, index) => (
+                  <Box key={user.id}>
+                    <Box
+                      sx={{
+                        borderBottom:
+                          index < availableUsers.length - 1
+                            ? "1px solid #f3f4f6"
+                            : "none",
+                      }}
+                    >
+                      <Box
+                        onClick={() => handleUserSelect(user)}
+                        sx={{
+                          py: 2.5,
+                          px: 3,
+                          cursor: "pointer",
+                          backgroundColor:
+                            selectedUser?.id === user.id
+                              ? "rgba(42, 196, 171, 0.08)"
+                              : "transparent",
+                          "&:hover": {
+                            backgroundColor: "rgba(0, 0, 0, 0.04)",
+                          },
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            width: "100%",
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              width: 40,
+                              height: 40,
+                              borderRadius: "50%",
+                              backgroundColor:
+                                selectedUser?.id === user.id
+                                  ? "#2ac4ab"
+                                  : "#e5e7eb",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              mr: 2,
+                              flexShrink: 0,
+                            }}
+                          >
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                fontWeight: "bold",
+                                color:
+                                  selectedUser?.id === user.id
+                                    ? "white"
+                                    : "#6b7280",
+                              }}
+                            >
+                              {user.name
+                                ? user.name.charAt(0).toUpperCase()
+                                : "U"}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography
+                              variant="body1"
+                              sx={{ fontWeight: "200", mb: 0.5 }}
+                            >
+                              {user.name || "No Name"}
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{ mb: 1 }}
+                            >
+                              {user.email || "No Email"}
+                            </Typography>
+                            {user.phone && (
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ mb: 1 }}
+                              >
+                                📞 {user.phone}
+                              </Typography>
+                            )}
+                          </Box>
+                          {selectedUser?.id === user.id && (
+                            <Box
+                              sx={{
+                                ml: 2,
+                                color: "#2ac4ab",
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  width: 8,
+                                  height: 8,
+                                  borderRadius: "50%",
+                                  backgroundColor: "#2ac4ab",
+                                }}
+                              />
+                            </Box>
+                          )}
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions
+          sx={{
+            px: 3,
+            py: 2.5,
+            borderTop: "1px solid #e5e7eb",
+          }}
+        >
+          <Button
+            onClick={handleCloseCreateModal}
+            variant="outlined"
+            sx={{
+              borderColor: "#2ac4ab",
+              color: "#2ac4ab",
+              "&:hover": { borderColor: "#26a69a", color: "#26a69a" },
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleCreateEmployeeFromUser}
+            variant="contained"
+            disabled={!selectedUser || loading}
+            sx={{
+              backgroundColor: "#2ac4ab",
+              "&:hover": {
+                backgroundColor: "#26a69a",
+              },
+              "&:disabled": {
+                backgroundColor: "#d1d5db",
+                color: "#9ca3af",
+              },
+            }}
+          >
+            {loading ? (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <BeatLoader color="#fff" size={6} />
+                <span>Creating...</span>
+              </Box>
+            ) : (
+              "Create Employee"
+            )}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Popover
         open={Boolean(anchorEl)}
