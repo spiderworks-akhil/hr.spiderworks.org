@@ -22,6 +22,7 @@ import toast from "react-hot-toast";
 import { useQuill } from "react-quilljs";
 import "quill/dist/quill.snow.css";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const Transition = Slide;
 
@@ -83,6 +84,7 @@ const validationSchema = yup.object().shape({
 });
 
 const DocumentFormPopup = ({ open, onClose, onSuccess, document: doc }) => {
+  const { data: session } = useSession();
   const [categories, setCategories] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -369,6 +371,14 @@ const DocumentFormPopup = ({ open, onClose, onSuccess, document: doc }) => {
           "grantedAccess",
           JSON.stringify(formData.grantedAccess)
         );
+      }
+
+      const userId = session?.user?.id;
+      if (doc) {
+        formDataPayload.append("updated_by", userId);
+      } else {
+        formDataPayload.append("created_by", userId);
+        formDataPayload.append("updated_by", userId);
       }
 
       const method = doc ? "PUT" : "POST";
