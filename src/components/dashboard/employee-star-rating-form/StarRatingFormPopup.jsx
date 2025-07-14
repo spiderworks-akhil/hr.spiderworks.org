@@ -19,6 +19,7 @@ import Select from "react-select";
 import { FaStar } from "react-icons/fa";
 import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -64,6 +65,7 @@ const customSelectStyles = {
 };
 
 const StarRatingFormPopup = ({ open, onClose, onSuccess, starRating }) => {
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [employees, setEmployees] = useState([]);
@@ -169,8 +171,12 @@ const StarRatingFormPopup = ({ open, onClose, onSuccess, starRating }) => {
         given_to_id: formData.given_to_id,
         star_type: formData.star_type ? formData.star_type.toUpperCase() : null,
         star_count: formData.star_count || 0,
-        created_by: null,
-        updated_by: null,
+        ...(starRating
+          ? { updated_by: session?.user?.id || null }
+          : {
+              created_by: session?.user?.id || null,
+              updated_by: session?.user?.id || null,
+            }),
       };
 
       const method = starRating ? "PUT" : "POST";
