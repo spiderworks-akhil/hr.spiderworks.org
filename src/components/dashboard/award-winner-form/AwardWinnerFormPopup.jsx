@@ -21,6 +21,7 @@ import toast from "react-hot-toast";
 import Select from "react-select";
 import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -63,6 +64,7 @@ const validationSchema = yup.object().shape({
 });
 
 const AwardWinnerFormPopup = ({ open, onClose, onSuccess, awardWinner }) => {
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [employees, setEmployees] = useState([]);
@@ -186,6 +188,12 @@ const AwardWinnerFormPopup = ({ open, onClose, onSuccess, awardWinner }) => {
         awarder_date: formatDateSimple(formData.awarder_date),
         employee_id: formData.employee_id || null,
         award_program_id: formData.award_program_id || null,
+        ...(awardWinner
+          ? { updated_by: session?.user?.id || null }
+          : {
+              created_by: session?.user?.id || null,
+              updated_by: session?.user?.id || null,
+            }),
       };
 
       const method = awardWinner ? "PUT" : "POST";
