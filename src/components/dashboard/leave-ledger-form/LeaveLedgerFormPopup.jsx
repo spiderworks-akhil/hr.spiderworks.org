@@ -21,6 +21,7 @@ import toast from "react-hot-toast";
 import Select from "react-select";
 import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -74,6 +75,7 @@ const validationSchema = yup.object().shape({
 });
 
 const LeaveLedgerFormPopup = ({ open, onClose, onSuccess, leaveLedger }) => {
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [employeeOptions, setEmployeeOptions] = useState([]);
@@ -180,8 +182,12 @@ const LeaveLedgerFormPopup = ({ open, onClose, onSuccess, leaveLedger }) => {
         count: parseFloat(formData.count),
         eligibility_date: formatDateSimple(formData.eligibility_date),
         remarks: formData.remarks.trim(),
-        created_by: null,
-        updated_by: null,
+        ...(leaveLedger
+          ? { updated_by: session?.user?.id || null }
+          : {
+              created_by: session?.user?.id || null,
+              updated_by: session?.user?.id || null,
+            }),
       };
 
       const method = leaveLedger ? "PUT" : "POST";
