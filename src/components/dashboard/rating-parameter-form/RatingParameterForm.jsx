@@ -22,6 +22,7 @@ import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
 import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -40,6 +41,7 @@ const validationSchema = yup.object().shape({
 });
 
 const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -108,6 +110,12 @@ const RatingParameterFormPopup = ({ open, onClose, onSuccess, parameter }) => {
         ratable_by_manager: formData.ratable_by_manager ? 1 : 0,
         ratable_by_self: formData.ratable_by_self ? 1 : 0,
         type: formData.type,
+        ...(parameter
+          ? { updated_by: session?.user?.id || null }
+          : {
+              created_by: session?.user?.id || null,
+              updated_by: session?.user?.id || null,
+            }),
       };
 
       const method = parameter ? "PUT" : "POST";
