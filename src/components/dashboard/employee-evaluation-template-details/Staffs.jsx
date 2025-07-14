@@ -25,6 +25,7 @@ import { BeatLoader } from "react-spinners";
 import toast, { Toaster } from "react-hot-toast";
 import Select from "react-select";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const customSelectStyles = {
   control: (provided) => ({
@@ -56,6 +57,7 @@ const customSelectStyles = {
 };
 
 const Staffs = ({ template }) => {
+  const { data: session } = useSession();
   const [evaluations, setEvaluations] = useState([]);
   const [evaluationResponses, setEvaluationResponses] = useState({});
   const [total, setTotal] = useState(0);
@@ -294,6 +296,12 @@ const Staffs = ({ template }) => {
         evaluation_by_name: null,
         evaluation_by_email: null,
         template_id: template?.id || null,
+        ...(modalMode === "edit"
+          ? { updated_by: session?.user?.id || null }
+          : {
+              created_by: session?.user?.id || null,
+              updated_by: session?.user?.id || null,
+            }),
       };
     } else {
       payload = {
@@ -302,6 +310,12 @@ const Staffs = ({ template }) => {
         evaluation_by_name: formData.evaluation_by_name || null,
         evaluation_by_email: formData.evaluation_by_email || null,
         template_id: template?.id || null,
+        ...(modalMode === "edit"
+          ? { updated_by: session?.user?.id || null }
+          : {
+              created_by: session?.user?.id || null,
+              updated_by: session?.user?.id || null,
+            }),
       };
     }
 
@@ -457,8 +471,13 @@ const Staffs = ({ template }) => {
       employee_evaluation_id: selectedEvaluation.id,
       parameter_responses,
       evaluation_remarks: remarks || null,
-      created_by: null,
-      updated_by: null,
+      ...(Array.isArray(evaluationResponses[selectedEvaluation.id]) &&
+      evaluationResponses[selectedEvaluation.id].length > 0
+        ? { updated_by: session?.user?.id || null }
+        : {
+            created_by: session?.user?.id || null,
+            updated_by: session?.user?.id || null,
+          }),
     };
 
     try {
