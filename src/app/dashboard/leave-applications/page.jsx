@@ -30,6 +30,7 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const LeaveApplicationFormPopup = dynamic(
   () =>
@@ -78,6 +79,7 @@ const reviewValidationSchema = yup.object().shape({
 });
 
 const LeaveApplication = () => {
+  const { data: session } = useSession();
   const [leaveApplications, setLeaveApplications] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
@@ -481,7 +483,7 @@ const LeaveApplication = () => {
       const payload = {
         approval_status: formData.approval_status,
         remarks: formData.remarks?.trim() || null,
-        updated_by: null,
+        updated_by: session?.user?.id || null,
       };
 
       const url = `${BASE_URL}/api/leave-application/review/${reviewType}/${reviewLeaveApplication.id}`;

@@ -21,6 +21,7 @@ import toast from "react-hot-toast";
 import Select from "react-select";
 import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -83,6 +84,7 @@ const LeaveApplicationFormPopup = ({
   onSuccess,
   leaveApplication,
 }) => {
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [employeeOptions, setEmployeeOptions] = useState([]);
@@ -198,6 +200,8 @@ const LeaveApplicationFormPopup = ({
       setLoading(true);
       setError(null);
 
+      const userId = session?.user?.id;
+
       const payload = {
         employee_id: formData.employee_id,
         attendance_type: formData.attendance_type,
@@ -206,9 +210,14 @@ const LeaveApplicationFormPopup = ({
         end_date: formatDateSimple(formData.end_date),
         manager_id: formData.manager_id,
         reason: formData.reason.trim(),
-        created_by: null,
-        updated_by: null,
       };
+
+      if (leaveApplication) {
+        payload.updated_by = userId;
+      } else {
+        payload.created_by = userId;
+        payload.updated_by = userId;
+      }
 
       const method = leaveApplication ? "PUT" : "POST";
       const url = leaveApplication
