@@ -183,9 +183,18 @@ const Employees = () => {
       }
       const authUsers = await authResponse.json();
 
-      const existingEmployeeUserIds = employees
-        .map((emp) => parseInt(emp.user_id, 10))
-        .filter((id) => !isNaN(id));
+      const employeesRes = await fetch(
+        `${BASE_URL}/api/employees/list?limit=1000`
+      );
+      let allEmployees = [];
+      if (employeesRes.ok) {
+        const employeesData = await employeesRes.json();
+        allEmployees = (employeesData.data?.employees || [])
+          .map((emp) => parseInt(emp.user_id, 10))
+          .filter((id) => !isNaN(id));
+      }
+
+      const existingEmployeeUserIds = allEmployees;
 
       const availableUsers = (authUsers.data || authUsers).filter(
         (user) => !existingEmployeeUserIds.includes(parseInt(user.id, 10))
