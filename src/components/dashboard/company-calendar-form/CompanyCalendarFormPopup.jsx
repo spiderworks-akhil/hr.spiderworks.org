@@ -25,6 +25,7 @@ import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
 import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -43,6 +44,7 @@ const validationSchema = yup.object().shape({
 });
 
 const CompanyCalendarFormPopup = ({ open, onClose, onSuccess, calendar }) => {
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -103,8 +105,12 @@ const CompanyCalendarFormPopup = ({ open, onClose, onSuccess, calendar }) => {
         date: formatDateSimple(formData.date),
         is_holiday: formData.is_holiday,
         remarks: formData.remarks ? formData.remarks.trim() : null,
-        created_by: null,
-        updated_by: null,
+        ...(calendar
+          ? { updated_by: session?.user?.id || null }
+          : {
+              created_by: session?.user?.id || null,
+              updated_by: session?.user?.id || null,
+            }),
       };
 
       const method = calendar ? "PUT" : "POST";

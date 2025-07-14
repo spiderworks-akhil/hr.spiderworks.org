@@ -113,13 +113,27 @@ const CompanyCalendar = () => {
       field: "createdBy",
       headerName: "Created By",
       width: 150,
-      renderCell: (params) => <span>{params.value?.name || "-"}</span>,
+      renderCell: (params) => {
+        const user = params.value;
+        if (!user) return "-";
+        if (user.first_name || user.last_name) {
+          return `${user.first_name || ""} ${user.last_name || ""}`.trim();
+        }
+        return user.name || "-";
+      },
     },
     {
       field: "updatedBy",
       headerName: "Updated By",
       width: 150,
-      renderCell: (params) => <span>{params.value?.name || "-"}</span>,
+      renderCell: (params) => {
+        const user = params.value;
+        if (!user) return "-";
+        if (user.first_name || user.last_name) {
+          return `${user.first_name || ""} ${user.last_name || ""}`.trim();
+        }
+        return user.name || "-";
+      },
     },
     {
       field: "edit",
