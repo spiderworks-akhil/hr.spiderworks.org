@@ -23,6 +23,7 @@ import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
 import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -49,6 +50,7 @@ const validationSchema = yup.object().shape({
 });
 
 const AwardProgramFormPopup = ({ open, onClose, onSuccess, awardProgram }) => {
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -129,6 +131,13 @@ const AwardProgramFormPopup = ({ open, onClose, onSuccess, awardProgram }) => {
         formDataPayload.append("thumbnail", formData.thumbnail);
       }
       formDataPayload.append("is_active", formData.is_active ? "1" : "0");
+
+      if (awardProgram) {
+        formDataPayload.append("updated_by", session?.user?.id || "");
+      } else {
+        formDataPayload.append("created_by", session?.user?.id || "");
+        formDataPayload.append("updated_by", session?.user?.id || "");
+      }
 
       const method = awardProgram ? "PUT" : "POST";
       const url = awardProgram
