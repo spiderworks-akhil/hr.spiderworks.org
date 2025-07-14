@@ -642,7 +642,7 @@ const Employees = () => {
         <div className="flex space-x-2">
           <button
             onClick={handleOpenCreateModal}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center space-x-2 hover:bg-blue-700"
+            className="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center space-x-2"
           >
             <MdPersonAdd className="w-4 h-4" />
             <span>Add Employee</span>
