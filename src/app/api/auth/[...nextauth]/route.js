@@ -53,6 +53,7 @@ export const authOptions = {
         };
         session.accessToken = token.accessToken;
       }
+      console.log("Final Session Data:", session);
       return session;
     },
   },
