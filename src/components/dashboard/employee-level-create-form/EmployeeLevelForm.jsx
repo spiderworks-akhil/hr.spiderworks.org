@@ -18,6 +18,7 @@ import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
 import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -42,6 +43,7 @@ const EmployeeLevelFormPopup = ({
   onSuccess,
   employeeLevel,
 }) => {
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -82,10 +84,19 @@ const EmployeeLevelFormPopup = ({
       setLoading(true);
       setError(null);
 
-      const payload = {
+      const userId = session?.user?.id;
+
+      let payload = {
         name: formData.name.trim(),
         level_index: formData.level_index,
       };
+
+      if (employeeLevel) {
+        payload.updated_by = userId;
+      } else {
+        payload.created_by = userId;
+        payload.updated_by = userId;
+      }
 
       const method = employeeLevel ? "PUT" : "POST";
       const url = employeeLevel
@@ -196,6 +207,11 @@ const EmployeeLevelFormPopup = ({
               render={({ field }) => (
                 <TextField
                   {...field}
+                  value={
+                    field.value === null || field.value === undefined
+                      ? ""
+                      : field.value
+                  }
                   fullWidth
                   variant="outlined"
                   size="small"
