@@ -20,6 +20,7 @@ import moment from "moment";
 import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const Transition = Slide;
 
@@ -67,6 +68,7 @@ const customSelectStyles = {
 };
 
 const FilingFormPopup = ({ open, onClose, onSuccess, compliance }) => {
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -110,10 +112,10 @@ const FilingFormPopup = ({ open, onClose, onSuccess, compliance }) => {
         title: compliance.title || "",
         description: compliance.description || "",
         last_filing_date: compliance.last_filing_date
-          ? moment(compliance.last_filing_date, "YYYY-MM-DD")
+          ? moment(compliance.last_filing_date)
           : null,
         next_due_date: compliance.next_due_date
-          ? moment(compliance.next_due_date, "YYYY-MM-DD")
+          ? moment(compliance.next_due_date)
           : null,
         filing_instructions: compliance.filing_instructions || "",
       });
@@ -145,8 +147,12 @@ const FilingFormPopup = ({ open, onClose, onSuccess, compliance }) => {
         last_filing_date: formatDateSimple(formData.last_filing_date),
         next_due_date: formatDateSimple(formData.next_due_date),
         filing_instructions: formData.filing_instructions?.trim() || null,
-        created_by: null,
-        updated_by: null,
+        ...(compliance
+          ? { updated_by: session?.user?.id || null }
+          : {
+              created_by: session?.user?.id || null,
+              updated_by: session?.user?.id || null,
+            }),
       };
 
       const method = compliance ? "PUT" : "POST";
@@ -304,7 +310,7 @@ const FilingFormPopup = ({ open, onClose, onSuccess, compliance }) => {
                   control={control}
                   render={({ field }) => (
                     <DesktopDatePicker
-                      inputFormat="DD-MM-YYYY"
+                      format="DD-MM-YYYY"
                       value={field.value}
                       onChange={(newValue) => {
                         field.onChange(newValue);
@@ -337,7 +343,7 @@ const FilingFormPopup = ({ open, onClose, onSuccess, compliance }) => {
                   control={control}
                   render={({ field }) => (
                     <DesktopDatePicker
-                      inputFormat="DD-MM-YYYY"
+                      format="DD-MM-YYYY"
                       value={field.value}
                       onChange={(newValue) => {
                         field.onChange(newValue);
