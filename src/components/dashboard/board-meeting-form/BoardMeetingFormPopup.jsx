@@ -20,6 +20,7 @@ import moment from "moment";
 import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const Transition = ({ children, ...props }) => (
   <Slide {...props} direction="up">
@@ -37,6 +38,7 @@ const validationSchema = yup.object().shape({
 });
 
 const BoardMeetingFormPopup = ({ open, onClose, onSuccess, boardMeeting }) => {
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -80,9 +82,7 @@ const BoardMeetingFormPopup = ({ open, onClose, onSuccess, boardMeeting }) => {
     if (boardMeeting) {
       reset({
         title: boardMeeting.title || "",
-        date: boardMeeting.date
-          ? moment(boardMeeting.date, "YYYY-MM-DD")
-          : null,
+        date: boardMeeting.date ? moment(boardMeeting.date) : null,
         meeting_location: boardMeeting.meeting_location || "",
         participants: boardMeeting.participants || "",
         agenda: boardMeeting.agenda || "",
@@ -118,8 +118,12 @@ const BoardMeetingFormPopup = ({ open, onClose, onSuccess, boardMeeting }) => {
         participants: formData.participants?.trim() || null,
         agenda: formData.agenda?.trim() || null,
         meeting_minutes: formData.meeting_minutes?.trim() || null,
-        created_by: null,
-        updated_by: null,
+        ...(boardMeeting
+          ? { updated_by: session?.user?.id || null }
+          : {
+              created_by: session?.user?.id || null,
+              updated_by: session?.user?.id || null,
+            }),
       };
 
       const method = boardMeeting ? "PUT" : "POST";
@@ -321,7 +325,7 @@ const BoardMeetingFormPopup = ({ open, onClose, onSuccess, boardMeeting }) => {
                 control={control}
                 render={({ field }) => (
                   <DesktopDatePicker
-                    inputFormat="DD-MM-YYYY"
+                    format="DD-MM-YYYY"
                     value={field.value}
                     onChange={(newValue) => {
                       field.onChange(newValue);
