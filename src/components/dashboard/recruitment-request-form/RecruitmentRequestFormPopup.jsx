@@ -17,6 +17,7 @@ import Select from "react-select";
 import toast from "react-hot-toast";
 import Slide from "@mui/material/Slide";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 import { BeatLoader } from "react-spinners";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -76,8 +77,8 @@ const RecruitmentRequestFormPopup = ({
   onClose,
   onSuccess,
   recruitmentRequest,
-  loggedInUserId,
 }) => {
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [userOptions, setUserOptions] = useState([]);
@@ -203,8 +204,12 @@ const RecruitmentRequestFormPopup = ({
         status: formData.status,
         hiring_remarks_by_hr: formData.hiring_remarks_by_hr?.trim() || null,
         requested_by: formData.requested_by,
-        created_by: recruitmentRequest ? undefined : loggedInUserId,
-        updated_by: loggedInUserId,
+        ...(recruitmentRequest
+          ? { updated_by: session?.user?.id || null }
+          : {
+              created_by: session?.user?.id || null,
+              updated_by: session?.user?.id || null,
+            }),
       };
 
       const method = recruitmentRequest ? "PUT" : "POST";
