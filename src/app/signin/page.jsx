@@ -12,6 +12,84 @@ import {
   FiKey,
 } from "react-icons/fi";
 import { BASE_AUTH_URL, BASE_URL } from "@/services/baseUrl";
+import { useRef } from "react";
+
+const CustomOtpInput = ({
+  value,
+  onChange,
+  numInputs = 6,
+  shouldAutoFocus = true,
+  disabled = false,
+}) => {
+  const inputRefs = useRef([]);
+
+  const handleChange = (index, val) => {
+    if (!/^\d?$/.test(val)) return;
+    const newValue = value.split("");
+    newValue[index] = val;
+    onChange(newValue.join(""));
+    if (val && index < numInputs - 1) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (index, e) => {
+    if (e.key === "Backspace" && !value[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    } else if (e.key === "ArrowLeft" && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    } else if (e.key === "ArrowRight" && index < numInputs - 1) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e) => {
+    const pastedData = e.clipboardData.getData("text").replace(/\D/g, "");
+    if (pastedData.length <= numInputs) {
+      onChange(pastedData.padEnd(numInputs, ""));
+      if (pastedData.length > 0) {
+        inputRefs.current[Math.min(pastedData.length, numInputs - 1)]?.focus();
+      }
+    }
+    e.preventDefault();
+  };
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        gap: 8,
+        marginBottom: 8,
+      }}
+    >
+      {Array.from({ length: numInputs }).map((_, index) => (
+        <input
+          key={index}
+          value={value[index] || ""}
+          onChange={(e) => handleChange(index, e.target.value)}
+          onKeyDown={(e) => handleKeyDown(index, e)}
+          onPaste={handlePaste}
+          ref={(el) => (inputRefs.current[index] = el)}
+          autoFocus={shouldAutoFocus && index === 0}
+          maxLength={1}
+          type="tel"
+          disabled={disabled}
+          style={{
+            width: "2.5rem",
+            height: "2.5rem",
+            fontSize: "1.5rem",
+            textAlign: "center",
+            borderRadius: 4,
+            border: "1px solid #ccc",
+            background: disabled ? "#f3f3f3" : "#fff",
+            marginTop: "10px",
+          }}
+        />
+      ))}
+    </div>
+  );
+};
 
 const SignIn = () => {
   const router = useRouter();
@@ -187,12 +265,12 @@ const SignIn = () => {
           text: result.message || "Verification successful. Redirecting...",
           type: "success",
         });
-        setQrCodeImage(null);
-        setSigninEmail(null);
-        setToken("");
-        setCountdown(60);
+        router.push("/dashboard");
         setTimeout(() => {
-          router.push("/dashboard");
+          setQrCodeImage(null);
+          setSigninEmail(null);
+          setToken("");
+          setCountdown(60);
         }, 1000);
       } else {
         throw new Error(
@@ -369,22 +447,13 @@ const SignIn = () => {
                 >
                   Verification Token
                 </label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FiKey className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    id="token"
-                    type="text"
-                    value={token}
-                    onChange={(e) => setToken(e.target.value)}
-                    disabled={countdown === 0}
-                    className={`block w-full pl-10 pr-3 py-2 border ${
-                      countdown === 0 ? "bg-gray-100 cursor-not-allowed" : ""
-                    } border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
-                    placeholder="Enter token from QR scan"
-                  />
-                </div>
+                <CustomOtpInput
+                  value={token}
+                  onChange={setToken}
+                  numInputs={6}
+                  shouldAutoFocus={true}
+                  disabled={countdown === 0}
+                />
               </div>
 
               <div>
