@@ -104,28 +104,12 @@ const SignIn = () => {
   const [signinEmail, setSigninEmail] = useState(null);
   const [token, setToken] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
-  const [countdown, setCountdown] = useState(60);
 
   useEffect(() => {
     if (status === "authenticated") {
       router.push("/dashboard");
     }
   }, [status, router]);
-
-  useEffect(() => {
-    if (qrCodeImage && countdown > 0) {
-      const timer = setInterval(() => {
-        setCountdown((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(timer);
-    } else if (qrCodeImage && countdown === 0) {
-      setMessage({ text: "", type: "" });
-      setQrCodeImage(null);
-      setSigninEmail(null);
-      setToken("");
-      setCountdown(30);
-    }
-  }, [qrCodeImage, countdown]);
 
   useEffect(() => {
     if (message.text && !qrCodeImage) {
@@ -166,7 +150,6 @@ const SignIn = () => {
       if (result.status === "success") {
         setQrCodeImage(result.data.qrcode);
         setSigninEmail(result.data.email);
-        setCountdown(60);
         setMessage({
           text:
             result.data.message ||
@@ -265,13 +248,10 @@ const SignIn = () => {
           text: result.message || "Verification successful. Redirecting...",
           type: "success",
         });
+
         router.push("/dashboard");
-        setTimeout(() => {
-          setQrCodeImage(null);
-          setSigninEmail(null);
-          setToken("");
-          setCountdown(60);
-        }, 1000);
+        setQrCodeImage(null);
+        setToken("");
       } else {
         throw new Error(
           result.message || "Verification failed: No token returned"
@@ -310,21 +290,6 @@ const SignIn = () => {
                 )}
                 <p className="text-sm font-medium">{message.text}</p>
               </div>
-            </div>
-          )}
-
-          {qrCodeImage && (
-            <div className="mb-6 flex flex-col items-center">
-              <img
-                src={qrCodeImage}
-                alt="QR Code for Verification"
-                className="w-32 h-32 mb-4"
-              />
-              <p className="text-sm text-gray-600 text-center">
-                Scan the QR code within{" "}
-                <span className="font-medium">{countdown}</span> seconds to
-                verify your identity
-              </p>
             </div>
           )}
 
@@ -440,6 +405,18 @@ const SignIn = () => {
             </form>
           ) : (
             <div className="space-y-6">
+              {qrCodeImage && (
+                <div className="mb-6 flex flex-col items-center">
+                  <img
+                    src={qrCodeImage}
+                    alt="QR Code for Verification"
+                    className="w-32 h-32 mb-4"
+                  />
+                  <p className="text-sm text-gray-600 text-center">
+                    Scan the QR code with your authenticator app
+                  </p>
+                </div>
+              )}
               <div>
                 <label
                   htmlFor="token"
@@ -452,7 +429,7 @@ const SignIn = () => {
                   onChange={setToken}
                   numInputs={6}
                   shouldAutoFocus={true}
-                  disabled={countdown === 0}
+                  disabled={isVerifying}
                 />
               </div>
 
@@ -460,11 +437,9 @@ const SignIn = () => {
                 <button
                   type="button"
                   onClick={handleVerifyToken}
-                  disabled={isVerifying || !token || countdown === 0}
+                  disabled={isVerifying || !token}
                   className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                    isVerifying || !token || countdown === 0
-                      ? "opacity-75 cursor-not-allowed"
-                      : ""
+                    isVerifying || !token ? "opacity-75 cursor-not-allowed" : ""
                   }`}
                 >
                   {isVerifying ? (
