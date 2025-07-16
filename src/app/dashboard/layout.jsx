@@ -21,11 +21,6 @@ export default function AdminDashboardLayout({ children }) {
     if (!session?.accessToken) {
       console.log("No valid session token in layout, redirecting to /signin");
       router.replace("/signin");
-    } else {
-      console.log(
-        "Valid session token found, redirecting to /dashboard/employees"
-      );
-      router.replace("/dashboard/employees");
     }
   }, [status, session, router]);
 
