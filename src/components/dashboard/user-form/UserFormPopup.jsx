@@ -26,13 +26,15 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const customSelectStyles = {
-  control: (provided) => ({
+  control: (provided, state) => ({
     ...provided,
-    border: "1px solid #ccc",
+    border: state.isFocused ? "1px solid rgb(34,197,94)" : "1px solid #ccc",
+    boxShadow: state.isFocused ? "0 0 0 1.5px rgb(34,197,94)" : "none",
     borderRadius: "4px",
     minHeight: "40px",
-    boxShadow: "none",
-    "&:hover": { border: "1px solid #ccc" },
+    "&:hover": {
+      border: state.isFocused ? "1px solid rgb(34,197,94)" : "1px solid #ccc",
+    },
   }),
   menu: (provided) => ({
     ...provided,
@@ -41,12 +43,16 @@ const customSelectStyles = {
   option: (provided, state) => ({
     ...provided,
     backgroundColor: state.isSelected
-      ? "#2ac4ab"
+      ? "rgb(34,197,94)"
       : state.isFocused
-      ? "#e6f7f5"
+      ? "rgba(220,252,231,0.8)"
       : "white",
     color: state.isSelected ? "white" : "black",
-    "&:hover": { backgroundColor: state.isSelected ? "#2ac4ab" : "#e6f7f5" },
+    "&:hover": {
+      backgroundColor: state.isSelected
+        ? "rgb(34,197,94)"
+        : "rgba(220,252,231,0.8)",
+    },
   }),
 };
 
@@ -264,7 +270,18 @@ const UserFormPopup = ({ open, onClose, onSuccess, user }) => {
                     type="number"
                     error={!!errors.id}
                     helperText={errors.id?.message}
-                    className="bg-white"
+                    sx={{
+                      backgroundColor: "white",
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: "#ccc",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "rgb(34,197,94)",
+                          borderWidth: 2,
+                        },
+                      },
+                    }}
                     disabled
                   />
                 )}
@@ -291,7 +308,18 @@ const UserFormPopup = ({ open, onClose, onSuccess, user }) => {
                       size="small"
                       error={!!errors.first_name}
                       helperText={errors.first_name?.message}
-                      className="bg-white"
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "#ccc",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgb(34,197,94)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                       disabled={user}
                     />
                   )}
@@ -313,7 +341,18 @@ const UserFormPopup = ({ open, onClose, onSuccess, user }) => {
                       size="small"
                       error={!!errors.last_name}
                       helperText={errors.last_name?.message}
-                      className="bg-white"
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "#ccc",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgb(34,197,94)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                       disabled={user}
                     />
                   )}
@@ -335,7 +374,18 @@ const UserFormPopup = ({ open, onClose, onSuccess, user }) => {
                     type="email"
                     error={!!errors.email}
                     helperText={errors.email?.message}
-                    className="bg-white"
+                    sx={{
+                      backgroundColor: "white",
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: "#ccc",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "rgb(34,197,94)",
+                          borderWidth: 2,
+                        },
+                      },
+                    }}
                     disabled={user}
                   />
                 )}
@@ -355,7 +405,18 @@ const UserFormPopup = ({ open, onClose, onSuccess, user }) => {
                     size="small"
                     error={!!errors.phone}
                     helperText={errors.phone?.message}
-                    className="bg-white"
+                    sx={{
+                      backgroundColor: "white",
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: "#ccc",
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "rgb(34,197,94)",
+                          borderWidth: 2,
+                        },
+                      },
+                    }}
                     disabled={user}
                   />
                 )}
@@ -410,9 +471,9 @@ const UserFormPopup = ({ open, onClose, onSuccess, user }) => {
           <Button
             onClick={handleSubmit(onSubmit)}
             sx={{
-              backgroundColor: "rgb(42,196,171)",
+              backgroundColor: "rgb(34,197,94)",
               color: "white",
-              "&:hover": { backgroundColor: "rgb(36,170,148)" },
+              "&:hover": { backgroundColor: "rgb(22,163,74)" },
               padding: "8px 16px",
               borderRadius: "8px",
             }}

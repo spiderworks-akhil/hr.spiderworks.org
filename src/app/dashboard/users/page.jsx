@@ -17,13 +17,15 @@ const UserFormPopup = dynamic(
 );
 
 const customSelectStyles = {
-  control: (provided) => ({
+  control: (provided, state) => ({
     ...provided,
-    border: "1px solid #ccc",
+    border: state.isFocused ? "1px solid rgb(34,197,94)" : "1px solid #ccc",
+    boxShadow: state.isFocused ? "0 0 0 1.5px rgb(34,197,94)" : "none",
     borderRadius: "4px",
     minHeight: "40px",
-    boxShadow: "none",
-    "&:hover": { border: "1px solid #ccc" },
+    "&:hover": {
+      border: state.isFocused ? "1px solid rgb(34,197,94)" : "1px solid #ccc",
+    },
   }),
   menu: (provided) => ({
     ...provided,
@@ -32,15 +34,15 @@ const customSelectStyles = {
   option: (provided, state) => ({
     ...provided,
     backgroundColor: state.isSelected
-      ? "rgb(42,196,171)"
+      ? "rgb(34,197,94)"
       : state.isFocused
-      ? "rgba(234, 248, 244, 0.8)"
+      ? "rgba(220,252,231,0.8)"
       : "white",
     color: state.isSelected ? "white" : "black",
     "&:hover": {
       backgroundColor: state.isSelected
-        ? "rgb(42,196,171)"
-        : "rgba(234, 248, 244, 0.8)",
+        ? "rgb(34,197,94)"
+        : "rgba(220,252,231,0.8)",
     },
   }),
 };
@@ -128,7 +130,7 @@ const Users = () => {
           className={`flex items-center justify-center w-8 h-8 rounded mt-2 ${
             updating2FAUserId === params.row.id
               ? "bg-gray-200"
-              : "bg-[rgb(42,196,171)] hover:bg-[rgb(30,150,130)]"
+              : "bg-[rgb(34,197,94)] hover:bg-[rgb(22,163,74)]"
           } text-white`}
         >
           {updating2FAUserId === params.row.id ? (
@@ -409,7 +411,7 @@ const Users = () => {
         <div className="flex space-x-2">
           <button
             onClick={handleSyncUsers}
-            className="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center space-x-2"
+            className="bg-[rgb(34,197,94)] hover:bg-[rgb(22,163,74)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
             disabled={loading}
           >
             <MdSync className="w-5 h-5" />
@@ -417,7 +419,7 @@ const Users = () => {
           </button>
           <button
             onClick={handleOpenAddDialog}
-            className="bg-[rgb(42,196,171)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
+            className="bg-[rgb(34,197,94)] hover:bg-[rgb(22,163,74)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
           >
             <span>+ Add User</span>
           </button>
@@ -430,7 +432,7 @@ const Users = () => {
           placeholder="Search Users"
           value={keyword}
           onChange={(e) => handleFilterChange("keyword", e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-2 w-full md:w-1/4 focus:outline-none focus:ring-1 focus:ring-[rgb(42,196,171)]"
+          className="border border-gray-300 rounded-md px-3 py-2 w-full md:w-1/4 focus:outline-none focus:ring-2 focus:ring-[rgb(34,197,94)] focus:border-[rgb(34,197,94)]"
         />
         <Select
           options={roleOptions}
@@ -470,9 +472,9 @@ const Users = () => {
               border: 0,
               boxShadow: "none",
               "& .MuiDataGrid-row.Mui-selected": {
-                backgroundColor: "rgba(234, 248, 244, 1)",
+                backgroundColor: "rgba(220,252,231,1)",
                 "&:hover": {
-                  backgroundColor: "rgba(234, 248, 244, 1)",
+                  backgroundColor: "rgba(220,252,231,1)",
                 },
               },
               "& .MuiDataGrid-cell": {

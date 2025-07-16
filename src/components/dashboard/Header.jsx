@@ -52,7 +52,7 @@ export default function Header({ toggleSidebar, isSidebarOpen, isMobileView }) {
           </button>
 
           <div className="flex items-center ml-4">
-            <div className="h-8 w-8 rounded-full bg-[rgb(42,196,171)] flex items-center justify-center text-white font-semibold">
+            <div className="h-8 w-8 rounded-full bg-[rgb(34,197,94)] flex items-center justify-center text-white font-semibold">
               HR
             </div>
 
