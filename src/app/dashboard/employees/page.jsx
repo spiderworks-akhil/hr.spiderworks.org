@@ -658,7 +658,7 @@ const Employees = () => {
           </button>
           <button
             onClick={handleOpenAddDialog}
-            className="bg-[rgb(42,196,171)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
+            className="bg-[rgb(21,184,157)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
           >
             <MdPersonAdd className="w-5 h-5" />
             <span>+ Create Employee</span>

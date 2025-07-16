@@ -379,8 +379,8 @@ export default function Sidebar({
                             isComplianceActive()) ||
                           (item.label === "Recruitments" &&
                             isRecruitmentsActive())
-                            ? "bg-[rgb(220,252,231)] text-[rgb(34,197,94)]"
-                            : "text-gray-600 hover:bg-gray-100"
+                            ? "bg-[rgba(21,184,157,0.85)] text-white"
+                            : "text-gray-600 hover:bg-[rgba(21,184,157,0.08)]"
                         }`}
                         onClick={
                           showContent
@@ -437,8 +437,8 @@ export default function Sidebar({
                                   href={child.path}
                                   className={`flex items-center p-2 rounded-lg text-sm ${
                                     isActive(child)
-                                      ? "bg-[rgb(220,252,231)] text-[rgb(34,197,94)]"
-                                      : "text-gray-600 hover:bg-gray-100"
+                                      ? "bg-[rgba(21,184,157,0.85)] text-white"
+                                      : "text-gray-600 hover:bg-[rgba(21,184,157,0.08)]"
                                   }`}
                                 >
                                   {child.icon}
@@ -456,8 +456,8 @@ export default function Sidebar({
                       href={item.path}
                       className={`flex items-center p-2 rounded-lg ${
                         isActive(item)
-                          ? "bg-[rgb(220,252,231)] text-[rgb(34,197,94)]"
-                          : "text-gray-600 hover:bg-gray-100"
+                          ? "bg-[rgba(21,184,157,0.85)] text-white"
+                          : "text-gray-600 hover:bg-[rgba(21,184,157,0.08)]"
                       }`}
                     >
                       {item.icon}
@@ -514,9 +514,9 @@ export default function Sidebar({
               <Link
                 key={childIndex}
                 href={child.path}
-                className={`flex items-center px-3 py-2 text-sm hover:bg-gray-50 ${
+                className={`flex items-center px-3 py-2 text-sm ${
                   isActive(child)
-                    ? "bg-[rgb(220,252,231)] text-[rgb(34,197,94)]"
+                    ? "bg-[rgba(21,184,157,0.85)] text-white"
                     : "text-gray-600"
                 }`}
               >

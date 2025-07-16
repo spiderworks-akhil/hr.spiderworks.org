@@ -12,6 +12,7 @@ export default function Header({ toggleSidebar, isSidebarOpen, isMobileView }) {
   const handleTogglePopup = () => {
     setIsLogoutPopupOpen(!isLogoutPopupOpen);
   };
+
   return (
     <header className="fixed w-full bg-white shadow-sm z-10">
       <div className="flex items-center justify-between h-16 px-4">
@@ -52,7 +53,7 @@ export default function Header({ toggleSidebar, isSidebarOpen, isMobileView }) {
           </button>
 
           <div className="flex items-center ml-4">
-            <div className="h-8 w-8 rounded-full bg-[rgb(34,197,94)] flex items-center justify-center text-white font-semibold">
+            <div className="h-8 w-8 rounded-full bg-[rgba(21,184,157,0.85)] flex items-center justify-center text-white font-semibold">
               HR
             </div>
 

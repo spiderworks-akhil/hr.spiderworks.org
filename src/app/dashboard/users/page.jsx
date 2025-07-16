@@ -19,12 +19,13 @@ const UserFormPopup = dynamic(
 const customSelectStyles = {
   control: (provided, state) => ({
     ...provided,
-    border: state.isFocused ? "1px solid rgb(34,197,94)" : "1px solid #ccc",
-    boxShadow: state.isFocused ? "0 0 0 1.5px rgb(34,197,94)" : "none",
+    border: `1px solid rgba(21,184,157,0.85)`,
+    boxShadow: state.isFocused ? "0 0 0 1.5px rgba(21,184,157,0.85)" : "none",
+    backgroundColor: "white",
     borderRadius: "4px",
     minHeight: "40px",
     "&:hover": {
-      border: state.isFocused ? "1px solid rgb(34,197,94)" : "1px solid #ccc",
+      border: `1px solid rgba(21,184,157,0.85)`,
     },
   }),
   menu: (provided) => ({
@@ -34,15 +35,15 @@ const customSelectStyles = {
   option: (provided, state) => ({
     ...provided,
     backgroundColor: state.isSelected
-      ? "rgb(34,197,94)"
+      ? "rgba(21,184,157,0.85)"
       : state.isFocused
-      ? "rgba(220,252,231,0.8)"
+      ? "rgba(21,184,157,0.12)"
       : "white",
     color: state.isSelected ? "white" : "black",
     "&:hover": {
       backgroundColor: state.isSelected
-        ? "rgb(34,197,94)"
-        : "rgba(220,252,231,0.8)",
+        ? "rgba(21,184,157,0.85)"
+        : "rgba(21,184,157,0.12)",
     },
   }),
 };
@@ -130,11 +131,11 @@ const Users = () => {
           className={`flex items-center justify-center w-8 h-8 rounded mt-2 ${
             updating2FAUserId === params.row.id
               ? "bg-gray-200"
-              : "bg-[rgb(34,197,94)] hover:bg-[rgb(22,163,74)]"
-          } text-white`}
+              : "bg-[rgba(21,184,157,0.85)] hover:bg-[rgb(17,150,128)] text-white"
+          }`}
         >
           {updating2FAUserId === params.row.id ? (
-            <BeatLoader color="#2ac4ab" size={8} />
+            <BeatLoader color="#15b89d" size={8} />
           ) : (
             <FaKey className="w-4 h-4" />
           )}
@@ -411,7 +412,7 @@ const Users = () => {
         <div className="flex space-x-2">
           <button
             onClick={handleSyncUsers}
-            className="bg-[rgb(34,197,94)] hover:bg-[rgb(22,163,74)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
+            className="bg-[rgba(21,184,157,0.85)] hover:bg-[rgb(17,150,128)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
             disabled={loading}
           >
             <MdSync className="w-5 h-5" />
@@ -419,7 +420,7 @@ const Users = () => {
           </button>
           <button
             onClick={handleOpenAddDialog}
-            className="bg-[rgb(34,197,94)] hover:bg-[rgb(22,163,74)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
+            className="bg-[rgba(21,184,157,0.85)] hover:bg-[rgb(17,150,128)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
           >
             <span>+ Add User</span>
           </button>
@@ -432,7 +433,7 @@ const Users = () => {
           placeholder="Search Users"
           value={keyword}
           onChange={(e) => handleFilterChange("keyword", e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-2 w-full md:w-1/4 focus:outline-none focus:ring-2 focus:ring-[rgb(34,197,94)] focus:border-[rgb(34,197,94)]"
+          className="border border-[rgba(21,184,157,0.85)] bg-white rounded-md px-3 py-2 w-full md:w-1/4 focus:outline-none focus:ring-2 focus:ring-[rgba(21,184,157,0.85)] focus:border-[rgba(21,184,157,0.85)] placeholder-gray-400"
         />
         <Select
           options={roleOptions}
@@ -449,7 +450,7 @@ const Users = () => {
 
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <BeatLoader color="#2ac4ab" height={50} width={5} />
+          <BeatLoader color="#15b89d" height={50} width={5} />
         </div>
       ) : fetchError ? (
         <div className="text-center text-red-600 py-10">{fetchError}</div>
@@ -472,9 +473,10 @@ const Users = () => {
               border: 0,
               boxShadow: "none",
               "& .MuiDataGrid-row.Mui-selected": {
-                backgroundColor: "rgba(220,252,231,1)",
+                backgroundColor: "rgba(21,184,157,0.12)",
+                color: "inherit",
                 "&:hover": {
-                  backgroundColor: "rgba(220,252,231,1)",
+                  backgroundColor: "rgba(21,184,157,0.12)",
                 },
               },
               "& .MuiDataGrid-cell": {

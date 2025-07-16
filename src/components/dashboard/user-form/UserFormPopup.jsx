@@ -28,12 +28,13 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const customSelectStyles = {
   control: (provided, state) => ({
     ...provided,
-    border: state.isFocused ? "1px solid rgb(34,197,94)" : "1px solid #ccc",
-    boxShadow: state.isFocused ? "0 0 0 1.5px rgb(34,197,94)" : "none",
+    border: `1px solid rgba(21,184,157,0.85)`,
+    boxShadow: state.isFocused ? "0 0 0 1.5px rgba(21,184,157,0.85)" : "none",
+    backgroundColor: "white",
     borderRadius: "4px",
     minHeight: "40px",
     "&:hover": {
-      border: state.isFocused ? "1px solid rgb(34,197,94)" : "1px solid #ccc",
+      border: `1px solid rgba(21,184,157,0.85)`,
     },
   }),
   menu: (provided) => ({
@@ -43,15 +44,15 @@ const customSelectStyles = {
   option: (provided, state) => ({
     ...provided,
     backgroundColor: state.isSelected
-      ? "rgb(34,197,94)"
+      ? "rgba(21,184,157,0.85)"
       : state.isFocused
-      ? "rgba(220,252,231,0.8)"
+      ? "rgba(21,184,157,0.12)"
       : "white",
     color: state.isSelected ? "white" : "black",
     "&:hover": {
       backgroundColor: state.isSelected
-        ? "rgb(34,197,94)"
-        : "rgba(220,252,231,0.8)",
+        ? "rgba(21,184,157,0.85)"
+        : "rgba(21,184,157,0.12)",
     },
   }),
 };
@@ -274,10 +275,13 @@ const UserFormPopup = ({ open, onClose, onSuccess, user }) => {
                       backgroundColor: "white",
                       "& .MuiOutlinedInput-root": {
                         "& fieldset": {
-                          borderColor: "#ccc",
+                          borderColor: "rgba(21,184,157,0.85)",
+                        },
+                        "&:hover fieldset": {
+                          borderColor: "rgba(21,184,157,0.85)",
                         },
                         "&.Mui-focused fieldset": {
-                          borderColor: "rgb(34,197,94)",
+                          borderColor: "rgba(21,184,157,0.85)",
                           borderWidth: 2,
                         },
                       },
@@ -312,10 +316,13 @@ const UserFormPopup = ({ open, onClose, onSuccess, user }) => {
                         backgroundColor: "white",
                         "& .MuiOutlinedInput-root": {
                           "& fieldset": {
-                            borderColor: "#ccc",
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
                           },
                           "&.Mui-focused fieldset": {
-                            borderColor: "rgb(34,197,94)",
+                            borderColor: "rgba(21,184,157,0.85)",
                             borderWidth: 2,
                           },
                         },
@@ -345,10 +352,13 @@ const UserFormPopup = ({ open, onClose, onSuccess, user }) => {
                         backgroundColor: "white",
                         "& .MuiOutlinedInput-root": {
                           "& fieldset": {
-                            borderColor: "#ccc",
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
                           },
                           "&.Mui-focused fieldset": {
-                            borderColor: "rgb(34,197,94)",
+                            borderColor: "rgba(21,184,157,0.85)",
                             borderWidth: 2,
                           },
                         },
@@ -378,10 +388,13 @@ const UserFormPopup = ({ open, onClose, onSuccess, user }) => {
                       backgroundColor: "white",
                       "& .MuiOutlinedInput-root": {
                         "& fieldset": {
-                          borderColor: "#ccc",
+                          borderColor: "rgba(21,184,157,0.85)",
+                        },
+                        "&:hover fieldset": {
+                          borderColor: "rgba(21,184,157,0.85)",
                         },
                         "&.Mui-focused fieldset": {
-                          borderColor: "rgb(34,197,94)",
+                          borderColor: "rgba(21,184,157,0.85)",
                           borderWidth: 2,
                         },
                       },
@@ -409,10 +422,13 @@ const UserFormPopup = ({ open, onClose, onSuccess, user }) => {
                       backgroundColor: "white",
                       "& .MuiOutlinedInput-root": {
                         "& fieldset": {
-                          borderColor: "#ccc",
+                          borderColor: "rgba(21,184,157,0.85)",
+                        },
+                        "&:hover fieldset": {
+                          borderColor: "rgba(21,184,157,0.85)",
                         },
                         "&.Mui-focused fieldset": {
-                          borderColor: "rgb(34,197,94)",
+                          borderColor: "rgba(21,184,157,0.85)",
                           borderWidth: 2,
                         },
                       },
@@ -471,11 +487,13 @@ const UserFormPopup = ({ open, onClose, onSuccess, user }) => {
           <Button
             onClick={handleSubmit(onSubmit)}
             sx={{
-              backgroundColor: "rgb(34,197,94)",
+              backgroundColor: "rgba(21,184,157,0.85)",
               color: "white",
-              "&:hover": { backgroundColor: "rgb(22,163,74)" },
+              border: "1px solid rgba(21,184,157,0.85)",
+              "&:hover": { backgroundColor: "rgba(17,150,128)" },
               padding: "8px 16px",
               borderRadius: "8px",
+              boxShadow: "none",
             }}
             disabled={loading}
           >
