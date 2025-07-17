@@ -87,7 +87,7 @@ const Employees = () => {
       renderCell: (params) => (
         <Link
           href={`/dashboard/employees/${params.row.id}`}
-          className="text-[#15b89d] hover:text-[#119680] cursor-pointer"
+          style={{ textDecoration: "underline" }}
         >
           {params.value}
         </Link>
