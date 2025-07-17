@@ -29,14 +29,15 @@ import { useSession } from "next-auth/react";
 const Transition = Slide;
 
 const customSelectStyles = {
-  control: (provided) => ({
+  control: (provided, state) => ({
     ...provided,
-    border: "1px solid #ccc",
+    border: `1px solid rgba(21,184,157,0.85)`,
+    boxShadow: state.isFocused ? "0 0 0 1.5px rgba(21,184,157,0.85)" : "none",
+    backgroundColor: "white",
     borderRadius: "4px",
     minHeight: "40px",
-    boxShadow: "none",
     "&:hover": {
-      border: "1px solid #ccc",
+      border: `1px solid rgba(21,184,157,0.85)`,
     },
   }),
   menu: (provided) => ({
@@ -46,13 +47,15 @@ const customSelectStyles = {
   option: (provided, state) => ({
     ...provided,
     backgroundColor: state.isSelected
-      ? "#2ac4ab"
+      ? "rgba(21,184,157,0.85)"
       : state.isFocused
-      ? "#e6f7f5"
+      ? "rgba(21,184,157,0.12)"
       : "white",
     color: state.isSelected ? "white" : "black",
     "&:hover": {
-      backgroundColor: state.isSelected ? "#2ac4ab" : "#e6f7f5",
+      backgroundColor: state.isSelected
+        ? "rgba(21,184,157,0.85)"
+        : "rgba(21,184,157,0.12)",
     },
   }),
 };
@@ -628,6 +631,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                       InputProps={{ className: "h-10" }}
                       error={!!errors.name}
                       helperText={errors.name?.message}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -647,6 +665,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                       InputProps={{ className: "h-10" }}
                       error={!!errors.employee_code}
                       helperText={errors.employee_code?.message}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -666,6 +699,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                       InputProps={{ className: "h-10" }}
                       error={!!errors.personal_email}
                       helperText={errors.personal_email?.message}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -685,6 +733,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                       InputProps={{ className: "h-10" }}
                       error={!!errors.work_email}
                       helperText={errors.work_email?.message}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -704,6 +767,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                       InputProps={{ className: "h-10" }}
                       error={!!errors.personal_phone}
                       helperText={errors.personal_phone?.message}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -723,6 +801,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                       InputProps={{ className: "h-10" }}
                       error={!!errors.office_phone}
                       helperText={errors.office_phone?.message}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -745,6 +838,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                           helperText: errors.official_date_of_birth?.message,
                           className: "bg-white",
                           InputProps: { className: "h-10" },
+                          sx: {
+                            backgroundColor: "white",
+                            "& .MuiOutlinedInput-root": {
+                              "& fieldset": {
+                                borderColor: "rgba(21,184,157,0.85)",
+                              },
+                              "&:hover fieldset": {
+                                borderColor: "rgba(21,184,157,0.85)",
+                              },
+                              "&.Mui-focused fieldset": {
+                                borderColor: "rgba(21,184,157,0.85)",
+                                borderWidth: 2,
+                              },
+                            },
+                          },
                         },
                       }}
                     />
@@ -769,6 +877,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                           helperText: errors.celebrated_date_of_birth?.message,
                           className: "bg-white",
                           InputProps: { className: "h-10" },
+                          sx: {
+                            backgroundColor: "white",
+                            "& .MuiOutlinedInput-root": {
+                              "& fieldset": {
+                                borderColor: "rgba(21,184,157,0.85)",
+                              },
+                              "&:hover fieldset": {
+                                borderColor: "rgba(21,184,157,0.85)",
+                              },
+                              "&.Mui-focused fieldset": {
+                                borderColor: "rgba(21,184,157,0.85)",
+                                borderWidth: 2,
+                              },
+                            },
+                          },
                         },
                       }}
                     />
@@ -793,6 +916,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                           helperText: errors.marriage_date?.message,
                           className: "bg-white",
                           InputProps: { className: "h-10" },
+                          sx: {
+                            backgroundColor: "white",
+                            "& .MuiOutlinedInput-root": {
+                              "& fieldset": {
+                                borderColor: "rgba(21,184,157,0.85)",
+                              },
+                              "&:hover fieldset": {
+                                borderColor: "rgba(21,184,157,0.85)",
+                              },
+                              "&.Mui-focused fieldset": {
+                                borderColor: "rgba(21,184,157,0.85)",
+                                borderWidth: 2,
+                              },
+                            },
+                          },
                         },
                       }}
                     />
@@ -814,6 +952,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                       InputProps={{ className: "h-10" }}
                       error={!!errors.facebook_url}
                       helperText={errors.facebook_url?.message}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -833,6 +986,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                       InputProps={{ className: "h-10" }}
                       error={!!errors.instagram_url}
                       helperText={errors.instagram_url?.message}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -852,6 +1020,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                       InputProps={{ className: "h-10" }}
                       error={!!errors.linkedin_url}
                       helperText={errors.linkedin_url?.message}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -871,6 +1054,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                       InputProps={{ className: "h-10" }}
                       error={!!errors.blog_url}
                       helperText={errors.blog_url?.message}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -891,6 +1089,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                       className="bg-white"
                       error={!!errors.address}
                       helperText={errors.address?.message}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -933,6 +1146,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                           helperText: errors.joining_date?.message,
                           className: "bg-white",
                           InputProps: { className: "h-10" },
+                          sx: {
+                            backgroundColor: "white",
+                            "& .MuiOutlinedInput-root": {
+                              "& fieldset": {
+                                borderColor: "rgba(21,184,157,0.85)",
+                              },
+                              "&:hover fieldset": {
+                                borderColor: "rgba(21,184,157,0.85)",
+                              },
+                              "&.Mui-focused fieldset": {
+                                borderColor: "rgba(21,184,157,0.85)",
+                                borderWidth: 2,
+                              },
+                            },
+                          },
                         },
                       }}
                     />
@@ -957,6 +1185,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                           helperText: errors.releaving_date?.message,
                           className: "bg-white",
                           InputProps: { className: "h-10" },
+                          sx: {
+                            backgroundColor: "white",
+                            "& .MuiOutlinedInput-root": {
+                              "& fieldset": {
+                                borderColor: "rgba(21,184,157,0.85)",
+                              },
+                              "&:hover fieldset": {
+                                borderColor: "rgba(21,184,157,0.85)",
+                              },
+                              "&.Mui-focused fieldset": {
+                                borderColor: "rgba(21,184,157,0.85)",
+                                borderWidth: 2,
+                              },
+                            },
+                          },
                         },
                       }}
                     />
@@ -978,6 +1221,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                       InputProps={{ className: "h-10" }}
                       error={!!errors.designation}
                       helperText={errors.designation?.message}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -1000,6 +1258,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                           helperText: errors.confirmation_date?.message,
                           className: "bg-white",
                           InputProps: { className: "h-10" },
+                          sx: {
+                            backgroundColor: "white",
+                            "& .MuiOutlinedInput-root": {
+                              "& fieldset": {
+                                borderColor: "rgba(21,184,157,0.85)",
+                              },
+                              "&:hover fieldset": {
+                                borderColor: "rgba(21,184,157,0.85)",
+                              },
+                              "&.Mui-focused fieldset": {
+                                borderColor: "rgba(21,184,157,0.85)",
+                                borderWidth: 2,
+                              },
+                            },
+                          },
                         },
                       }}
                     />
@@ -1200,6 +1473,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                       InputProps={{ className: "h-10" }}
                       error={!!errors.reporting_email}
                       helperText={errors.reporting_email?.message}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -1219,6 +1507,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                       InputProps={{ className: "h-10" }}
                       error={!!errors.last_sign_in_email}
                       helperText={errors.last_sign_in_email?.message}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -1238,6 +1541,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                       InputProps={{ className: "h-10" }}
                       error={!!errors.last_sign_out_email}
                       helperText={errors.last_sign_out_email?.message}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -1257,6 +1575,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                       InputProps={{ className: "h-10" }}
                       error={!!errors.leave_notification_mails}
                       helperText={errors.leave_notification_mails?.message}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -1277,6 +1610,21 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                       className="bg-white"
                       error={!!errors.remarks}
                       helperText={errors.remarks?.message}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
