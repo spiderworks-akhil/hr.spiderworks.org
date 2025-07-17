@@ -87,7 +87,7 @@ const Employees = () => {
       renderCell: (params) => (
         <Link
           href={`/dashboard/employees/${params.row.id}`}
-          className="text-blue-600 hover:text-blue-700 cursor-pointer"
+          className="text-[#15b89d] hover:text-[#119680] cursor-pointer"
         >
           {params.value}
         </Link>
@@ -641,6 +641,38 @@ const Employees = () => {
     </Box>
   );
 
+  const customSelectStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      border: `1px solid rgba(21,184,157,0.85)`,
+      boxShadow: state.isFocused ? "0 0 0 1.5px rgba(21,184,157,0.85)" : "none",
+      backgroundColor: "white",
+      borderRadius: "4px",
+      minHeight: "40px",
+      "&:hover": {
+        border: `1px solid rgba(21,184,157,0.85)`,
+      },
+    }),
+    menu: (provided) => ({
+      ...provided,
+      zIndex: 9999,
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected
+        ? "rgba(21,184,157,0.85)"
+        : state.isFocused
+        ? "rgba(21,184,157,0.12)"
+        : "white",
+      color: state.isSelected ? "white" : "black",
+      "&:hover": {
+        backgroundColor: state.isSelected
+          ? "rgba(21,184,157,0.85)"
+          : "rgba(21,184,157,0.12)",
+      },
+    }),
+  };
+
   return (
     <div className="min-h-screen bg-white p-4">
       <Toaster position="top-right" reverseOrder={true} />
@@ -651,14 +683,14 @@ const Employees = () => {
         <div className="flex space-x-2">
           <button
             onClick={handleOpenCreateModal}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center space-x-2"
+            className="bg-[rgba(21,184,157,0.85)] hover:bg-[rgb(17,150,128)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
           >
             <MdPersonAdd className="w-4 h-4" />
             <span>Add Employee</span>
           </button>
           <button
             onClick={handleOpenAddDialog}
-            className="bg-[rgb(21,184,157)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
+            className="bg-[rgba(21,184,157,0.85)] hover:bg-[rgb(17,150,128)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
           >
             <MdPersonAdd className="w-5 h-5" />
             <span>+ Create Employee</span>
@@ -672,13 +704,14 @@ const Employees = () => {
           placeholder="Search Employees"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-2 w-full md:w-1/4 focus:outline-none focus:ring-1 focus:ring-[rgb(42,196,171)]"
+          className="border border-[rgba(21,184,157,0.85)] bg-white rounded-md px-3 py-2 w-full md:w-1/4 focus:outline-none focus:ring-2 focus:ring-[rgba(21,184,157,0.85)] focus:border-[rgba(21,184,157,0.85)] placeholder-gray-400"
         />
         <Select
           options={employeeTypeOptions}
           value={employeeType}
           onChange={setEmployeeType}
           placeholder="Employee Type"
+          styles={customSelectStyles}
           className="w-full md:w-1/5"
           isClearable
         />
@@ -687,6 +720,7 @@ const Employees = () => {
           value={employeeRole}
           onChange={setEmployeeRole}
           placeholder="Employee Role"
+          styles={customSelectStyles}
           className="w-full md:w-1/5"
           isClearable
           onInputChange={filterRoles}
@@ -696,6 +730,7 @@ const Employees = () => {
           value={department}
           onChange={setDepartment}
           placeholder="Department"
+          styles={customSelectStyles}
           className="w-full md:w-1/5"
           isClearable
           onInputChange={filterDepartments}
@@ -705,6 +740,7 @@ const Employees = () => {
           value={employeeLevel}
           onChange={setEmployeeLevel}
           placeholder="Employee Level"
+          styles={customSelectStyles}
           className="w-full md:w-1/5"
           isClearable
         />
@@ -712,7 +748,7 @@ const Employees = () => {
 
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <BeatLoader color="#2ac4ab" height={50} width={5} />
+          <BeatLoader color="#15b89d" height={50} width={5} />
         </div>
       ) : fetchError ? (
         <div className="text-center text-red-600 py-10">{fetchError}</div>
@@ -735,9 +771,10 @@ const Employees = () => {
                 border: 0,
                 boxShadow: "none",
                 "& .MuiDataGrid-row.Mui-selected": {
-                  backgroundColor: "rgba(234, 248, 244, 1)",
+                  backgroundColor: "rgba(21,184,157,0.12)",
+                  color: "inherit",
                   "&:hover": {
-                    backgroundColor: "rgba(234, 248, 244, 1)",
+                    backgroundColor: "rgba(21,184,157,0.12)",
                   },
                 },
                 "& .MuiDataGrid-cell": {
@@ -817,7 +854,7 @@ const Employees = () => {
           {loadingUsers ? (
             <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
               <Box sx={{ textAlign: "center" }}>
-                <BeatLoader color="#2ac4ab" size={12} />
+                <BeatLoader color="#15b89d" size={12} />
                 <Typography
                   variant="body2"
                   sx={{ mt: 2, color: "text.secondary" }}
@@ -869,7 +906,10 @@ const Employees = () => {
                               ? "rgba(42, 196, 171, 0.08)"
                               : "transparent",
                           "&:hover": {
-                            backgroundColor: "rgba(0, 0, 0, 0.04)",
+                            backgroundColor:
+                              selectedUser?.id === user.id
+                                ? "rgba(42, 196, 171, 0.08)"
+                                : "rgba(0, 0, 0, 0.04)",
                           },
                         }}
                       >
@@ -894,6 +934,7 @@ const Employees = () => {
                               justifyContent: "center",
                               mr: 2,
                               flexShrink: 0,
+                              transition: "background 0.2s",
                             }}
                           >
                             <Typography
@@ -903,18 +944,18 @@ const Employees = () => {
                                 color:
                                   selectedUser?.id === user.id
                                     ? "white"
-                                    : "#6b7280",
+                                    : "#374151",
+                                fontSize: "1.1rem",
+                                textTransform: "uppercase",
                               }}
                             >
-                              {user.name
-                                ? user.name.charAt(0).toUpperCase()
-                                : "U"}
+                              {user.name ? user.name.charAt(0) : "U"}
                             </Typography>
                           </Box>
                           <Box sx={{ flex: 1, minWidth: 0 }}>
                             <Typography
                               variant="body1"
-                              sx={{ fontWeight: "200", mb: 0.5 }}
+                              sx={{ fontWeight: 500, mb: 0.5 }}
                             >
                               {user.name || "No Name"}
                             </Typography>
@@ -972,33 +1013,33 @@ const Employees = () => {
         >
           <Button
             onClick={handleCloseCreateModal}
-            variant="outlined"
             sx={{
-              borderColor: "#2ac4ab",
-              color: "#2ac4ab",
-              "&:hover": { borderColor: "#26a69a", color: "#26a69a" },
+              backgroundColor: "#ffebee",
+              color: "#ef5350",
+              "&:hover": { backgroundColor: "#ffcdd2" },
             }}
+            disabled={loading}
           >
             Cancel
           </Button>
           <Button
             onClick={handleCreateEmployeeFromUser}
-            variant="contained"
+            sx={
+              !selectedUser || loading
+                ? {}
+                : {
+                    backgroundColor: "rgba(21,184,157,0.85)",
+                    color: "white",
+                    border: "1px solid rgba(21,184,157,0.85)",
+                    "&:hover": { backgroundColor: "rgba(17,150,128)" },
+                  }
+            }
             disabled={!selectedUser || loading}
-            sx={{
-              backgroundColor: "#2ac4ab",
-              "&:hover": {
-                backgroundColor: "#26a69a",
-              },
-              "&:disabled": {
-                backgroundColor: "#d1d5db",
-                color: "#9ca3af",
-              },
-            }}
+            variant="contained"
           >
             {loading ? (
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <BeatLoader color="#fff" size={6} />
+                <BeatLoader color="#15b89d" size={6} />
                 <span>Creating...</span>
               </Box>
             ) : (
@@ -1040,7 +1081,7 @@ const Employees = () => {
               onClick={handleDeleteEmployee}
               disabled={loading}
             >
-              {loading ? <BeatLoader color="#fff" size={8} /> : "Delete"}
+              {loading ? <BeatLoader color="#15b89d" size={8} /> : "Delete"}
             </Button>
           </Box>
         </Box>
@@ -1080,6 +1121,10 @@ const Employees = () => {
                       sx={{
                         color: "#2ac4ab",
                         "&.Mui-checked": { color: "#2ac4ab" },
+                        "&.Mui-focusVisible": {
+                          outline: "2px solid rgba(21,184,157,0.85)",
+                          outlineOffset: 2,
+                        },
                       }}
                     />
                   }
@@ -1129,28 +1174,32 @@ const Employees = () => {
             sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 3 }}
           >
             <Button
-              variant="outlined"
-              size="small"
               onClick={handleClosePermissionsPopover}
               sx={{
-                borderColor: "#2ac4ab",
-                color: "#2ac4ab",
-                "&:hover": { borderColor: "#26a69a", color: "#26a69a" },
+                backgroundColor: "#ffebee",
+                color: "#ef5350",
+                "&:hover": { backgroundColor: "#ffcdd2" },
               }}
+              disabled={loading}
             >
               Cancel
             </Button>
             <Button
-              variant="contained"
-              size="small"
               onClick={handleUpdatePermissions}
+              sx={
+                loading
+                  ? {}
+                  : {
+                      backgroundColor: "rgba(21,184,157,0.85)",
+                      color: "white",
+                      border: "1px solid rgba(21,184,157,0.85)",
+                      "&:hover": { backgroundColor: "rgba(17,150,128)" },
+                    }
+              }
               disabled={loading}
-              sx={{
-                backgroundColor: "#2ac4ab",
-                "&:hover": { backgroundColor: "#26a69a" },
-              }}
+              variant="contained"
             >
-              {loading ? <BeatLoader color="#fff" size={8} /> : "Save"}
+              {loading ? <BeatLoader color="#15b89d" size={6} /> : "Save"}
             </Button>
           </Box>
         </Box>
