@@ -100,14 +100,14 @@ const EmployeeDetails = () => {
     <div className="min-h-fit bg-white p-6">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-3">
-          <MdPerson className="w-8 h-8 text-gray-600" />
+          <MdPerson className="w-8 h-8 text-[rgba(21,184,157,0.85)]" />
           <h1 className="text-2xl font-semibold text-gray-800">
             {employee.name || "Employee"}
           </h1>
         </div>
         <Link
           href="/dashboard/employees"
-          className="bg-[rgb(42,196,171)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
+          className="bg-[rgba(21,184,157,0.85)] hover:bg-[rgb(17,150,128)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
         >
           <span>Back to Employees</span>
         </Link>
@@ -118,8 +118,8 @@ const EmployeeDetails = () => {
           onClick={() => setActiveTab("details")}
           className={`pb-2 px-4 text-sm font-medium ${
             activeTab === "details"
-              ? "text-[rgb(42,196,171)] border-b-2 border-[rgb(42,196,171)]"
-              : "text-gray-600 hover:text-[rgb(42,196,171)]"
+              ? "text-[rgba(21,184,157,0.85)] border-b-2 border-[rgba(21,184,157,0.85)]"
+              : "text-gray-600 hover:text-[rgba(21,184,157,0.85)]"
           }`}
         >
           Details
@@ -128,8 +128,8 @@ const EmployeeDetails = () => {
           onClick={() => setActiveTab("salary")}
           className={`pb-2 px-4 text-sm font-medium ${
             activeTab === "salary"
-              ? "text-[rgb(42,196,171)] border-b-2 border-[rgb(42,196,171)]"
-              : "text-gray-600 hover:text-[rgb(42,196,171)]"
+              ? "text-[rgba(21,184,157,0.85)] border-b-2 border-[rgba(21,184,157,0.85)]"
+              : "text-gray-600 hover:text-[rgba(21,184,157,0.85)]"
           }`}
         >
           Salary
@@ -138,8 +138,8 @@ const EmployeeDetails = () => {
           onClick={() => setActiveTab("documents")}
           className={`pb-2 px-4 text-sm font-medium ${
             activeTab === "documents"
-              ? "text-[rgb(42,196,171)] border-b-2 border-[rgb(42,196,171)]"
-              : "text-gray-600 hover:text-[rgb(42,196,171)]"
+              ? "text-[rgba(21,184,157,0.85)] border-b-2 border-[rgba(21,184,157,0.85)]"
+              : "text-gray-600 hover:text-[rgba(21,184,157,0.85)]"
           }`}
         >
           Documents
@@ -148,8 +148,8 @@ const EmployeeDetails = () => {
           onClick={() => setActiveTab("skills-and-hobbies")}
           className={`pb-2 px-4 text-sm font-medium ${
             activeTab === "skills-and-hobbies"
-              ? "text-[rgb(42,196,171)] border-b-2 border-[rgb(42,196,171)]"
-              : "text-gray-600 hover:text-[rgb(42,196,171)]"
+              ? "text-[rgba(21,184,157,0.85)] border-b-2 border-[rgba(21,184,157,0.85)]"
+              : "text-gray-600 hover:text-[rgba(21,184,157,0.85)]"
           }`}
         >
           Skills and Hobbies
@@ -158,8 +158,8 @@ const EmployeeDetails = () => {
           onClick={() => setActiveTab("emergency-contacts")}
           className={`pb-2 px-4 text-sm font-medium ${
             activeTab === "emergency-contacts"
-              ? "text-[rgb(42,196,171)] border-b-2 border-[rgb(42,196,171)]"
-              : "text-gray-600 hover:text-[rgb(42,196,171)]"
+              ? "text-[rgba(21,184,157,0.85)] border-b-2 border-[rgba(21,184,157,0.85)]"
+              : "text-gray-600 hover:text-[rgba(21,184,157,0.85)]"
           }`}
         >
           Emergency Contacts
@@ -168,8 +168,8 @@ const EmployeeDetails = () => {
           onClick={() => setActiveTab("photos")}
           className={`pb-2 px-4 text-sm font-medium ${
             activeTab === "photos"
-              ? "text-[rgb(42,196,171)] border-b-2 border-[rgb(42,196,171)]"
-              : "text-gray-600 hover:text-[rgb(42,196,171)]"
+              ? "text-[rgba(21,184,157,0.85)] border-b-2 border-[rgba(21,184,157,0.85)]"
+              : "text-gray-600 hover:text-[rgba(21,184,157,0.85)]"
           }`}
         >
           Photos
@@ -178,8 +178,8 @@ const EmployeeDetails = () => {
           onClick={() => setActiveTab("notes")}
           className={`pb-2 px-4 text-sm font-medium ${
             activeTab === "notes"
-              ? "text-[rgb(42,196,171)] border-b-2 border-[rgb(42,196,171)]"
-              : "text-gray-600 hover:text-[rgb(42,196,171)]"
+              ? "text-[rgba(21,184,157,0.85)] border-b-2 border-[rgba(21,184,157,0.85)]"
+              : "text-gray-600 hover:text-[rgba(21,184,157,0.85)]"
           }`}
         >
           Notes
