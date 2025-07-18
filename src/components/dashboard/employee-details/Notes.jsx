@@ -199,47 +199,6 @@ const EmployeeNotes = ({ employee }) => {
     }
   };
 
-  const handleOpenDeletePopover = (event, noteId) => {
-    setDeletePopover({ anchorEl: event.currentTarget, noteId });
-  };
-
-  const handleCloseDeletePopover = () => {
-    setDeletePopover({ anchorEl: null, noteId: null });
-  };
-
-  const handleDelete = async () => {
-    if (!deletePopover.noteId) return;
-
-    handleCloseDeletePopover();
-    try {
-      setLoading(true);
-      setFetchError(null);
-      const response = await fetch(
-        `${BASE_URL}/api/employee-note/delete/${deletePopover.noteId}`,
-        { method: "DELETE" }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error("Failed to delete note");
-      }
-
-      toast.success(data.message || "Note deleted successfully!", {
-        position: "top-right",
-      });
-
-      await fetchNotes(page, searchQuery);
-    } catch (error) {
-      console.error("Failed to delete note:", error);
-      setFetchError(
-        error.message || "Failed to delete note. Please try again."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const CustomNoRowsOverlay = () => (
     <Box sx={{ p: 2, textAlign: "center", color: "gray" }}>No notes found</Box>
   );
@@ -258,7 +217,19 @@ const EmployeeNotes = ({ employee }) => {
       field: "created_by",
       headerName: "Created By",
       width: 120,
-      renderCell: (params) => <>{params.value || "-"}</>,
+      renderCell: (params) => {
+        const createdBy = params.row.createdBy;
+        if (createdBy && (createdBy.first_name || createdBy.last_name)) {
+          return (
+            <>
+              {`${createdBy.first_name || ""} ${
+                createdBy.last_name || ""
+              }`.trim()}
+            </>
+          );
+        }
+        return <>{params.value || "-"}</>;
+      },
     },
     {
       field: "updated_at",
@@ -272,7 +243,19 @@ const EmployeeNotes = ({ employee }) => {
       field: "updated_by",
       headerName: "Updated By",
       width: 120,
-      renderCell: (params) => <>{params.value || "-"}</>,
+      renderCell: (params) => {
+        const updatedBy = params.row.updatedBy;
+        if (updatedBy && (updatedBy.first_name || updatedBy.last_name)) {
+          return (
+            <>
+              {`${updatedBy.first_name || ""} ${
+                updatedBy.last_name || ""
+              }`.trim()}
+            </>
+          );
+        }
+        return <>{params.value || "-"}</>;
+      },
     },
     {
       field: "edit",
@@ -285,20 +268,6 @@ const EmployeeNotes = ({ employee }) => {
           aria-label="Edit note"
         >
           <MdEdit className="w-5 h-5 text-gray-500" />
-        </button>
-      ),
-    },
-    {
-      field: "delete",
-      headerName: "Delete",
-      width: 80,
-      sortable: false,
-      renderCell: (params) => (
-        <button
-          onClick={(event) => handleOpenDeletePopover(event, params.row.id)}
-          aria-label="Delete note"
-        >
-          <MdDelete className="w-5 h-5 text-red-500" />
         </button>
       ),
     },
@@ -483,33 +452,6 @@ const EmployeeNotes = ({ employee }) => {
           </Button>
         </DialogActions>
       </Dialog>
-
-      <Popover
-        open={Boolean(deletePopover.anchorEl)}
-        anchorEl={deletePopover.anchorEl}
-        onClose={handleCloseDeletePopover}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        transformOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Box sx={{ p: 2 }}>
-          <Typography sx={{ mb: 2 }}>
-            Are you sure you want to delete this note?
-          </Typography>
-          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
-            <Button onClick={handleCloseDeletePopover} variant="outlined">
-              Cancel
-            </Button>
-            <Button
-              onClick={handleDelete}
-              variant="contained"
-              color="error"
-              disabled={loading}
-            >
-              {loading ? <BeatLoader color="#fff" size={8} /> : "Delete"}
-            </Button>
-          </Box>
-        </Box>
-      </Popover>
     </div>
   );
 };
