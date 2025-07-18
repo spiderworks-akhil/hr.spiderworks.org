@@ -19,6 +19,7 @@ import moment from "moment";
 import { BeatLoader } from "react-spinners";
 import toast, { Toaster } from "react-hot-toast";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const EmployeeNotes = ({ employee }) => {
   const [notes, setNotes] = useState([]);
@@ -41,6 +42,8 @@ const EmployeeNotes = ({ employee }) => {
     anchorEl: null,
     noteId: null,
   });
+
+  const { data: session, status: sessionStatus } = useSession();
 
   const fetchNotes = async (page, search = "") => {
     try {
@@ -131,9 +134,13 @@ const EmployeeNotes = ({ employee }) => {
 
     if (hasError) return;
 
+    const userId = session?.user?.id;
     const payload = {
       notes: formData.notes,
       employee_id: employee.id,
+      ...(modalMode === "add"
+        ? { created_by: userId, updated_by: userId }
+        : { updated_by: userId }),
     };
 
     try {
@@ -340,6 +347,7 @@ const EmployeeNotes = ({ employee }) => {
             "&:hover": { backgroundColor: "rgb(35,170,148)" },
           }}
           onClick={() => handleOpenModal("add")}
+          disabled={sessionStatus !== "authenticated"}
         >
           Add Note
         </Button>
@@ -469,7 +477,7 @@ const EmployeeNotes = ({ employee }) => {
               padding: "8px 16px",
               borderRadius: "8px",
             }}
-            disabled={loading}
+            disabled={loading || sessionStatus !== "authenticated"}
           >
             {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
           </Button>
