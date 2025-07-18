@@ -22,8 +22,9 @@ import Select from "react-select";
 import { PhotoProvider, PhotoView } from "react-photo-view";
 import "react-photo-view/dist/react-photo-view.css";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
-const MAX_FILE_SIZE_5MB = 5 * 1024 * 1024; // 5MB in bytes
+const MAX_FILE_SIZE_5MB = 5 * 1024 * 1024;
 
 const EmployeePhotos = ({ employee }) => {
   const [photos, setPhotos] = useState([]);
@@ -48,6 +49,8 @@ const EmployeePhotos = ({ employee }) => {
     anchorEl: null,
     photoId: null,
   });
+
+  const { data: session, status: sessionStatus } = useSession();
 
   const photoTypeOptions = [
     { value: "Selfie", label: "Selfie" },
@@ -255,6 +258,7 @@ const EmployeePhotos = ({ employee }) => {
 
     if (hasError) return;
 
+    const userId = session?.user?.id;
     const payload = new FormData();
     if (formData.type) {
       payload.append("type", formData.type);
@@ -262,6 +266,16 @@ const EmployeePhotos = ({ employee }) => {
     payload.append("employee_id", employee.id.toString());
     if (formData.photo) {
       payload.append("photo", formData.photo);
+    }
+    if (modalMode === "add") {
+      if (userId) {
+        payload.append("created_by", userId);
+        payload.append("updated_by", userId);
+      }
+    } else if (modalMode === "edit") {
+      if (userId) {
+        payload.append("updated_by", userId);
+      }
     }
 
     try {
@@ -467,6 +481,7 @@ const EmployeePhotos = ({ employee }) => {
             "&:hover": { backgroundColor: "rgb(35,170,148)" },
           }}
           onClick={() => handleOpenModal("add")}
+          disabled={sessionStatus !== "authenticated"}
         >
           Add Photo
         </Button>
@@ -622,7 +637,7 @@ const EmployeePhotos = ({ employee }) => {
               padding: "8px 16px",
               borderRadius: "8px",
             }}
-            disabled={loading}
+            disabled={loading || sessionStatus !== "authenticated"}
           >
             {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
           </Button>
