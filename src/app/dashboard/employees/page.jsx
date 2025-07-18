@@ -1134,10 +1134,7 @@ const Employees = () => {
             borderBottom: "1px solid #e5e7eb",
           }}
         >
-          <Typography
-            variant="body1"
-            sx={{ mb: 0.5, fontWeight: "bold", fontSize: "1.125rem" }}
-          >
+          <Typography variant="body1" sx={{ mb: 0.5, fontSize: "1.125rem" }}>
             Import Notes
           </Typography>
           <Typography
@@ -1150,51 +1147,74 @@ const Employees = () => {
         <DialogContent sx={{ p: 3 }}>
           {importResult ? (
             <Box>
-              <Typography variant="body1" sx={{ fontWeight: "bold", mb: 1 }}>
-                {importResult.message}
+              <Typography variant="body1" sx={{ mb: 1, mt: 2 }}>
+                {importResult.data?.message || importResult.message}
               </Typography>
-              {importResult.successful &&
-                importResult.successful.length > 0 && (
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="body2">Summary:</Typography>
+                <ul style={{ margin: 0, paddingLeft: 18 }}>
+                  <li>
+                    Total Processed: {importResult.data?.totalProcessed ?? 0}
+                  </li>
+                  <li>
+                    Total Imported: {importResult.data?.totalImported ?? 0}
+                  </li>
+                  <li>Total Errors: {importResult.data?.totalErrors ?? 0}</li>
+                </ul>
+              </Box>
+              {importResult.data?.successful &&
+                importResult.data.successful.length > 0 && (
                   <Box sx={{ mb: 2 }}>
-                    <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                      Successful Imports:
-                    </Typography>
-                    <ul style={{ margin: 0, paddingLeft: 18 }}>
-                      {importResult.successful.map((row, idx) => (
-                        <li key={idx} style={{ fontSize: 13 }}>
-                          Row {row.row}: Note ID {row.note.id}
-                        </li>
-                      ))}
-                    </ul>
+                    <p className="text-green-600">Successfully Imported:</p>
+                    <Paper
+                      variant="outlined"
+                      sx={{
+                        mt: 1,
+                        mb: 1,
+                        p: 1,
+                        maxHeight: 200,
+                        overflow: "auto",
+                      }}
+                    >
+                      <ul style={{ margin: 0, paddingLeft: 18, gap: 12 }}>
+                        {importResult.data.successful.map((row, idx) => (
+                          <li key={idx} style={{ fontSize: 13 }}>
+                            Row {row.row}: Note ID {row.note.id} -{" "}
+                            {row.note.notes}
+                          </li>
+                        ))}
+                      </ul>
+                    </Paper>
                   </Box>
                 )}
-              {importResult.errors && importResult.errors.length > 0 && (
-                <Box>
-                  <Typography
-                    variant="body2"
-                    sx={{ fontWeight: "bold", color: "#ef5350" }}
-                  >
-                    Errors:
-                  </Typography>
-                  <ul style={{ margin: 0, paddingLeft: 18 }}>
-                    {importResult.errors.map((err, idx) => (
-                      <li key={idx} style={{ fontSize: 13, color: "#ef5350" }}>
-                        Row {err.row ? err.row : "-"}: {err.error}
-                      </li>
-                    ))}
-                  </ul>
-                </Box>
-              )}
-              <Box sx={{ mt: 2 }}>
-                <Typography variant="body2">
-                  Total Processed: {importResult.data?.totalProcessed || 0}
-                </Typography>
-                <Typography variant="body2">
-                  Total Errors:{" "}
-                  {importResult.data?.totalErrors ||
-                    (importResult.errors ? importResult.errors.length : 0)}
-                </Typography>
-              </Box>
+              {importResult.data?.errors &&
+                importResult.data.errors.length > 0 && (
+                  <Box>
+                    <p className="text-red-600">Errors:</p>
+                    <Paper
+                      variant="outlined"
+                      sx={{
+                        mt: 1,
+                        mb: 1,
+                        p: 1,
+                        maxHeight: 200,
+                        overflow: "auto",
+                      }}
+                    >
+                      <ul style={{ margin: 0, paddingLeft: 18, gap: 12 }}>
+                        {importResult.data.errors.map((err, idx) => (
+                          <li
+                            key={idx}
+                            style={{ fontSize: 13 }}
+                            className="text-red-600"
+                          >
+                            Row {err.row ? err.row : "-"}: {err.error}
+                          </li>
+                        ))}
+                      </ul>
+                    </Paper>
+                  </Box>
+                )}
             </Box>
           ) : (
             <>
@@ -1206,9 +1226,7 @@ const Employees = () => {
               />
               {importedFiles.length > 0 && (
                 <Box sx={{ mt: 1 }}>
-                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                    Selected file:
-                  </Typography>
+                  <Typography variant="body2">Selected file:</Typography>
                   <ul style={{ margin: 0, paddingLeft: 18 }}>
                     {importedFiles.map((file, idx) => (
                       <li key={idx} style={{ fontSize: 13 }}>
