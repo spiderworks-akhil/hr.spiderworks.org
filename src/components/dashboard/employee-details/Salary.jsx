@@ -483,28 +483,20 @@ const EmployeeSalaryRevision = ({ employee }) => {
             gap: 2,
           }}
         >
-          <TextField
-            variant="outlined"
+          <input
+            type="text"
             placeholder="Search Salary Revisions"
             value={searchQuery}
             onChange={handleSearchChange}
-            sx={{
-              flex: 1,
-              maxWidth: 300,
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "20px",
-                "& fieldset": { borderColor: "rgba(0, 0, 0, 0.2)" },
-                "&:hover fieldset": { borderColor: "rgba(0, 0, 0, 0.4)" },
-                "&.Mui-focused fieldset": { borderColor: "rgb(42,196,171)" },
-              },
-              "& .MuiInputBase-input": { padding: "10px 14px" },
-            }}
+            className="border border-[rgba(21,184,157,0.85)] bg-white rounded-md px-3 py-2 flex-1 max-w-xs focus:outline-none focus:ring-2 focus:ring-[rgba(21,184,157,0.85)] focus:border-[rgba(21,184,157,0.85)] placeholder-gray-400"
           />
           <Button
             variant="contained"
             sx={{
-              backgroundColor: "rgb(42,196,171)",
-              "&:hover": { backgroundColor: "rgb(35,170,148)" },
+              backgroundColor: "rgba(21,184,157,0.85)",
+              border: "1px solid rgba(21,184,157,0.85)",
+              "&:hover": { backgroundColor: "rgba(17,150,128)" },
+              boxShadow: "none",
             }}
             onClick={() => handleOpenDialog("add")}
           >
@@ -514,7 +506,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
         <Paper sx={{ width: "100%", boxShadow: "none" }}>
           {loading ? (
             <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-              <BeatLoader color="rgb(42,196,171)" size={12} />
+              <BeatLoader color="#15b89d" size={12} />
             </Box>
           ) : (
             <DataGrid
@@ -532,8 +524,11 @@ const EmployeeSalaryRevision = ({ employee }) => {
                 border: 0,
                 boxShadow: "none",
                 "& .MuiDataGrid-row.Mui-selected": {
-                  backgroundColor: "rgba(234, 248, 244, 1)",
-                  "&:hover": { backgroundColor: "rgba(234, 248, 244, 1)" },
+                  backgroundColor: "rgba(21,184,157,0.12)",
+                  color: "inherit",
+                  "&:hover": {
+                    backgroundColor: "rgba(21,184,157,0.12)",
+                  },
                 },
                 "& .MuiDataGrid-cell": { border: "none" },
                 "& .MuiDataGrid-footerContainer": {
@@ -586,13 +581,20 @@ const EmployeeSalaryRevision = ({ employee }) => {
                             size: "small",
                             error: !!errors.effective_date,
                             helperText: errors.effective_date?.message,
+                            className: "bg-white",
+                            InputProps: { className: "h-10" },
                             sx: {
+                              backgroundColor: "white",
                               "& .MuiOutlinedInput-root": {
+                                "& fieldset": {
+                                  borderColor: "rgba(21,184,157,0.85)",
+                                },
                                 "&:hover fieldset": {
-                                  borderColor: "rgba(42,196,171, 0.5)",
+                                  borderColor: "rgba(21,184,157,0.85)",
                                 },
                                 "&.Mui-focused fieldset": {
-                                  borderColor: "rgb(42,196,171)",
+                                  borderColor: "rgba(21,184,157,0.85)",
+                                  borderWidth: 2,
                                 },
                               },
                             },
@@ -624,6 +626,22 @@ const EmployeeSalaryRevision = ({ employee }) => {
                       helperText={errors.basic_pay?.message}
                       onInput={handleNumericInput}
                       className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -650,6 +668,22 @@ const EmployeeSalaryRevision = ({ employee }) => {
                       helperText={errors.tds_deduction_amount?.message}
                       onInput={handleNumericInput}
                       className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -676,6 +710,22 @@ const EmployeeSalaryRevision = ({ employee }) => {
                       helperText={errors.esi_employee_share?.message}
                       onInput={handleNumericInput}
                       className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -702,6 +752,22 @@ const EmployeeSalaryRevision = ({ employee }) => {
                       helperText={errors.esi_employer_share?.message}
                       onInput={handleNumericInput}
                       className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -728,6 +794,22 @@ const EmployeeSalaryRevision = ({ employee }) => {
                       helperText={errors.pf_employee_share?.message}
                       onInput={handleNumericInput}
                       className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -754,6 +836,22 @@ const EmployeeSalaryRevision = ({ employee }) => {
                       helperText={errors.pf_employer_share?.message}
                       onInput={handleNumericInput}
                       className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -778,6 +876,22 @@ const EmployeeSalaryRevision = ({ employee }) => {
                       helperText={errors.hra?.message}
                       onInput={handleNumericInput}
                       className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -802,6 +916,22 @@ const EmployeeSalaryRevision = ({ employee }) => {
                       helperText={errors.travel_allowance?.message}
                       onInput={handleNumericInput}
                       className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -826,6 +956,22 @@ const EmployeeSalaryRevision = ({ employee }) => {
                       helperText={errors.other_allowance?.message}
                       onInput={handleNumericInput}
                       className="bg-white"
+                      InputProps={{ className: "h-10" }}
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -845,6 +991,21 @@ const EmployeeSalaryRevision = ({ employee }) => {
                       error={!!errors.remarks}
                       helperText={errors.remarks?.message}
                       className="bg-white"
+                      sx={{
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&:hover fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                          },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "rgba(21,184,157,0.85)",
+                            borderWidth: 2,
+                          },
+                        },
+                      }}
                     />
                   )}
                 />
@@ -875,15 +1036,17 @@ const EmployeeSalaryRevision = ({ employee }) => {
             <Button
               onClick={handleSubmit(onSubmit)}
               sx={{
-                backgroundColor: "rgb(42,196,171)",
+                backgroundColor: "rgba(21,184,157,0.85)",
                 color: "white",
-                "&:hover": { backgroundColor: "rgb(36,170,148)" },
+                border: "1px solid rgba(21,184,157,0.85)",
+                "&:hover": { backgroundColor: "rgba(17,150,128)" },
                 padding: "8px 16px",
                 borderRadius: "8px",
+                boxShadow: "none",
               }}
               disabled={loading}
             >
-              {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
+              {loading ? <BeatLoader color="#15b89d" size={8} /> : "Submit"}
             </Button>
           </DialogActions>
         </Dialog>
@@ -895,21 +1058,31 @@ const EmployeeSalaryRevision = ({ employee }) => {
           anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
           transformOrigin={{ vertical: "top", horizontal: "center" }}
         >
-          <Box sx={{ p: 2 }}>
+          <Box sx={{ p: 2, width: 260 }}>
             <Typography sx={{ mb: 2 }}>
               Are you sure you want to delete this salary revision?
             </Typography>
             <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
-              <Button onClick={handleCloseDeletePopover} variant="outlined">
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={handleCloseDeletePopover}
+                sx={{
+                  borderColor: "#ef5350",
+                  color: "#ef5350",
+                  "&:hover": { borderColor: "#e53935", color: "#e53935" },
+                }}
+              >
                 Cancel
               </Button>
               <Button
-                onClick={handleDelete}
                 variant="contained"
+                size="small"
                 color="error"
+                onClick={handleDelete}
                 disabled={loading}
               >
-                {loading ? <BeatLoader color="#fff" size={8} /> : "Delete"}
+                {loading ? <BeatLoader color="#15b89d" size={8} /> : "Delete"}
               </Button>
             </Box>
           </Box>
