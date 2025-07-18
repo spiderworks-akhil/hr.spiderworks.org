@@ -1635,7 +1635,20 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
                   control={control}
                   render={({ field }) => (
                     <FormControlLabel
-                      control={<Checkbox {...field} checked={field.value} />}
+                      control={
+                        <Checkbox
+                          {...field}
+                          checked={field.value}
+                          sx={{
+                            color: "#2ac4ab",
+                            "&.Mui-checked": { color: "#2ac4ab" },
+                            "&.Mui-focusVisible": {
+                              outline: "2px solid rgba(21,184,157,0.85)",
+                              outlineOffset: 2,
+                            },
+                          }}
+                        />
+                      }
                       label="Sign In is mandatory for this employee."
                       className="text-sm"
                     />
@@ -1662,16 +1675,18 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
           <Button
             onClick={handleSubmit(onSubmit)}
             sx={{
-              backgroundColor: "rgb(42,196,171)",
+              backgroundColor: "rgba(21,184,157,0.85)",
               color: "white",
-              "&:hover": { backgroundColor: "rgb(36,170,148)" },
+              border: "1px solid rgba(21,184,157,0.85)",
+              "&:hover": { backgroundColor: "rgba(17,150,128)" },
               padding: "8px 16px",
               borderRadius: "8px",
+              boxShadow: "none",
             }}
             disabled={loading}
           >
             {loading ? (
-              <BeatLoader color="#fff" size={8} />
+              <BeatLoader color="#15b89d" size={8} />
             ) : employee ? (
               "Update"
             ) : (

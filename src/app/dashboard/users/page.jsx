@@ -553,7 +553,7 @@ const Users = () => {
               onClick={handleDeleteUser}
               disabled={loading}
             >
-              {loading ? <BeatLoader color="#fff" size={8} /> : "Delete"}
+              {loading ? <BeatLoader color="#15b89d" size={8} /> : "Delete"}
             </Button>
           </Box>
         </Box>

@@ -498,7 +498,7 @@ const UserFormPopup = ({ open, onClose, onSuccess, user }) => {
             disabled={loading}
           >
             {loading ? (
-              <BeatLoader color="#fff" size={8} />
+              <BeatLoader color="#15b89d" size={8} />
             ) : user ? (
               "Update"
             ) : (
