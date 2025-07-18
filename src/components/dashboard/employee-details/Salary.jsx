@@ -24,6 +24,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import { Controller, useForm } from "react-hook-form";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const EmployeeSalaryRevision = ({ employee }) => {
   const [salaryRevisions, setSalaryRevisions] = useState([]);
@@ -38,6 +39,8 @@ const EmployeeSalaryRevision = ({ employee }) => {
     anchorEl: null,
     revisionId: null,
   });
+
+  const { data: session, status: sessionStatus } = useSession();
 
   const {
     control,
@@ -214,6 +217,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
       }
     }
 
+    const userId = session?.user?.id;
     const payload = {
       employee_id: employee.id,
       version,
@@ -245,6 +249,9 @@ const EmployeeSalaryRevision = ({ employee }) => {
         : undefined,
       grand_total: parseFloat(calculateGrandTotal()),
       remarks: formData.remarks || undefined,
+      ...(modalMode === "add"
+        ? { created_by: userId, updated_by: userId }
+        : { updated_by: userId }),
     };
 
     try {
@@ -499,6 +506,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
               boxShadow: "none",
             }}
             onClick={() => handleOpenDialog("add")}
+            disabled={sessionStatus !== "authenticated"}
           >
             Add Salary Revision
           </Button>
@@ -1044,7 +1052,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
                 borderRadius: "8px",
                 boxShadow: "none",
               }}
-              disabled={loading}
+              disabled={loading || sessionStatus !== "authenticated"}
             >
               {loading ? <BeatLoader color="#15b89d" size={8} /> : "Submit"}
             </Button>
