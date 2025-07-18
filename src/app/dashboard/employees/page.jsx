@@ -29,6 +29,7 @@ import toast, { Toaster } from "react-hot-toast";
 import EmployeeFormPopup from "@/components/dashboard/employee-create-form/EmployeeForm";
 import { BASE_URL, BASE_AUTH_URL } from "@/services/baseUrl";
 import { useSession } from "next-auth/react";
+import { FaFileImport } from "react-icons/fa";
 
 const Select = dynamic(() => import("react-select"), { ssr: false });
 
@@ -78,6 +79,9 @@ const Employees = () => {
   const [departmentOptions, setDepartmentOptions] = useState([]);
   const [allDepartmentOptions, setAllDepartmentOptions] = useState([]);
   const [employeeLevelOptions, setEmployeeLevelOptions] = useState([]);
+  const [importNotesOpen, setImportNotesOpen] = useState(false);
+  const [importedFiles, setImportedFiles] = useState([]);
+  const [importResult, setImportResult] = useState(null);
 
   const columns = [
     {
@@ -620,6 +624,51 @@ const Employees = () => {
     }
   };
 
+  const handleOpenImportNotes = () => {
+    setImportNotesOpen(true);
+    setImportedFiles([]);
+    setImportResult(null);
+  };
+  const handleCloseImportNotes = () => {
+    setImportNotesOpen(false);
+    setImportedFiles([]);
+    setImportResult(null);
+  };
+  const handleFileChange = (e) => {
+    setImportedFiles(Array.from(e.target.files).slice(0, 1));
+  };
+  const handleImportNotes = async () => {
+    if (importedFiles.length === 0) return;
+    setLoading(true);
+    setImportResult(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", importedFiles[0]);
+      const response = await fetch(`${BASE_URL}/api/employee-note/import`, {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Import failed");
+      }
+      setImportResult(data);
+      toast.success(data.message || "Import completed!", {
+        position: "top-right",
+      });
+    } catch (error) {
+      setImportResult({
+        message: error.message,
+        errors: [{ error: error.message }],
+      });
+      toast.error(error.message || "Failed to import notes.", {
+        position: "top-right",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchEmployees(
       page,
@@ -681,6 +730,13 @@ const Employees = () => {
           Employees ({total})
         </h1>
         <div className="flex space-x-2">
+          <button
+            onClick={handleOpenImportNotes}
+            className="bg-[rgba(21,184,157,0.85)] hover:bg-[rgb(17,150,128)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
+          >
+            <FaFileImport className="w-4 h-4" />
+            <span>Import Notes</span>
+          </button>
           <button
             onClick={handleOpenCreateModal}
             className="bg-[rgba(21,184,157,0.85)] hover:bg-[rgb(17,150,128)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
@@ -1046,6 +1102,169 @@ const Employees = () => {
               "Create Employee"
             )}
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={importNotesOpen}
+        onClose={handleCloseImportNotes}
+        maxWidth="xs"
+        fullWidth
+        disableEscapeKeyDown
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            boxShadow: "0 10px 40px rgba(0,0,0,0.15)",
+            border: "1px solid #e5e7eb",
+            overflow: "hidden",
+          },
+        }}
+        sx={{
+          "& .MuiDialog-paper": {
+            margin: 2,
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            pb: 1,
+            color: "#1f2937",
+            px: 3,
+            py: 2.5,
+            borderBottom: "1px solid #e5e7eb",
+          }}
+        >
+          <Typography
+            variant="body1"
+            sx={{ mb: 0.5, fontWeight: "bold", fontSize: "1.125rem" }}
+          >
+            Import Notes
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{ color: "#6b7280", fontSize: "0.875rem" }}
+          >
+            Select an Excel file to import employee notes
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ p: 3 }}>
+          {importResult ? (
+            <Box>
+              <Typography variant="body1" sx={{ fontWeight: "bold", mb: 1 }}>
+                {importResult.message}
+              </Typography>
+              {importResult.successful &&
+                importResult.successful.length > 0 && (
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                      Successful Imports:
+                    </Typography>
+                    <ul style={{ margin: 0, paddingLeft: 18 }}>
+                      {importResult.successful.map((row, idx) => (
+                        <li key={idx} style={{ fontSize: 13 }}>
+                          Row {row.row}: Note ID {row.note.id}
+                        </li>
+                      ))}
+                    </ul>
+                  </Box>
+                )}
+              {importResult.errors && importResult.errors.length > 0 && (
+                <Box>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: "bold", color: "#ef5350" }}
+                  >
+                    Errors:
+                  </Typography>
+                  <ul style={{ margin: 0, paddingLeft: 18 }}>
+                    {importResult.errors.map((err, idx) => (
+                      <li key={idx} style={{ fontSize: 13, color: "#ef5350" }}>
+                        Row {err.row ? err.row : "-"}: {err.error}
+                      </li>
+                    ))}
+                  </ul>
+                </Box>
+              )}
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="body2">
+                  Total Processed: {importResult.data?.totalProcessed || 0}
+                </Typography>
+                <Typography variant="body2">
+                  Total Errors:{" "}
+                  {importResult.data?.totalErrors ||
+                    (importResult.errors ? importResult.errors.length : 0)}
+                </Typography>
+              </Box>
+            </Box>
+          ) : (
+            <>
+              <input
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={handleFileChange}
+                style={{ display: "block", marginBottom: 16, marginTop: 20 }}
+              />
+              {importedFiles.length > 0 && (
+                <Box sx={{ mt: 1 }}>
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    Selected file:
+                  </Typography>
+                  <ul style={{ margin: 0, paddingLeft: 18 }}>
+                    {importedFiles.map((file, idx) => (
+                      <li key={idx} style={{ fontSize: 13 }}>
+                        {file.name}
+                      </li>
+                    ))}
+                  </ul>
+                </Box>
+              )}
+            </>
+          )}
+        </DialogContent>
+        <DialogActions
+          sx={{
+            px: 3,
+            py: 2.5,
+            borderTop: "1px solid #e5e7eb",
+          }}
+        >
+          <Button
+            onClick={handleCloseImportNotes}
+            sx={{
+              backgroundColor: "#ffebee",
+              color: "#ef5350",
+              "&:hover": { backgroundColor: "#ffcdd2" },
+            }}
+            disabled={loading}
+          >
+            {importResult ? "Close" : "Cancel"}
+          </Button>
+          {!importResult && (
+            <Button
+              onClick={handleImportNotes}
+              sx={
+                importedFiles.length === 0 || loading
+                  ? {}
+                  : {
+                      backgroundColor: "rgba(21,184,157,0.85)",
+                      color: "white",
+                      border: "1px solid rgba(21,184,157,0.85)",
+                      "&:hover": { backgroundColor: "rgba(17,150,128)" },
+                    }
+              }
+              disabled={importedFiles.length === 0 || loading}
+              variant="contained"
+            >
+              {loading ? (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <BeatLoader color="#15b89d" size={6} />
+                  <span>Importing...</span>
+                </Box>
+              ) : (
+                "Import"
+              )}
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
 
