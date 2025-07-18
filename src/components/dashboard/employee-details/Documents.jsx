@@ -19,6 +19,7 @@ import moment from "moment";
 import { BeatLoader } from "react-spinners";
 import toast, { Toaster } from "react-hot-toast";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const Documents = ({ employee }) => {
   const [documents, setDocuments] = useState([]);
@@ -39,6 +40,8 @@ const Documents = ({ employee }) => {
     anchorEl: null,
     documentId: null,
   });
+
+  const { data: session, status: sessionStatus } = useSession();
 
   const MAX_FILE_SIZE_5MB = 5 * 1024 * 1024;
 
@@ -187,6 +190,18 @@ const Documents = ({ employee }) => {
     payload.append("employee_id", employee.id.toString());
     if (formData.file) {
       payload.append("document", formData.file);
+    }
+
+    const userId = session?.user?.id;
+    if (modalMode === "add") {
+      if (userId) {
+        payload.append("created_by", userId);
+        payload.append("updated_by", userId);
+      }
+    } else if (modalMode === "edit") {
+      if (userId) {
+        payload.append("updated_by", userId);
+      }
     }
 
     try {
@@ -395,6 +410,7 @@ const Documents = ({ employee }) => {
             "&:hover": { backgroundColor: "rgb(35,170,148)" },
           }}
           onClick={() => handleOpenDialog("add")}
+          disabled={sessionStatus !== "authenticated"}
         >
           Upload Document
         </Button>
@@ -535,7 +551,7 @@ const Documents = ({ employee }) => {
               padding: "8px 16px",
               borderRadius: "8px",
             }}
-            disabled={loading}
+            disabled={loading || sessionStatus !== "authenticated"}
           >
             {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
           </Button>
