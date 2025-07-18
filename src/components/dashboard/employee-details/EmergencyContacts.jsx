@@ -19,6 +19,7 @@ import moment from "moment";
 import { BeatLoader } from "react-spinners";
 import toast, { Toaster } from "react-hot-toast";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const EmployeeEmergencyContacts = ({ employee }) => {
   const [emergencyContacts, setEmergencyContacts] = useState([]);
@@ -42,6 +43,8 @@ const EmployeeEmergencyContacts = ({ employee }) => {
     anchorEl: null,
     contactId: null,
   });
+
+  const { data: session, status: sessionStatus } = useSession();
 
   const phoneRegex = /^\+?[\d\s-]{7,15}$/;
 
@@ -146,11 +149,15 @@ const EmployeeEmergencyContacts = ({ employee }) => {
       return;
     }
 
+    const userId = session?.user?.id;
     const payload = {
       contact_name: formData.contact_name,
       phone_number: formData.phone_number,
       relationship: formData.relationship,
       employee_id: employee.id,
+      ...(modalMode === "add"
+        ? { created_by: userId, updated_by: userId }
+        : { updated_by: userId }),
     };
 
     try {
@@ -344,6 +351,7 @@ const EmployeeEmergencyContacts = ({ employee }) => {
             "&:hover": { backgroundColor: "rgb(35,170,148)" },
           }}
           onClick={() => handleOpenModal("add")}
+          disabled={sessionStatus !== "authenticated"}
         >
           Add Emergency Contact
         </Button>
@@ -536,7 +544,7 @@ const EmployeeEmergencyContacts = ({ employee }) => {
               padding: "8px 16px",
               borderRadius: "8px",
             }}
-            disabled={loading}
+            disabled={loading || sessionStatus !== "authenticated"}
           >
             {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
           </Button>
