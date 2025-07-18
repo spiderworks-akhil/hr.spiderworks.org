@@ -19,6 +19,7 @@ import moment from "moment";
 import { BeatLoader } from "react-spinners";
 import Select from "react-select";
 import { BASE_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const EmployeeSkillHobbies = ({ employee }) => {
   const [skillHobbies, setSkillHobbies] = useState([]);
@@ -37,6 +38,8 @@ const EmployeeSkillHobbies = ({ employee }) => {
     anchorEl: null,
     skillHobbyId: null,
   });
+
+  const { data: session, status: sessionStatus } = useSession();
 
   const expertiseOptions = [
     { value: "Hobby", label: "Hobby" },
@@ -136,10 +139,14 @@ const EmployeeSkillHobbies = ({ employee }) => {
       return;
     }
 
+    const userId = session?.user?.id;
     const payload = {
       title: formData.title,
       expertise: formData.expertise,
       employee_id: employee.id,
+      ...(modalMode === "add"
+        ? { created_by: userId, updated_by: userId }
+        : { updated_by: userId }),
     };
 
     try {
@@ -312,6 +319,7 @@ const EmployeeSkillHobbies = ({ employee }) => {
             "&:hover": { backgroundColor: "rgb(35,170,148)" },
           }}
           onClick={() => handleOpenDialog("add")}
+          disabled={sessionStatus !== "authenticated"}
         >
           Add Skill/Hobby
         </Button>
@@ -507,7 +515,7 @@ const EmployeeSkillHobbies = ({ employee }) => {
               padding: "8px 16px",
               borderRadius: "8px",
             }}
-            disabled={loading}
+            disabled={loading || sessionStatus !== "authenticated"}
           >
             {loading ? <BeatLoader color="#fff" size={8} /> : "Submit"}
           </Button>
