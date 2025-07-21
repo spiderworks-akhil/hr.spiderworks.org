@@ -58,6 +58,7 @@ const Employees = () => {
   const [availableUsers, setAvailableUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [userForEmployeeForm, setUserForEmployeeForm] = useState(null);
 
   const [permissionAnchorEl, setPermissionAnchorEl] = useState(null);
   const [employeeToEditPermissions, setEmployeeToEditPermissions] =
@@ -222,75 +223,9 @@ const Employees = () => {
       toast.error("Please select a user first.", { position: "top-right" });
       return;
     }
-
-    try {
-      setLoading(true);
-
-      if (!session?.user?.id) {
-        toast.error("User session not found. Please sign in again.", {
-          position: "top-right",
-        });
-        setLoading(false);
-        return;
-      }
-
-      const userPermissions = selectedUser.permissions || {};
-      const permissions = {
-        has_work_portal_access: userPermissions.work ? 1 : 0,
-        has_hr_portal_access: userPermissions.hr ? 1 : 0,
-        has_client_portal_access: userPermissions.client ? 1 : 0,
-        has_inventory_portal_access: userPermissions.inventory ? 1 : 0,
-        has_super_admin_access: userPermissions.super_admin ? 1 : 0,
-        has_accounts_portal_access: userPermissions.account ? 1 : 0,
-        has_admin_portal_access: userPermissions.admin ? 1 : 0,
-        has_showcase_portal_access: userPermissions.showcase ? 1 : 0,
-      };
-
-      const employeePayload = {
-        name: selectedUser.name || "",
-        work_email: selectedUser.email || null,
-        office_phone: selectedUser.phone || null,
-        employee_type: 1,
-        user_id: parseInt(selectedUser.id, 10),
-        created_by: Number(session.user.id),
-        updated_by: Number(session.user.id),
-        ...permissions,
-      };
-
-      const response = await fetch(`${BASE_URL}/api/employees/create`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(employeePayload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create employee");
-      }
-
-      const data = await response.json();
-      toast.success(data.message || "Employee created successfully!", {
-        position: "top-right",
-      });
-
-      setOpenCreateModal(false);
-      setSelectedUser(null);
-      await fetchEmployees(
-        page,
-        keyword,
-        employeeType,
-        employeeRole,
-        department,
-        employeeLevel
-      );
-    } catch (error) {
-      console.error("Failed to create employee:", error);
-      toast.error(error.message || "Failed to create employee.", {
-        position: "top-right",
-      });
-    } finally {
-      setLoading(false);
-    }
+    setOpenCreateModal(false);
+    setUserForEmployeeForm(selectedUser);
+    setOpenDialog(true);
   };
 
   const handleOpenEditDialog = (employee) => {
@@ -301,6 +236,7 @@ const Employees = () => {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setEditEmployee(null);
+    setUserForEmployeeForm(null);
   };
 
   const handleSuccess = () => {
@@ -744,13 +680,6 @@ const Employees = () => {
             <MdPersonAdd className="w-4 h-4" />
             <span>Add Employee</span>
           </button>
-          <button
-            onClick={handleOpenAddDialog}
-            className="bg-[rgba(21,184,157,0.85)] hover:bg-[rgb(17,150,128)] text-white px-4 py-2 rounded-md flex items-center space-x-2"
-          >
-            <MdPersonAdd className="w-5 h-5" />
-            <span>+ Create Employee</span>
-          </button>
         </div>
       </div>
 
@@ -861,6 +790,7 @@ const Employees = () => {
         onClose={handleCloseDialog}
         onSuccess={handleSuccess}
         employee={editEmployee}
+        user={userForEmployeeForm}
       />
 
       <Dialog

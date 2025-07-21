@@ -126,7 +126,7 @@ const validationSchema = yup.object().shape({
   designation: yup.string().nullable().trim(),
 });
 
-const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
+const EmployeeFormPopup = ({ open, onClose, onSuccess, employee, user }) => {
   const { data: session } = useSession();
   const [managers, setManagers] = useState([]);
   const [departments, setDepartments] = useState([]);
@@ -256,10 +256,26 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
           ? moment(employee.confirmation_date)
           : null,
       });
+    } else if (user) {
+      reset({
+        ...defaultValues,
+        name: user.name || "",
+        work_email: user.email || "",
+        office_phone: user.phone || "",
+        employee_type: 1,
+        has_work_portal_access: user.permissions?.work ? 1 : 0,
+        has_hr_portal_access: user.permissions?.hr ? 1 : 0,
+        has_client_portal_access: user.permissions?.client ? 1 : 0,
+        has_inventory_portal_access: user.permissions?.inventory ? 1 : 0,
+        has_super_admin_access: user.permissions?.super_admin ? 1 : 0,
+        has_accounts_portal_access: user.permissions?.account ? 1 : 0,
+        has_admin_portal_access: user.permissions?.admin ? 1 : 0,
+        has_showcase_portal_access: user.permissions?.showcase ? 1 : 0,
+      });
     } else {
       reset(defaultValues);
     }
-  }, [employee, open, reset]);
+  }, [employee, user, open, reset]);
 
   const fetchManagers = async () => {
     try {
@@ -342,90 +358,14 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee }) => {
       }
 
       let userId = null;
-
       if (!employee) {
-        const authUserData = {
-          name: formData.name.trim(),
-          email: formData.work_email || null,
-          phone: formData.office_phone || null,
-          type: "HR",
-          password: "123@Spiderworks",
-        };
-
-        const authResponse = await fetch(
-          `${BASE_AUTH_URL}/api/user-auth/register`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(authUserData),
-            credentials: "include",
-          }
-        );
-
-        if (!authResponse.ok) {
-          const errorData = await authResponse.json();
+        if (user) {
+          userId = Number(user.id);
+        } else {
           throw new Error(
-            errorData.message || "Failed to create user in auth service"
+            "User information is required to create an employee."
           );
         }
-
-        const authUser = await authResponse.json();
-        if (!authUser.data?.data?.id) {
-          throw new Error("Auth user creation did not return an ID");
-        }
-        userId = Number(authUser.data?.data?.id);
-
-        const fetchAllResponse = await fetch(
-          `${BASE_AUTH_URL}/api/user-auth/fetch-all`,
-          {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-          }
-        );
-
-        if (!fetchAllResponse.ok) {
-          throw new Error("Failed to fetch users from auth service");
-        }
-
-        const authUsers = await fetchAllResponse.json();
-
-        const transformedUsers = (authUsers.data || authUsers).map((user) => {
-          let first_name = null;
-          let last_name = null;
-          if (user.name) {
-            const nameParts = user.name.trim().split(" ");
-            first_name = nameParts[0] || null;
-            last_name =
-              nameParts.length > 1 ? nameParts.slice(1).join(" ") : null;
-          }
-
-          return {
-            id: parseInt(user.id, 10),
-            first_name,
-            last_name,
-            email: user.email || null,
-            phone: user.phone || null,
-          };
-        });
-
-        const syncResponse = await fetch(`${BASE_URL}/api/users/syncing`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ users: transformedUsers }),
-        });
-
-        if (!syncResponse.ok) {
-          const errorData = await syncResponse.json();
-          throw new Error(errorData.message || "Failed to sync users");
-        }
-
-        const syncData = await syncResponse.json();
-        toast.success(syncData.message || "Users synced successfully!", {
-          position: "top-right",
-        });
       }
 
       const payload = {
