@@ -389,6 +389,22 @@ const EmployeeSalaryRevision = ({ employee }) => {
       return;
     }
     try {
+      const prevActive = salaryRevisions.find(
+        (item) => item.id === activeSalaryRevisionId
+      );
+      const prevId = prevActive ? prevActive.id : "None";
+      const prevAmount =
+        prevActive && prevActive.grand_total !== undefined
+          ? `Rs ${parseFloat(prevActive.grand_total).toFixed(2)}`
+          : "-";
+      const newId = revision.id;
+      const newAmount =
+        revision.grand_total !== undefined
+          ? `Rs ${parseFloat(revision.grand_total).toFixed(2)}`
+          : "-";
+      const userEmail = session?.user?.email || "Unknown";
+      const notes = `Salary change by: ${userEmail}\nPrevious salary ID ${prevId} : ${prevAmount}\nNew salary id : ${newId} : ${newAmount}`;
+
       const response = await fetch(
         `${BASE_URL}/api/employee-salary-revision/set-active`,
         {
@@ -397,6 +413,8 @@ const EmployeeSalaryRevision = ({ employee }) => {
           body: JSON.stringify({
             employee_id: employee.id,
             salary_revision_id: revision.id,
+            notes,
+            created_by: session?.user?.id,
           }),
         }
       );
