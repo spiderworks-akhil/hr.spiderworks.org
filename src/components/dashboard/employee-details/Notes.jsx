@@ -266,6 +266,14 @@ const EmployeeNotes = ({ employee }) => {
         <button
           onClick={() => handleOpenModal("edit", params.row)}
           aria-label="Edit note"
+          disabled={params.row.is_system === 1}
+          style={{
+            cursor: params.row.is_system === 1 ? "not-allowed" : "pointer",
+            opacity: params.row.is_system === 1 ? 0.5 : 1,
+            background: "none",
+            border: "none",
+            padding: 0,
+          }}
         >
           <MdEdit className="w-5 h-5 text-gray-500" />
         </button>
