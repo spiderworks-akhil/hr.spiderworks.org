@@ -13,9 +13,9 @@ import {
   Typography,
   Popover,
   Paper,
-  Grid,
 } from "@mui/material";
 import { MdEdit, MdDelete } from "react-icons/md";
+import { MdCheckCircle, MdRadioButtonUnchecked } from "react-icons/md";
 import moment from "moment";
 import { BeatLoader } from "react-spinners";
 import toast, { Toaster } from "react-hot-toast";
@@ -39,6 +39,13 @@ const EmployeeSalaryRevision = ({ employee }) => {
     anchorEl: null,
     revisionId: null,
   });
+  const [activePopover, setActivePopover] = useState({
+    anchorEl: null,
+    revision: null,
+  });
+  const [activeSalaryRevisionId, setActiveSalaryRevisionId] = useState(
+    employee.active_salary_revision_id || null
+  );
 
   const { data: session, status: sessionStatus } = useSession();
 
@@ -136,6 +143,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
 
   useEffect(() => {
     fetchSalaryRevisions(page, searchQuery);
+    setActiveSalaryRevisionId(employee.active_salary_revision_id || null);
   }, [page, searchQuery, employee.id]);
 
   const handleSearchChange = (e) => {
@@ -358,6 +366,82 @@ const EmployeeSalaryRevision = ({ employee }) => {
     }
   };
 
+  const handleSetActiveSalary = async (revision) => {
+    const today = moment().startOf("day");
+    const effectiveDate = revision.effective_date
+      ? moment(revision.effective_date).startOf("day")
+      : null;
+    const endDate = revision.end_date
+      ? moment(revision.end_date).startOf("day")
+      : null;
+    if (!effectiveDate || !effectiveDate.isBefore(today)) {
+      toast.error(
+        "Effective date must be earlier than today to set as active.",
+        { position: "top-right" }
+      );
+      return;
+    }
+    if (endDate && !endDate.isAfter(today)) {
+      toast.error(
+        "End date must be later than today (or empty) to set as active.",
+        { position: "top-right" }
+      );
+      return;
+    }
+    try {
+      const response = await fetch(
+        `${BASE_URL}/api/employee-salary-revision/set-active`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            employee_id: employee.id,
+            salary_revision_id: revision.id,
+          }),
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to set active salary revision");
+      }
+      toast.success(
+        data.message || "Active salary revision updated successfully!",
+        { position: "top-right" }
+      );
+      setActiveSalaryRevisionId(revision.id);
+      setSalaryRevisions((prev) =>
+        prev.map((item) =>
+          item.id === revision.id
+            ? { ...item, is_active: true }
+            : { ...item, is_active: false }
+        )
+      );
+      if (employee && typeof employee === "object") {
+        employee.active_salary_revision_id = revision.id;
+      }
+    } catch (error) {
+      toast.error(error.message || "Failed to set active salary revision.", {
+        position: "top-right",
+      });
+    } finally {
+    }
+  };
+
+  const handleOpenActivePopover = (event, revision) => {
+    setActivePopover({ anchorEl: event.currentTarget, revision });
+  };
+
+  const handleCloseActivePopover = () => {
+    setActivePopover({ anchorEl: null, revision: null });
+  };
+
+  const handleConfirmSetActive = async () => {
+    if (activePopover.revision) {
+      await handleSetActiveSalary(activePopover.revision);
+    }
+    handleCloseActivePopover();
+  };
+
   const CustomNoRowsOverlay = () => (
     <Box sx={{ p: 2, textAlign: "center", color: "gray" }}>
       No salary revisions found
@@ -365,6 +449,33 @@ const EmployeeSalaryRevision = ({ employee }) => {
   );
 
   const columns = [
+    {
+      field: "active",
+      headerName: "Active",
+      width: 80,
+      sortable: false,
+      renderCell: (params) => {
+        const isActive = params.row.id === activeSalaryRevisionId;
+        return (
+          <button
+            onClick={(event) => handleOpenActivePopover(event, params.row)}
+            aria-label={isActive ? "Active salary revision" : "Set as active"}
+            disabled={isActive || loading}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: isActive ? "default" : "pointer",
+            }}
+          >
+            {isActive ? (
+              <MdCheckCircle className="w-5 h-5 text-green-500" />
+            ) : (
+              <MdRadioButtonUnchecked className="w-5 h-5 text-gray-400" />
+            )}
+          </button>
+        );
+      },
+    },
     {
       field: "basic_pay",
       headerName: "Basic Pay",
@@ -387,39 +498,41 @@ const EmployeeSalaryRevision = ({ employee }) => {
         params.value ? moment(params.value).format("DD-MM-YYYY") : "-",
     },
     {
+      field: "esi_combined",
+      headerName: "ESI (Emp/Er)",
+      width: 140,
+      renderCell: (params) => {
+        const emp = params.row.esi_employee_share;
+        const er = params.row.esi_employer_share;
+        if (emp || er) {
+          return `${emp ? parseFloat(emp).toFixed(2) : "-"} / ${
+            er ? parseFloat(er).toFixed(2) : "-"
+          }`;
+        }
+        return "-";
+      },
+    },
+    {
+      field: "pf_combined",
+      headerName: "PF (Emp/Er)",
+      width: 130,
+      renderCell: (params) => {
+        const emp = params.row.pf_employee_share;
+        const er = params.row.pf_employer_share;
+        if (emp || er) {
+          return `${emp ? parseFloat(emp).toFixed(2) : "-"} / ${
+            er ? parseFloat(er).toFixed(2) : "-"
+          }`;
+        }
+        return "-";
+      },
+    },
+    {
       field: "tds_deduction_amount",
-      headerName: "TDS Deduction",
-      width: 120,
+      headerName: "TDS",
+      width: 100,
       renderCell: (params) =>
         params.value ? parseFloat(params.value).toFixed(2) : "-",
-    },
-    {
-      field: "esi_employee_share",
-      headerName: "ESI Employee (%)",
-      width: 140,
-      renderCell: (params) =>
-        params.value ? `${parseFloat(params.value).toFixed(2)}%` : "-",
-    },
-    {
-      field: "esi_employer_share",
-      headerName: "ESI Employer (%)",
-      width: 140,
-      renderCell: (params) =>
-        params.value ? `${parseFloat(params.value).toFixed(2)}%` : "-",
-    },
-    {
-      field: "pf_employee_share",
-      headerName: "PF Employee (%)",
-      width: 130,
-      renderCell: (params) =>
-        params.value ? `${parseFloat(params.value).toFixed(2)}%` : "-",
-    },
-    {
-      field: "pf_employer_share",
-      headerName: "PF Employer (%)",
-      width: 130,
-      renderCell: (params) =>
-        params.value ? `${parseFloat(params.value).toFixed(2)}%` : "-",
     },
     {
       field: "hra",
@@ -430,32 +543,24 @@ const EmployeeSalaryRevision = ({ employee }) => {
     },
     {
       field: "travel_allowance",
-      headerName: "Travel Allowance",
+      headerName: "Travel",
       width: 130,
       renderCell: (params) =>
         params.value ? parseFloat(params.value).toFixed(2) : "-",
     },
     {
       field: "other_allowance",
-      headerName: "Other Allowance",
+      headerName: "Other",
       width: 130,
       renderCell: (params) =>
         params.value ? parseFloat(params.value).toFixed(2) : "-",
     },
     {
       field: "grand_total",
-      headerName: "Grand Total",
+      headerName: "Total",
       width: 100,
       renderCell: (params) =>
         params.value ? parseFloat(params.value).toFixed(2) : "-",
-    },
-    { field: "remarks", headerName: "Remarks", width: 150 },
-    {
-      field: "created_at",
-      headerName: "Created At",
-      width: 120,
-      renderCell: (params) =>
-        params.value ? moment(params.value).format("DD-MM-YYYY") : "-",
     },
     {
       field: "edit",
@@ -552,6 +657,13 @@ const EmployeeSalaryRevision = ({ employee }) => {
                     backgroundColor: "rgba(21,184,157,0.12)",
                   },
                 },
+                "& .MuiDataGrid-row.active-salary-revision": {
+                  backgroundColor: "#fffde7",
+                  color: "inherit",
+                  "&:hover": {
+                    backgroundColor: "#fffde7",
+                  },
+                },
                 "& .MuiDataGrid-cell": { border: "none" },
                 "& .MuiDataGrid-footerContainer": {
                   borderTop: "none",
@@ -562,6 +674,11 @@ const EmployeeSalaryRevision = ({ employee }) => {
                 "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell--sorted":
                   { outline: "none" },
               }}
+              getRowClassName={(params) =>
+                params.row.id === activeSalaryRevisionId
+                  ? "active-salary-revision"
+                  : ""
+              }
               slots={{ noRowsOverlay: CustomNoRowsOverlay }}
               slotProps={{ pagination: { showRowsPerPage: false } }}
             />
@@ -1148,6 +1265,46 @@ const EmployeeSalaryRevision = ({ employee }) => {
                 disabled={loading}
               >
                 {loading ? <BeatLoader color="#15b89d" size={8} /> : "Delete"}
+              </Button>
+            </Box>
+          </Box>
+        </Popover>
+        <Popover
+          open={Boolean(activePopover.anchorEl)}
+          anchorEl={activePopover.anchorEl}
+          onClose={handleCloseActivePopover}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+          transformOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Box sx={{ p: 2, width: 260 }}>
+            <Typography sx={{ mb: 2 }}>
+              Are you sure you want to set this as the active salary revision?
+            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={handleCloseActivePopover}
+                sx={{
+                  borderColor: "#ef5350",
+                  color: "#ef5350",
+                  "&:hover": { borderColor: "#e53935", color: "#e53935" },
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleConfirmSetActive}
+                sx={{
+                  backgroundColor: "rgba(21,184,157,0.85)",
+                  color: "white",
+                  border: "1px solid rgba(21,184,157,0.85)",
+                  "&:hover": { backgroundColor: "rgba(17,150,128)" },
+                }}
+              >
+                Confirm
               </Button>
             </Box>
           </Box>
