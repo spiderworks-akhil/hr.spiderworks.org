@@ -767,7 +767,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee, user }) => {
                   control={control}
                   render={({ field }) => (
                     <DesktopDatePicker
-                      inputFormat="DD-MM-YYYY"
+                      format="DD-MM-YYYY"
                       value={field.value}
                       onChange={field.onChange}
                       slotProps={{
@@ -806,7 +806,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee, user }) => {
                   control={control}
                   render={({ field }) => (
                     <DesktopDatePicker
-                      inputFormat="DD-MM-YYYY"
+                      format="DD-MM-YYYY"
                       value={field.value}
                       onChange={field.onChange}
                       slotProps={{
@@ -845,7 +845,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee, user }) => {
                   control={control}
                   render={({ field }) => (
                     <DesktopDatePicker
-                      inputFormat="DD-MM-YYYY"
+                      format="DD-MM-YYYY"
                       value={field.value}
                       onChange={field.onChange}
                       slotProps={{
@@ -1075,7 +1075,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee, user }) => {
                   control={control}
                   render={({ field }) => (
                     <DesktopDatePicker
-                      inputFormat="DD-MM-YYYY"
+                      format="DD-MM-YYYY"
                       value={field.value}
                       onChange={field.onChange}
                       slotProps={{
@@ -1114,7 +1114,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee, user }) => {
                   control={control}
                   render={({ field }) => (
                     <DesktopDatePicker
-                      inputFormat="DD-MM-YYYY"
+                      format="DD-MM-YYYY"
                       value={field.value}
                       onChange={field.onChange}
                       slotProps={{
@@ -1187,7 +1187,7 @@ const EmployeeFormPopup = ({ open, onClose, onSuccess, employee, user }) => {
                   control={control}
                   render={({ field }) => (
                     <DesktopDatePicker
-                      inputFormat="DD-MM-YYYY"
+                      format="DD-MM-YYYY"
                       value={field.value}
                       onChange={field.onChange}
                       slotProps={{
