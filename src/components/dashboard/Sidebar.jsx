@@ -48,13 +48,29 @@ export default function Sidebar({
   const [isPerformanceOpen, setIsPerformanceOpen] = useState(false);
   const [isComplianceOpen, setIsComplianceOpen] = useState(false);
   const [isRecruitmentsOpen, setIsRecruitmentsOpen] = useState(false);
+  const [isUserManagementOpen, setIsUserManagementOpen] = useState(false);
 
   const navItems = [
     {
       icon: <FaUsers className="w-6 h-6 flex-shrink-0" />,
-      label: "Users",
-      path: "/dashboard/users",
+      label: "User Management",
+      path: "/dashboard/user-management",
       exact: false,
+      isParent: true,
+      children: [
+        {
+          icon: <FaUsers className="w-5 h-5 flex-shrink-0" />,
+          label: "Users",
+          path: "/dashboard/users",
+          exact: false,
+        },
+        {
+          icon: <FaShieldAlt className="w-5 h-5 flex-shrink-0" />,
+          label: "Employee Permissions",
+          path: "/dashboard/employee-permissions",
+          exact: false,
+        },
+      ],
     },
     {
       icon: <FiUsers className="w-6 h-6 flex-shrink-0" />,
@@ -174,12 +190,6 @@ export default function Sidebar({
       ],
     },
     {
-      icon: <FaShieldAlt className="w-6 h-6 flex-shrink-0" />,
-      label: "Employee Permissions",
-      path: "/dashboard/employee-permissions",
-      exact: false,
-    },
-    {
       icon: <FaComments className="w-6 h-6 flex-shrink-0" />,
       label: "Peer Feedback",
       path: "/dashboard/peer-feedback",
@@ -225,6 +235,14 @@ export default function Sidebar({
 
   const isActive = (item) => {
     return pathname.startsWith(item.path);
+  };
+
+  const isUserManagementActive = () => {
+    const userManagementPaths = [
+      "/dashboard/users",
+      "/dashboard/employee-permissions",
+    ];
+    return userManagementPaths.some((path) => pathname.startsWith(path));
   };
 
   const isMasterDataActive = () => {
@@ -275,6 +293,9 @@ export default function Sidebar({
   const [hoveredParent, setHoveredParent] = useState(null);
 
   useState(() => {
+    if (isUserManagementActive()) {
+      setIsUserManagementOpen(true);
+    }
     if (isMasterDataActive()) {
       setIsMasterDataOpen(true);
     }
@@ -291,6 +312,10 @@ export default function Sidebar({
       setIsRecruitmentsOpen(true);
     }
   }, [pathname]);
+
+  const handleUserManagementToggle = () => {
+    setIsUserManagementOpen(!isUserManagementOpen);
+  };
 
   const handleMasterDataToggle = () => {
     setIsMasterDataOpen(!isMasterDataOpen);
@@ -369,6 +394,8 @@ export default function Sidebar({
                     <div className="relative">
                       <div
                         className={`flex items-center p-2 rounded-lg cursor-pointer ${
+                          (item.label === "User Management" &&
+                            isUserManagementActive()) ||
                           (item.label === "Master Data" &&
                             isMasterDataActive()) ||
                           (item.label === "Attendance" &&
@@ -384,7 +411,9 @@ export default function Sidebar({
                         }`}
                         onClick={
                           showContent
-                            ? item.label === "Master Data"
+                            ? item.label === "User Management"
+                              ? handleUserManagementToggle
+                              : item.label === "Master Data"
                               ? handleMasterDataToggle
                               : item.label === "Attendance"
                               ? handleAttendanceToggle
@@ -407,7 +436,9 @@ export default function Sidebar({
                             <span className="ml-3 whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
                               {item.label}
                             </span>
-                            {(item.label === "Master Data" &&
+                            {(item.label === "User Management" &&
+                              isUserManagementOpen) ||
+                            (item.label === "Master Data" &&
                               isMasterDataOpen) ||
                             (item.label === "Attendance" && isAttendanceOpen) ||
                             (item.label === "Performance" &&
@@ -424,7 +455,9 @@ export default function Sidebar({
                       </div>
 
                       {showContent &&
-                        ((item.label === "Master Data" && isMasterDataOpen) ||
+                        ((item.label === "User Management" &&
+                          isUserManagementOpen) ||
+                          (item.label === "Master Data" && isMasterDataOpen) ||
                           (item.label === "Attendance" && isAttendanceOpen) ||
                           (item.label === "Performance" && isPerformanceOpen) ||
                           (item.label === "Compliance" && isComplianceOpen) ||
