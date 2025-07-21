@@ -19,7 +19,8 @@ import Select from "react-select";
 import Slide from "@mui/material/Slide";
 import { BeatLoader } from "react-spinners";
 import toast from "react-hot-toast";
-import { BASE_URL } from "@/services/baseUrl";
+import { BASE_URL, BASE_AUTH_URL } from "@/services/baseUrl";
+import { useSession } from "next-auth/react";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -107,6 +108,7 @@ const editValidationSchema = yup.object().shape({
 const UserFormPopup = ({ open, onClose, onSuccess, user }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { data: session } = useSession();
 
   const {
     control,
@@ -175,46 +177,95 @@ const UserFormPopup = ({ open, onClose, onSuccess, user }) => {
       setError(null);
 
       const isEdit = !!user;
-      const isRoleUpdateOnly = isEdit;
 
-      const method = isEdit ? "PUT" : "POST";
-      const url = isEdit
-        ? `${BASE_URL}/api/users/update-role/${user.id}`
-        : `${BASE_URL}/api/users/create`;
+      if (!isEdit) {
+        const authUserData = {
+          name: `${formData.first_name?.trim() || ""} ${
+            formData.last_name?.trim() || ""
+          }`.trim(),
+          email: formData.email?.trim() || null,
+          phone: formData.phone?.trim() || null,
+          type: "HR",
+          password: "123@Spiderworks",
+        };
 
-      const payload = isRoleUpdateOnly
-        ? { role: formData.role }
-        : {
-            first_name: formData.first_name?.trim() || null,
-            last_name: formData.last_name?.trim() || null,
-            email: formData.email?.trim() || null,
-            phone: formData.phone?.trim() || null,
-            role: formData.role || null,
-          };
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.message || `Failed to ${user ? "update" : "create"} user`
+        const authResponse = await fetch(
+          `${BASE_AUTH_URL}/api/user-auth/register`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(authUserData),
+            credentials: "include",
+          }
         );
+
+        if (!authResponse.ok) {
+          const errorData = await authResponse.json();
+          throw new Error(
+            errorData.message || "Failed to create user in auth service"
+          );
+        }
+
+        const authUser = await authResponse.json();
+        const userId = formData.id
+          ? Number(formData.id)
+          : Number(authUser.data?.data?.id);
+        if (!userId) {
+          throw new Error("No user ID provided or returned from auth service");
+        }
+
+        const payload = {
+          id: userId,
+          first_name: formData.first_name?.trim() || null,
+          last_name: formData.last_name?.trim() || null,
+          email: formData.email?.trim() || null,
+          phone: formData.phone?.trim() || null,
+          role: formData.role || null,
+          created_by: session?.user?.id ? Number(session.user.id) : undefined,
+          updated_by: session?.user?.id ? Number(session.user.id) : undefined,
+        };
+
+        const response = await fetch(`${BASE_URL}/api/users/create`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to create user");
+        }
+
+        const data = await response.json();
+        toast.success(data.message || "User created successfully!", {
+          position: "top-right",
+        });
+        onSuccess();
+        onClose();
+      } else {
+        const url = `${BASE_URL}/api/users/update-role/${user.id}`;
+        const payload = {
+          role: formData.role,
+          updated_by: session?.user?.id ? Number(session.user.id) : undefined,
+        };
+        const response = await fetch(url, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || `Failed to update user`);
+        }
+        const data = await response.json();
+        toast.success(data.message || `User updated successfully!`, {
+          position: "top-right",
+        });
+        onSuccess();
+        onClose();
       }
-
-      const data = await response.json();
-      toast.success(
-        data.message || `User ${user ? "updated" : "created"} successfully!`,
-        { position: "top-right" }
-      );
-
-      onSuccess();
-      onClose();
     } catch (err) {
       console.error(`Error ${user ? "updating" : "creating"} user:`, err);
       setError(err.message || `Failed to ${user ? "update" : "create"} user`);
@@ -457,7 +508,7 @@ const UserFormPopup = ({ open, onClose, onSuccess, user }) => {
                       styles={customSelectStyles}
                       placeholder="Role..."
                       isClearable
-                      isDisabled={!user}
+                      isDisabled={false}
                     />
                     {errors.role && (
                       <span className="text-red-600 text-xs mt-1 block">
