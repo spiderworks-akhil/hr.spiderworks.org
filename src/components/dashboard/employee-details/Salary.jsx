@@ -52,6 +52,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
     defaultValues: {
       id: 0,
       effective_date: null,
+      end_date: null,
       basic_pay: "",
       tds_deduction_amount: "",
       esi_employee_share: "",
@@ -75,6 +76,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
     "tds_deduction_amount",
     "esi_employee_share",
     "pf_employee_share",
+    "end_date",
   ]);
 
   const calculateGrandTotal = () => {
@@ -150,6 +152,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
         effective_date: revision.effective_date
           ? moment(revision.effective_date)
           : null,
+        end_date: revision.end_date ? moment(revision.end_date) : null,
         basic_pay: revision.basic_pay?.toString() || "",
         tds_deduction_amount: revision.tds_deduction_amount?.toString() || "",
         esi_employee_share: revision.esi_employee_share?.toString() || "",
@@ -165,6 +168,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
       reset({
         id: 0,
         effective_date: null,
+        end_date: null,
         basic_pay: "",
         tds_deduction_amount: "",
         esi_employee_share: "",
@@ -223,6 +227,9 @@ const EmployeeSalaryRevision = ({ employee }) => {
       version,
       effective_date: formData.effective_date
         ? moment(formData.effective_date).format("YYYY-MM-DD")
+        : undefined,
+      end_date: formData.end_date
+        ? moment(formData.end_date).format("YYYY-MM-DD")
         : undefined,
       basic_pay: parseFloat(formData.basic_pay) || undefined,
       tds_deduction_amount: formData.tds_deduction_amount
@@ -368,6 +375,13 @@ const EmployeeSalaryRevision = ({ employee }) => {
     {
       field: "effective_date",
       headerName: "Effective Date",
+      width: 120,
+      renderCell: (params) =>
+        params.value ? moment(params.value).format("DD-MM-YYYY") : "-",
+    },
+    {
+      field: "end_date",
+      headerName: "End Date",
       width: 120,
       renderCell: (params) =>
         params.value ? moment(params.value).format("DD-MM-YYYY") : "-",
@@ -559,7 +573,7 @@ const EmployeeSalaryRevision = ({ employee }) => {
           onClose={handleCloseDialog}
           sx={{
             "& .MuiDialog-paper": {
-              width: { xs: "90vw", sm: "500px" },
+              width: { xs: "95vw", sm: "700px" },
               maxHeight: "80vh",
               borderRadius: "8px",
             },
@@ -572,46 +586,89 @@ const EmployeeSalaryRevision = ({ employee }) => {
           </DialogTitle>
           <DialogContent className="overflow-y-auto">
             <Box display="flex" flexDirection="column" gap={2} mt={1}>
-              <Box>
-                <label className="block mb-1 text-md">Effective Date</label>
-                <Controller
-                  name="effective_date"
-                  control={control}
-                  render={({ field }) => (
-                    <LocalizationProvider dateAdapter={AdapterMoment}>
-                      <DesktopDatePicker
-                        format="DD-MM-YYYY"
-                        value={field.value}
-                        onChange={(newValue) => field.onChange(newValue)}
-                        slotProps={{
-                          textField: {
-                            fullWidth: true,
-                            size: "small",
-                            error: !!errors.effective_date,
-                            helperText: errors.effective_date?.message,
-                            className: "bg-white",
-                            InputProps: { className: "h-10" },
-                            sx: {
-                              backgroundColor: "white",
-                              "& .MuiOutlinedInput-root": {
-                                "& fieldset": {
-                                  borderColor: "rgba(21,184,157,0.85)",
-                                },
-                                "&:hover fieldset": {
-                                  borderColor: "rgba(21,184,157,0.85)",
-                                },
-                                "&.Mui-focused fieldset": {
-                                  borderColor: "rgba(21,184,157,0.85)",
-                                  borderWidth: 2,
+              <Box display={{ xs: "block", md: "flex" }} gap={2}>
+                <Box flex={1} sx={{ mb: { xs: 2, md: 0 } }}>
+                  <label className="block mb-1 text-md">Effective Date</label>
+                  <Controller
+                    name="effective_date"
+                    control={control}
+                    render={({ field }) => (
+                      <LocalizationProvider dateAdapter={AdapterMoment}>
+                        <DesktopDatePicker
+                          format="DD-MM-YYYY"
+                          value={field.value}
+                          onChange={(newValue) => field.onChange(newValue)}
+                          slotProps={{
+                            textField: {
+                              fullWidth: true,
+                              size: "small",
+                              error: !!errors.effective_date,
+                              helperText: errors.effective_date?.message,
+                              className: "bg-white",
+                              InputProps: { className: "h-10" },
+                              sx: {
+                                backgroundColor: "white",
+                                "& .MuiOutlinedInput-root": {
+                                  "& fieldset": {
+                                    borderColor: "rgba(21,184,157,0.85)",
+                                  },
+                                  "&:hover fieldset": {
+                                    borderColor: "rgba(21,184,157,0.85)",
+                                  },
+                                  "&.Mui-focused fieldset": {
+                                    borderColor: "rgba(21,184,157,0.85)",
+                                    borderWidth: 2,
+                                  },
                                 },
                               },
                             },
-                          },
-                        }}
-                      />
-                    </LocalizationProvider>
-                  )}
-                />
+                          }}
+                        />
+                      </LocalizationProvider>
+                    )}
+                  />
+                </Box>
+                <Box flex={1}>
+                  <label className="block mb-1 text-md">End Date</label>
+                  <Controller
+                    name="end_date"
+                    control={control}
+                    render={({ field }) => (
+                      <LocalizationProvider dateAdapter={AdapterMoment}>
+                        <DesktopDatePicker
+                          format="DD-MM-YYYY"
+                          value={field.value}
+                          onChange={(newValue) => field.onChange(newValue)}
+                          slotProps={{
+                            textField: {
+                              fullWidth: true,
+                              size: "small",
+                              error: !!errors.end_date,
+                              helperText: errors.end_date?.message,
+                              className: "bg-white",
+                              InputProps: { className: "h-10" },
+                              sx: {
+                                backgroundColor: "white",
+                                "& .MuiOutlinedInput-root": {
+                                  "& fieldset": {
+                                    borderColor: "rgba(21,184,157,0.85)",
+                                  },
+                                  "&:hover fieldset": {
+                                    borderColor: "rgba(21,184,157,0.85)",
+                                  },
+                                  "&.Mui-focused fieldset": {
+                                    borderColor: "rgba(21,184,157,0.85)",
+                                    borderWidth: 2,
+                                  },
+                                },
+                              },
+                            },
+                          }}
+                        />
+                      </LocalizationProvider>
+                    )}
+                  />
+                </Box>
               </Box>
               <Box>
                 <label className="block mb-1 text-md">Basic Pay *</label>
