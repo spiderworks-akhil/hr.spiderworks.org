@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { DataGrid } from "@mui/x-data-grid";
@@ -34,126 +34,31 @@ const ToggleSwitch = ({ checked, onChange }) => (
 );
 
 const mapPermissionsToAuthDto = (permissions) => ({
-  accounts: permissions.has_accounts_portal_access,
-  works: permissions.has_work_portal_access,
-  hr: permissions.has_hr_portal_access,
-  client: permissions.has_client_portal_access,
-  inventory: permissions.has_inventory_portal_access,
-  super_admin: permissions.has_super_admin_access,
-  admin: permissions.has_admin_portal_access,
-  showcase: permissions.has_showcase_portal_access,
+  accounts: !!permissions.has_accounts_portal_access,
+  works: !!permissions.has_work_portal_access,
+  hr: !!permissions.has_hr_portal_access,
+  client: !!permissions.has_client_portal_access,
+  inventory: !!permissions.has_inventory_portal_access,
+  super_admin: !!permissions.has_super_admin_access,
+  admin: !!permissions.has_admin_portal_access,
+  showcase: !!permissions.has_showcase_portal_access,
   type: "HR",
 });
 
-const handleTogglePermission = async (
-  employee,
-  key,
-  session,
-  employees,
-  setEmployees
-) => {
-  try {
-    if (!session?.user?.id) {
-      toast.error("User session not found. Please sign in again.", {
-        position: "top-right",
-      });
-      return;
-    }
-
-    if (parseInt(session?.user?.id) === parseInt(employee.user_id)) {
-      toast.error("You cannot change your own permissions.", {
-        position: "top-right",
-      });
-      return;
-    }
-
-    const newPermissions = {
-      has_work_portal_access: !!employee.has_work_portal_access,
-      has_hr_portal_access: !!employee.has_hr_portal_access,
-      has_client_portal_access: !!employee.has_client_portal_access,
-      has_inventory_portal_access: !!employee.has_inventory_portal_access,
-      has_super_admin_access: !!employee.has_super_admin_access,
-      has_accounts_portal_access: !!employee.has_accounts_portal_access,
-      has_admin_portal_access: !!employee.has_admin_portal_access,
-      has_showcase_portal_access: !!employee.has_showcase_portal_access,
-    };
-    newPermissions[key] = !employee[key];
-
-    const userId = employee.user_id;
-    const adminId = session.user.id;
-
-    const authPayload = mapPermissionsToAuthDto(newPermissions);
-    const authRes = await fetch(
-      `${BASE_AUTH_URL}/api/user-auth/permission/${userId}/${adminId}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(authPayload),
-      }
-    );
-    if (!authRes.ok) {
-      const errorData = await authRes.json().catch(() => ({}));
-      toast.error(
-        errorData.message || "Failed to update user auth permissions",
-        { position: "top-right" }
-      );
-      return;
-    }
-
-    const hrRes = await fetch(
-      `${BASE_URL}/api/employees/permissions/update?id=${employee.id}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...newPermissions,
-          updated_by: session?.user?.id || null,
-        }),
-      }
-    );
-    if (!hrRes.ok) {
-      const errorData = await hrRes.json().catch(() => ({}));
-      toast.error(errorData.message || "Failed to update HR permissions", {
-        position: "top-right",
-      });
-      return;
-    }
-
-    toast.success("Permissions updated successfully!", {
-      position: "top-right",
-    });
-
-    setEmployees(
-      employees.map((emp) =>
-        emp.id === employee.id ? { ...emp, ...newPermissions } : emp
-      )
-    );
-  } catch (error) {
-    console.error("Failed to update permissions:", error);
-    toast.error("Failed to update permissions.", { position: "top-right" });
-  }
-};
-
 const EmployeePermissions = () => {
   const { data: session } = useSession();
-  const [employees, setEmployees] = useState([]);
-  const [total, setTotal] = useState(0);
+
+  const [allAuthUsers, setAllAuthUsers] = useState([]);
+  const [allLocalUsers, setAllLocalUsers] = useState([]);
+  const [allEmployees, setAllEmployees] = useState([]);
+
   const [page, setPage] = useState(0);
   const [limit] = useState(100);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState(null);
-
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminChecked, setAdminChecked] = useState(false);
-
-  const [employeeType, setEmployeeType] = useState({
-    value: 1,
-    label: "Current Employee",
-  });
-  const [employeeRole, setEmployeeRole] = useState(null);
-  const [department, setDepartment] = useState(null);
-  const [employeeLevel, setEmployeeLevel] = useState(null);
 
   const [workPortalAccess, setWorkPortalAccess] = useState(null);
   const [hrPortalAccess, setHrPortalAccess] = useState(null);
@@ -164,12 +69,33 @@ const EmployeePermissions = () => {
   const [adminPortalAccess, setAdminPortalAccess] = useState(null);
   const [showcasePortalAccess, setShowcasePortalAccess] = useState(null);
 
-  const [employeeTypeOptions, setEmployeeTypeOptions] = useState([]);
-  const [employeeRoleOptions, setEmployeeRoleOptions] = useState([]);
-  const [allRoleOptions, setAllRoleOptions] = useState([]);
-  const [departmentOptions, setDepartmentOptions] = useState([]);
-  const [allDepartmentOptions, setAllDepartmentOptions] = useState([]);
-  const [employeeLevelOptions, setEmployeeLevelOptions] = useState([]);
+  const employeeTypeOptions = [
+    { value: 1, label: "Current Employee" },
+    { value: 0, label: "Ex-Employee" },
+  ];
+  const [employeeType, setEmployeeType] = useState(employeeTypeOptions[0]);
+
+  useEffect(() => {
+    setLoading(true);
+    setFetchError(null);
+    Promise.all([
+      fetch(`${BASE_AUTH_URL}/api/user-auth/fetch-all`).then((r) => r.json()),
+      fetch(`${BASE_URL}/api/users/list?limit=100000`).then((r) => r.json()),
+      fetch(`${BASE_URL}/api/employees/list?limit=1000`).then((r) => r.json()),
+    ])
+      .then(([authUsers, localUsers, employees]) => {
+        setAllAuthUsers(authUsers.data || authUsers);
+        setAllLocalUsers(localUsers.data?.users || []);
+        setAllEmployees(employees.data?.employees || []);
+      })
+      .catch((err) => {
+        setFetchError("Failed to load users/employees.");
+        setAllAuthUsers([]);
+        setAllLocalUsers([]);
+        setAllEmployees([]);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -193,180 +119,72 @@ const EmployeePermissions = () => {
     checkAdmin();
   }, [session]);
 
-  const fetchEmployees = async (
-    pageNum,
-    search = "",
-    type = null,
-    role = null,
-    dept = null,
-    level = null,
-    workPortal = null,
-    hrPortal = null,
-    clientPortal = null,
-    inventoryPortal = null,
-    superAdmin = null,
-    accountsPortal = null,
-    adminPortal = null,
-    showcasePortal = null
-  ) => {
-    try {
-      setLoading(true);
-      setFetchError(null);
-      const query = new URLSearchParams({
-        page: (pageNum + 1).toString(),
-        limit: limit.toString(),
-        keyword: search,
-        ...(type && { employee_type: type.value }),
-        ...(role && { employee_role: role.value }),
-        ...(dept && { department: dept.value }),
-        ...(level && { employee_level_id: level.value }),
-        ...(workPortal !== null && {
-          has_work_portal_access: workPortal.value,
-        }),
-        ...(hrPortal !== null && { has_hr_portal_access: hrPortal.value }),
-        ...(clientPortal !== null && {
-          has_client_portal_access: clientPortal.value,
-        }),
-        ...(inventoryPortal !== null && {
-          has_inventory_portal_access: inventoryPortal.value,
-        }),
-        ...(superAdmin !== null && {
-          has_super_admin_access: superAdmin.value,
-        }),
-        ...(accountsPortal !== null && {
-          has_accounts_portal_access: accountsPortal.value,
-        }),
-        ...(adminPortal !== null && {
-          has_admin_portal_access: adminPortal.value,
-        }),
-        ...(showcasePortal !== null && {
-          has_showcase_portal_access: showcasePortal.value,
-        }),
-      }).toString();
-
-      const [employeesRes, rolesRes, departmentsRes, levelsRes] =
-        await Promise.all([
-          fetch(`${BASE_URL}/api/employees/list?${query}`),
-          fetch(`${BASE_URL}/api/role/list?limit=1000`),
-          fetch(`${BASE_URL}/api/department/list?limit=1000`),
-          fetch(`${BASE_URL}/api/employee-level/list?limit=1000`),
-        ]);
-
-      if (
-        !employeesRes.ok ||
-        !rolesRes.ok ||
-        !departmentsRes.ok ||
-        !levelsRes.ok
-      ) {
-        throw new Error("Failed to fetch data");
-      }
-
-      const employeesData = await employeesRes.json();
-      const rolesData = await rolesRes.json();
-      const departmentsData = await departmentsRes.json();
-      const levelsData = await levelsRes.json();
-
-      const employees = (employeesData.data?.employees || [])
-        .filter(
-          (employee) => employee && typeof employee === "object" && employee.id
-        )
-        .map((employee) => ({
-          ...employee,
-          name: employee.name || "-",
-        }));
-
-      if (employees.length !== employeesData.data?.employees?.length) {
-        console.warn(
-          "Filtered out invalid employee entries:",
-          employeesData.data?.employees
-        );
-      }
-
-      setEmployees(employees);
-      setTotal(employeesData.data?.total || 0);
-
-      const staticTypes = [
-        { value: 1, label: "Current Employee" },
-        { value: 0, label: "Ex-Employee" },
-      ];
-      const levels = (levelsData.data?.employeeLevels || []).map((level) => ({
-        value: level.id,
-        label: level.name,
-      }));
-      const roles = (rolesData.data?.roles || []).map((role) => ({
-        value: role.name,
-        label: role.name,
-      }));
-      const departments = (departmentsData.data?.departments || []).map(
-        (dep) => ({
-          value: dep.name,
-          label: dep.name,
-        })
-      );
-
-      setEmployeeTypeOptions(staticTypes);
-      setEmployeeLevelOptions(levels);
-      setAllRoleOptions(roles);
-      setEmployeeRoleOptions(roles);
-      setAllDepartmentOptions(departments);
-      setDepartmentOptions(departments);
-    } catch (error) {
-      console.error("Failed to fetch employees:", error);
-      setFetchError("Failed to load employees. Please try again.");
-      setEmployees([]);
-      setTotal(0);
-      toast.error("Failed to load employees.", { position: "top-right" });
-    } finally {
-      setLoading(false);
-    }
+  const getUserPermissions = (user) => {
+    const p = user.permissions || {};
+    return {
+      has_work_portal_access: !!p.work,
+      has_hr_portal_access: !!p.hr,
+      has_client_portal_access: !!p.client,
+      has_inventory_portal_access: !!p.inventory,
+      has_super_admin_access: !!p.super_admin,
+      has_accounts_portal_access: !!p.account,
+      has_admin_portal_access: !!p.admin,
+      has_showcase_portal_access: !!p.showcase,
+    };
   };
 
-  const filterRoles = (search) => {
-    if (!search) {
-      setEmployeeRoleOptions(allRoleOptions);
-    } else {
-      const filtered = allRoleOptions.filter((role) =>
-        role.label.toLowerCase().includes(search.toLowerCase())
-      );
-      setEmployeeRoleOptions(filtered);
+  const employeeUserIds = useMemo(() => {
+    if (!employeeType) {
+      return new Set(allEmployees.map((e) => String(e.user_id)));
     }
-  };
-
-  const filterDepartments = (search) => {
-    if (!search) {
-      setDepartmentOptions(allDepartmentOptions);
-    } else {
-      const filtered = allDepartmentOptions.filter((dep) =>
-        dep.label.toLowerCase().includes(search.toLowerCase())
-      );
-      setDepartmentOptions(filtered);
-    }
-  };
-
-  useEffect(() => {
-    fetchEmployees(
-      page,
-      searchQuery,
-      employeeType,
-      employeeRole,
-      department,
-      employeeLevel,
-      workPortalAccess,
-      hrPortalAccess,
-      clientPortalAccess,
-      inventoryPortalAccess,
-      superAdminAccess,
-      accountsPortalAccess,
-      adminPortalAccess,
-      showcasePortalAccess
+    return new Set(
+      allEmployees
+        .filter((e) => e.employee_type === employeeType.value)
+        .map((e) => String(e.user_id))
     );
+  }, [allEmployees, employeeType]);
+  const userIdToEmployee = useMemo(() => {
+    const map = {};
+    allEmployees.forEach((e) => {
+      if (e.user_id) map[String(e.user_id)] = e;
+    });
+    return map;
+  }, [allEmployees]);
+
+  const filteredUsers = useMemo(() => {
+    let users = allAuthUsers;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      users = users.filter(
+        (u) =>
+          (u.name && u.name.toLowerCase().includes(q)) ||
+          (u.email && u.email.toLowerCase().includes(q)) ||
+          (u.phone && u.phone.toLowerCase().includes(q))
+      );
+    }
+    if (employeeType) {
+      users = users.filter((u) => employeeUserIds.has(String(u.id)));
+    }
+    const permFilters = [
+      [workPortalAccess, "work"],
+      [hrPortalAccess, "hr"],
+      [clientPortalAccess, "client"],
+      [inventoryPortalAccess, "inventory"],
+      [superAdminAccess, "super_admin"],
+      [accountsPortalAccess, "account"],
+      [adminPortalAccess, "admin"],
+      [showcasePortalAccess, "showcase"],
+    ];
+    for (const [val, key] of permFilters) {
+      if (val) {
+        users = users.filter((u) => u.permissions?.[key]);
+      }
+    }
+    return users;
   }, [
-    page,
+    allAuthUsers,
     searchQuery,
     employeeType,
-    employeeRole,
-    department,
-    employeeLevel,
     workPortalAccess,
     hrPortalAccess,
     clientPortalAccess,
@@ -375,50 +193,49 @@ const EmployeePermissions = () => {
     accountsPortalAccess,
     adminPortalAccess,
     showcasePortalAccess,
+    employeeUserIds,
   ]);
 
-  useEffect(() => {
-    setPage(0);
-  }, [
-    searchQuery,
-    employeeType,
-    employeeRole,
-    department,
-    employeeLevel,
-    workPortalAccess,
-    hrPortalAccess,
-    clientPortalAccess,
-    inventoryPortalAccess,
-    superAdminAccess,
-    accountsPortalAccess,
-    adminPortalAccess,
-    showcasePortalAccess,
-  ]);
+  const paginatedUsers = useMemo(() => {
+    const start = page * limit;
+    return filteredUsers.slice(start, start + limit);
+  }, [filteredUsers, page, limit]);
 
-  const handleSearchChange = (e) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    setPage(0);
-  };
-
-  const CustomNoRowsOverlay = () => (
-    <Box sx={{ p: 2, textAlign: "center", color: "gray" }}>
-      No employees found
-    </Box>
-  );
+  const columns = [
+    { field: "name", headerName: "Name", width: 200 },
+    { field: "email", headerName: "Email", width: 200 },
+    ...[
+      "has_super_admin_access",
+      "has_work_portal_access",
+      "has_hr_portal_access",
+      "has_client_portal_access",
+      "has_inventory_portal_access",
+      "has_accounts_portal_access",
+      "has_admin_portal_access",
+      "has_showcase_portal_access",
+    ].map((key) => ({
+      field: key,
+      headerName: key
+        .replace(/has_|_access/g, "")
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase()),
+      width: 120,
+      sortable: false,
+      renderCell: (params) => renderPermissionCell(params.row, key),
+    })),
+  ];
 
   const renderPermissionCell = (row, key) => {
+    const permissions = getUserPermissions(row);
     if (isAdmin) {
       return (
         <ToggleSwitch
-          checked={row[key]}
-          onChange={() =>
-            handleTogglePermission(row, key, session, employees, setEmployees)
-          }
+          checked={!!permissions[key]}
+          onChange={() => handleTogglePermission(row, key)}
         />
       );
     } else {
-      return row[key] ? (
+      return permissions[key] ? (
         <FaCheckCircle color="#4ade80" size={20} className="mt-3" />
       ) : (
         <FaTimesCircle color="#f87171" size={20} className="mt-3" />
@@ -426,159 +243,159 @@ const EmployeePermissions = () => {
     }
   };
 
-  const columns = [
-    { field: "name", headerName: "Employee Name", width: 200 },
-    {
-      field: "super_admin",
-      headerName: "Super Admin",
-      width: 120,
-      sortable: false,
-      renderCell: (params) =>
-        renderPermissionCell(params.row, "has_super_admin_access"),
-      cellClassName: "super-admin-cell",
-      headerClassName: "super-admin-header",
-    },
-    {
-      field: "work_portal",
-      headerName: "Work Portal",
-      width: 120,
-      sortable: false,
-      renderCell: (params) =>
-        renderPermissionCell(params.row, "has_work_portal_access"),
-    },
-    {
-      field: "hr_portal",
-      headerName: "HR Portal",
-      width: 120,
-      sortable: false,
-      renderCell: (params) =>
-        renderPermissionCell(params.row, "has_hr_portal_access"),
-    },
-    {
-      field: "client_portal",
-      headerName: "Client Portal",
-      width: 120,
-      sortable: false,
-      renderCell: (params) =>
-        renderPermissionCell(params.row, "has_client_portal_access"),
-    },
-    {
-      field: "inventory_portal",
-      headerName: "Inventory Portal",
-      width: 120,
-      sortable: false,
-      renderCell: (params) =>
-        renderPermissionCell(params.row, "has_inventory_portal_access"),
-    },
-    {
-      field: "accounts_portal",
-      headerName: "Accounts Portal",
-      width: 120,
-      sortable: false,
-      renderCell: (params) =>
-        renderPermissionCell(params.row, "has_accounts_portal_access"),
-    },
-    {
-      field: "admin_portal",
-      headerName: "Admin Portal",
-      width: 120,
-      sortable: false,
-      renderCell: (params) =>
-        renderPermissionCell(params.row, "has_admin_portal_access"),
-    },
-    {
-      field: "showcase_portal",
-      headerName: "Showcase Portal",
-      width: 120,
-      sortable: false,
-      renderCell: (params) =>
-        renderPermissionCell(params.row, "has_showcase_portal_access"),
-    },
-  ];
+  const handleTogglePermission = async (user, key) => {
+    try {
+      if (!session?.user?.id) {
+        toast.error("User session not found. Please sign in again.", {
+          position: "top-right",
+        });
+        return;
+      }
+      if (parseInt(session?.user?.id) === parseInt(user.id)) {
+        toast.error("You cannot change your own permissions.", {
+          position: "top-right",
+        });
+        return;
+      }
+      const oldPerms = getUserPermissions(user);
+      const newPermissions = { ...oldPerms, [key]: !oldPerms[key] };
+      const authPayload = mapPermissionsToAuthDto(newPermissions);
 
-  const customSelectStyles = {
-    control: (provided) => ({
-      ...provided,
-      border: "1px solid #ccc",
-      borderRadius: "4px",
-      minHeight: "40px",
-      boxShadow: "none",
-      "&:hover": {
-        border: "1px solid #ccc",
-      },
-    }),
-    menu: (provided) => ({
-      ...provided,
-      zIndex: 9999,
-    }),
-    option: (provided, state) => ({
-      ...provided,
-      backgroundColor: state.isSelected
-        ? "#2ac4ab"
-        : state.isFocused
-        ? "#e6f7f5"
-        : "white",
-      color: state.isSelected ? "white" : "black",
-      "&:hover": {
-        backgroundColor: state.isSelected ? "#2ac4ab" : "#e6f7f5",
-      },
-    }),
+      const authRes = await fetch(
+        `${BASE_AUTH_URL}/api/user-auth/permission/${user.id}/${session.user.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(authPayload),
+        }
+      );
+      if (!authRes.ok) {
+        const errorData = await authRes.json().catch(() => ({}));
+        toast.error(
+          errorData.message || "Failed to update user auth permissions",
+          { position: "top-right" }
+        );
+        return;
+      }
+      const matchingEmployees = allEmployees.filter(
+        (e) => String(e.user_id) === String(user.id)
+      );
+      for (const employee of matchingEmployees) {
+        const hrRes = await fetch(
+          `${BASE_URL}/api/employees/permissions/update?id=${employee.id}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              has_work_portal_access: !!newPermissions.has_work_portal_access,
+              has_hr_portal_access: !!newPermissions.has_hr_portal_access,
+              has_client_portal_access:
+                !!newPermissions.has_client_portal_access,
+              has_inventory_portal_access:
+                !!newPermissions.has_inventory_portal_access,
+              has_super_admin_access: !!newPermissions.has_super_admin_access,
+              has_accounts_portal_access:
+                !!newPermissions.has_accounts_portal_access,
+              has_admin_portal_access: !!newPermissions.has_admin_portal_access,
+              has_showcase_portal_access:
+                !!newPermissions.has_showcase_portal_access,
+              updated_by: session?.user?.id || null,
+            }),
+          }
+        );
+        if (!hrRes.ok) {
+          const errorData = await hrRes.json().catch(() => ({}));
+          toast.error(errorData.message || "Failed to update HR permissions", {
+            position: "top-right",
+          });
+          return;
+        }
+      }
+      toast.success("Permissions updated successfully!", {
+        position: "top-right",
+      });
+      setAllAuthUsers((prev) =>
+        prev.map((u) =>
+          u.id === user.id
+            ? {
+                ...u,
+                permissions: {
+                  ...u.permissions,
+                  [key.replace("has_", "").replace("_access", "")]:
+                    !oldPerms[key],
+                },
+              }
+            : u
+        )
+      );
+    } catch (error) {
+      console.error("Failed to update permissions:", error);
+      toast.error("Failed to update permissions.", { position: "top-right" });
+    }
   };
+
+  const CustomNoRowsOverlay = () => (
+    <Box sx={{ p: 2, textAlign: "center", color: "gray" }}>No users found</Box>
+  );
 
   return (
     <div className="min-h-screen bg-white p-4">
       <Toaster position="top-right" reverseOrder={true} />
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-semibold text-gray-800">
-          Employee Permissions ({total})
+          Employee Permissions ({filteredUsers.length})
         </h1>
       </div>
 
       <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-4">
         <input
           type="text"
-          placeholder="Search Employees"
+          placeholder="Search Users"
           value={searchQuery}
-          onChange={handleSearchChange}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setPage(0);
+          }}
           className="border border-gray-300 rounded-md px-3 py-2 w-full md:w-1/4 focus:outline-none focus:ring-1 focus:ring-[rgb(42,196,171)]"
         />
         <Select
           options={employeeTypeOptions}
           value={employeeType}
-          onChange={setEmployeeType}
+          onChange={(option) => {
+            setEmployeeType(option);
+            setPage(0);
+          }}
           placeholder="Employee Type"
           className="w-full md:w-1/5"
-          isClearable
-          styles={customSelectStyles}
-        />
-        <Select
-          options={employeeRoleOptions}
-          value={employeeRole}
-          onChange={setEmployeeRole}
-          placeholder="Employee Role"
-          className="w-full md:w-1/5"
-          isClearable
-          onInputChange={filterRoles}
-          styles={customSelectStyles}
-        />
-        <Select
-          options={departmentOptions}
-          value={department}
-          onChange={setDepartment}
-          placeholder="Department"
-          className="w-full md:w-1/5"
-          isClearable
-          onInputChange={filterDepartments}
-          styles={customSelectStyles}
-        />
-        <Select
-          options={employeeLevelOptions}
-          value={employeeLevel}
-          onChange={setEmployeeLevel}
-          placeholder="Employee Level"
-          className="w-full md:w-1/5"
-          isClearable
-          styles={customSelectStyles}
+          isClearable={true}
+          styles={{
+            control: (provided) => ({
+              ...provided,
+              border: "1px solid #ccc",
+              borderRadius: "4px",
+              minHeight: "40px",
+              boxShadow: "none",
+              "&:hover": {
+                border: "1px solid #ccc",
+              },
+            }),
+            menu: (provided) => ({
+              ...provided,
+              zIndex: 9999,
+            }),
+            option: (provided, state) => ({
+              ...provided,
+              backgroundColor: state.isSelected
+                ? "#2ac4ab"
+                : state.isFocused
+                ? "#e6f7f5"
+                : "white",
+              color: state.isSelected ? "white" : "black",
+              "&:hover": {
+                backgroundColor: state.isSelected ? "#2ac4ab" : "#e6f7f5",
+              },
+            }),
+          }}
         />
       </div>
 
@@ -593,12 +410,7 @@ const EmployeePermissions = () => {
                 )
               }
               color="primary"
-              sx={{
-                color: "#2ac4ab",
-                "&.Mui-checked": {
-                  color: "#2ac4ab",
-                },
-              }}
+              sx={{ color: "#2ac4ab", "&.Mui-checked": { color: "#2ac4ab" } }}
             />
           }
           label="Work Portal Access"
@@ -614,12 +426,7 @@ const EmployeePermissions = () => {
                 )
               }
               color="primary"
-              sx={{
-                color: "#2ac4ab",
-                "&.Mui-checked": {
-                  color: "#2ac4ab",
-                },
-              }}
+              sx={{ color: "#2ac4ab", "&.Mui-checked": { color: "#2ac4ab" } }}
             />
           }
           label="HR Portal Access"
@@ -635,12 +442,7 @@ const EmployeePermissions = () => {
                 )
               }
               color="primary"
-              sx={{
-                color: "#2ac4ab",
-                "&.Mui-checked": {
-                  color: "#2ac4ab",
-                },
-              }}
+              sx={{ color: "#2ac4ab", "&.Mui-checked": { color: "#2ac4ab" } }}
             />
           }
           label="Client Portal Access"
@@ -656,19 +458,13 @@ const EmployeePermissions = () => {
                 )
               }
               color="primary"
-              sx={{
-                color: "#2ac4ab",
-                "&.Mui-checked": {
-                  color: "#2ac4ab",
-                },
-              }}
+              sx={{ color: "#2ac4ab", "&.Mui-checked": { color: "#2ac4ab" } }}
             />
           }
           label="Inventory Portal Access"
           className="w-full md:w-1/4"
         />
       </div>
-
       <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-4">
         <FormControlLabel
           control={
@@ -680,12 +476,7 @@ const EmployeePermissions = () => {
                 )
               }
               color="primary"
-              sx={{
-                color: "#2ac4ab",
-                "&.Mui-checked": {
-                  color: "#2ac4ab",
-                },
-              }}
+              sx={{ color: "#2ac4ab", "&.Mui-checked": { color: "#2ac4ab" } }}
             />
           }
           label="Super Admin Access"
@@ -701,12 +492,7 @@ const EmployeePermissions = () => {
                 )
               }
               color="primary"
-              sx={{
-                color: "#2ac4ab",
-                "&.Mui-checked": {
-                  color: "#2ac4ab",
-                },
-              }}
+              sx={{ color: "#2ac4ab", "&.Mui-checked": { color: "#2ac4ab" } }}
             />
           }
           label="Accounts Portal Access"
@@ -722,12 +508,7 @@ const EmployeePermissions = () => {
                 )
               }
               color="primary"
-              sx={{
-                color: "#2ac4ab",
-                "&.Mui-checked": {
-                  color: "#2ac4ab",
-                },
-              }}
+              sx={{ color: "#2ac4ab", "&.Mui-checked": { color: "#2ac4ab" } }}
             />
           }
           label="Admin Portal Access"
@@ -743,12 +524,7 @@ const EmployeePermissions = () => {
                 )
               }
               color="primary"
-              sx={{
-                color: "#2ac4ab",
-                "&.Mui-checked": {
-                  color: "#2ac4ab",
-                },
-              }}
+              sx={{ color: "#2ac4ab", "&.Mui-checked": { color: "#2ac4ab" } }}
             />
           }
           label="Showcase Portal Access"
@@ -770,7 +546,7 @@ const EmployeePermissions = () => {
         <>
           <Paper sx={{ width: "100%", boxShadow: "none" }}>
             <DataGrid
-              rows={employees}
+              rows={paginatedUsers}
               columns={columns}
               autoHeight
               initialState={{
@@ -778,7 +554,7 @@ const EmployeePermissions = () => {
               }}
               pagination
               paginationMode="server"
-              rowCount={total}
+              rowCount={filteredUsers.length}
               onPaginationModelChange={(newModel) => setPage(newModel.page)}
               sx={{
                 border: 0,
