@@ -81,7 +81,7 @@ const EmployeePermissions = () => {
     Promise.all([
       fetch(`${BASE_AUTH_URL}/api/user-auth/fetch-all`).then((r) => r.json()),
       fetch(`${BASE_URL}/api/users/list?limit=100000`).then((r) => r.json()),
-      fetch(`${BASE_URL}/api/employees/list?limit=1000`).then((r) => r.json()),
+      fetch(`${BASE_URL}/api/employees/list?limit=10000`).then((r) => r.json()),
     ])
       .then(([authUsers, localUsers, employees]) => {
         setAllAuthUsers(authUsers.data || authUsers);
