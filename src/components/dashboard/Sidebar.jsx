@@ -66,7 +66,7 @@ export default function Sidebar({
         },
         {
           icon: <FaShieldAlt className="w-5 h-5 flex-shrink-0" />,
-          label: "Employee Permissions",
+          label: "Access Management",
           path: "/dashboard/employee-permissions",
           exact: false,
         },

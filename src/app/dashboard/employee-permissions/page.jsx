@@ -343,7 +343,7 @@ const EmployeePermissions = () => {
       <Toaster position="top-right" reverseOrder={true} />
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-semibold text-gray-800">
-          Employee Permissions ({filteredUsers.length})
+          User Access Management ({filteredUsers.length})
         </h1>
       </div>
 
