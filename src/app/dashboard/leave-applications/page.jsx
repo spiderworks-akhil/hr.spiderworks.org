@@ -639,7 +639,7 @@ const LeaveApplication = () => {
           <Box width={{ xs: "100%", sm: "150px" }}>
             <label className="block mb-1">From Date</label>
             <DesktopDatePicker
-              inputFormat="DD-MM-YYYY"
+              format="DD-MM-YYYY"
               value={from}
               onChange={(newValue) => handleFilterChange("from", newValue)}
               slotProps={{
@@ -655,7 +655,7 @@ const LeaveApplication = () => {
           <Box width={{ xs: "100%", sm: "150px" }}>
             <label className="block mb-1">To Date</label>
             <DesktopDatePicker
-              inputFormat="DD-MM-YYYY"
+              format="DD-MM-YYYY"
               value={to}
               onChange={(newValue) => handleFilterChange("to", newValue)}
               slotProps={{
