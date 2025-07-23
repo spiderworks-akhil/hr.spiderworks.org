@@ -155,7 +155,7 @@ const AwardWinnerFormPopup = ({ open, onClose, onSuccess, awardWinner }) => {
         title: awardWinner.title || "",
         description: awardWinner.description || "",
         awarder_date: awardWinner.awarder_date
-          ? moment(awardWinner.awarder_date)
+          ? moment(awardWinner.awarder_date, "YYYY-MM-DD")
           : null,
         employee_id: awardWinner.employee_id || null,
         award_program_id: awardWinner.award_program_id || null,
@@ -174,7 +174,7 @@ const AwardWinnerFormPopup = ({ open, onClose, onSuccess, awardWinner }) => {
   const formatDateSimple = (date) => {
     if (!date) return null;
     const momentDate = moment.isMoment(date) ? date : moment(date);
-    return momentDate.isValid() ? momentDate.toISOString() : null;
+    return momentDate.isValid() ? momentDate.format("YYYY-MM-DD") : null;
   };
 
   const onSubmit = async (formData) => {
@@ -328,7 +328,7 @@ const AwardWinnerFormPopup = ({ open, onClose, onSuccess, awardWinner }) => {
                 control={control}
                 render={({ field }) => (
                   <DesktopDatePicker
-                    inputFormat="DD-MM-YYYY"
+                    format="DD-MM-YYYY"
                     value={field.value}
                     onChange={(newValue) => {
                       field.onChange(newValue);
