@@ -772,7 +772,7 @@ const PerformanceGoals = () => {
                   control={control}
                   render={({ field }) => (
                     <DesktopDatePicker
-                      inputFormat="DD-MM-YYYY"
+                      format="DD-MM-YYYY"
                       value={field.value}
                       onChange={(newValue) => {
                         field.onChange(newValue);
