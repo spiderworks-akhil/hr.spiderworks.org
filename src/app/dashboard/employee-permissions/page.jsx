@@ -45,6 +45,17 @@ const mapPermissionsToAuthDto = (permissions) => ({
   type: "HR",
 });
 
+const permissionKeyMap = {
+  has_work_portal_access: "work",
+  has_hr_portal_access: "hr",
+  has_client_portal_access: "client",
+  has_inventory_portal_access: "inventory",
+  has_super_admin_access: "super_admin",
+  has_accounts_portal_access: "account",
+  has_admin_portal_access: "admin",
+  has_showcase_portal_access: "showcase",
+};
+
 const EmployeePermissions = () => {
   const { data: session } = useSession();
 
@@ -201,6 +212,10 @@ const EmployeePermissions = () => {
     return filteredUsers.slice(start, start + limit);
   }, [filteredUsers, page, limit]);
 
+  const SUPER_ADMIN_COL_KEY = "has_super_admin_access";
+  const superAdminCellClass = "super-admin-cell";
+  const superAdminHeaderClass = "super-admin-header";
+
   const columns = [
     { field: "name", headerName: "Name", width: 200 },
     { field: "email", headerName: "Email", width: 200 },
@@ -222,6 +237,12 @@ const EmployeePermissions = () => {
       width: 120,
       sortable: false,
       renderCell: (params) => renderPermissionCell(params.row, key),
+      ...(key === SUPER_ADMIN_COL_KEY
+        ? {
+            cellClassName: superAdminCellClass,
+            headerClassName: superAdminHeaderClass,
+          }
+        : {}),
     })),
   ];
 
@@ -314,19 +335,23 @@ const EmployeePermissions = () => {
       toast.success("Permissions updated successfully!", {
         position: "top-right",
       });
+
       setAllAuthUsers((prev) =>
-        prev.map((u) =>
-          u.id === user.id
-            ? {
-                ...u,
-                permissions: {
-                  ...u.permissions,
-                  [key.replace("has_", "").replace("_access", "")]:
-                    !oldPerms[key],
-                },
-              }
-            : u
-        )
+        prev.map((u) => {
+          if (u.id === user.id) {
+            const updatedPermissions = { ...(u.permissions || {}) };
+
+            const backendKey = permissionKeyMap[key];
+            if (backendKey) {
+              updatedPermissions[backendKey] = !oldPerms[key];
+            }
+            return {
+              ...u,
+              permissions: updatedPermissions,
+            };
+          }
+          return u;
+        })
       );
     } catch (error) {
       console.error("Failed to update permissions:", error);
@@ -580,6 +605,13 @@ const EmployeePermissions = () => {
                   {
                     outline: "none",
                   },
+
+                "& .super-admin-cell": {
+                  backgroundColor: "#fffbe6",
+                },
+                "& .super-admin-header": {
+                  backgroundColor: "#fffbe6",
+                },
               }}
               slots={{
                 noRowsOverlay: CustomNoRowsOverlay,
